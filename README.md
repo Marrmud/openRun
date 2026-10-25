@@ -13,6 +13,7 @@ assez profonde pour un coureur avancé (séances structurées, calendrier, plans
 | [docs/BIBLE.md](docs/BIBLE.md) | Vision, décisions actées (avec leur raison), risques et défis |
 | [docs/FEATURES.md](docs/FEATURES.md) | Toutes les idées de fonctionnalités, triées par palier |
 | [docs/DESIGN.md](docs/DESIGN.md) | Principes de design, contraintes, brief pour Claude Design |
+| [docs/MVP.md](docs/MVP.md) | Périmètre du MVP, tranches de construction, critères de réussite |
 | [docs/ROADMAP.md](docs/ROADMAP.md) | Phases et ordre de construction |
 | [mockups/index.html](mockups/index.html) | Maquette interactive téléphone (à ouvrir dans un navigateur) |
 | [mockups/watch.html](mockups/watch.html) | Maquette interactive montre Wear OS |

@@ -1,7 +1,7 @@
 # Fonctionnalités
 
 Paliers proposés: **MVP** (utilisable pour courir), **v1** (appli complète), **Plus tard**.
-Tout est à valider ensemble.
+Le périmètre précis du MVP, qui fait foi, est dans [MVP.md](MVP.md). « MVP montre » = juste après le MVP téléphone.
 
 ## Course (enregistrement)
 
@@ -35,7 +35,9 @@ Tout est à valider ensemble.
 
 | Fonction | Palier |
 |---|---|
-| Pré-C25K, C25K, Pont vers 10K, C210K, Coureur d'une heure | MVP |
+| Pré-C25K, C25K, Pont vers 10K, C210K | MVP |
+| Coureur d'une heure et programmes avancés | v1 |
+| Course libre (sans programme) | MVP |
 | Point de départ libre (n'importe quel programme, semaine, jour) | MVP |
 | Questionnaire "Où en es-tu ?" qui propose le bon point de départ | MVP |
 | Constructeur de séances (échauffement, blocs répétés, récup, retour au calme) | v1 |

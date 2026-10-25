@@ -52,6 +52,7 @@ Une appli de course **complète et gratuite**, qui n'enferme aucune fonction uti
 | D23 | 2026-10-25 | Le réglage **Superposer / Baisser / Pause** vit dans la section « Voix et sons » (pas dans une section à part) | Il fait partie du volume et du son; masqué si voix et bips sont coupés. |
 | D24 | 2026-10-25 | Montre: **thème sombre** (la maquette téléphone reste claire), 3 pages en course (Focus, Données, Contrôles), la montre peut tout faire seule | OLED, lisibilité, batterie, norme Wear OS. |
 | D25 | 2026-10-25 | Le planning doit permettre **plusieurs séances le même jour**; le reste (calquage du calendrier sur le programme) est repoussé | Décision de principe, détails plus tard. |
+| D26 | 2026-10-25 | **MVP = téléphone seul**; la montre vient juste après. Maquette montre validée plus tard, après la fin de l'appli mobile. Premier chantier: un **spike technique** (GPS écran verrouillé + audio sans casser la musique) avant toute UI | Le risque principal est la course elle-même. Voir [MVP.md](MVP.md). |
 
 ### Audio: règles non négociables
 

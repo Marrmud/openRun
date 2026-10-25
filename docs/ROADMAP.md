@@ -6,6 +6,7 @@ Principe: petites tranches testables, la logique d'abord (`core/` pur + tests), 
 |---|---|---|
 | 0. Cadrage | Vision, décisions, features, design | Ce dossier (en cours) |
 | 1. Maquettes | Téléphone v0, puis affinage dans Claude Design, puis montre | `mockups/` validées |
+| *MVP* | Périmètre et tranches T0 à T7 détaillés dans [MVP.md](MVP.md). **Téléphone seul**; spike technique en premier. | Voir MVP.md |
 | 2. Fondations | Repo Android, module `core/`, modèle de séance (blocs, intervalles), programmes C25K/C210K en données | Tests verts, pas encore d'UI |
 | 3. Course (téléphone) | Foreground service GPS, minuteur d'intervalles, audio (voix, bips, vibrations, modes musique), écrans Focus/Chronologie/Complet | Une séance C25K faisable en vrai |
 | 4. Parcours et historique | Point de départ libre, accueil, historique, fin de séance + XP | MVP téléphone |
