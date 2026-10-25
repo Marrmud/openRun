@@ -3,5 +3,6 @@
     <application>
         <!-- debug build only: see DemoSeedReceiver -->
         <receiver android:name=".debug.DemoSeedReceiver" android:exported="true" />
+        <receiver android:name=".debug.HealthCleanupReceiver" android:exported="true" />
     </application>
 </manifest>

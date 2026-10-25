@@ -26,6 +26,8 @@ data class AppSettings(
     val activeProgramId: String? = null,
     val weeklyGoal: Int = 3,
     val onboarded: Boolean = false,
+    /** The user chose to write each session to Health Connect (and the permissions were granted). */
+    val healthConnect: Boolean = false,
 ) {
     /** The "with your music" setting only means something when something is played over it. */
     val playsSound: Boolean get() = voice || beeps

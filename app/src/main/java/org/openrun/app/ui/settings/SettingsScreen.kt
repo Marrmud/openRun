@@ -48,7 +48,9 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import org.openrun.app.R
+import kotlinx.coroutines.launch
 import org.openrun.app.ui.SettingsViewModel
+import org.openrun.app.ui.openRun
 import org.openrun.core.AppSettings
 import org.openrun.core.MusicMode
 import org.openrun.core.ScreenStyle
@@ -105,12 +107,56 @@ fun SettingsScreen(vm: SettingsViewModel, onBack: () -> Unit) {
             // ---- health ----
             Section(Icons.Filled.Favorite, R.string.section_health)
             StepperRow(R.string.my_weight, "${s.weightKg.toInt()} kg", { vm.update { it.copy(weightKg = it.weightKg - 1) } }, { vm.update { it.copy(weightKg = it.weightKg + 1) } }, subtitle = R.string.my_weight_sub)
-            Row(Modifier.fillMaxWidth().padding(vertical = 8.dp), verticalAlignment = Alignment.CenterVertically) {
-                Column(Modifier.weight(1f)) {
-                    Text(stringResource(R.string.health_connect), style = MaterialTheme.typography.bodyLarge)
-                    Text(stringResource(R.string.health_connect_soon), style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
-                }
+            HealthConnectRow(enabled = s.healthConnect) { on -> vm.update { it.copy(healthConnect = on) } }
+        }
+    }
+}
+
+private enum class HcState { CHECKING, UNAVAILABLE, NOT_GRANTED, GRANTED }
+
+/** Connect, then switch on or off the writing of each session to Health Connect (read by Google Health). */
+@Composable
+private fun HealthConnectRow(enabled: Boolean, onEnabledChange: (Boolean) -> Unit) {
+    val context = androidx.compose.ui.platform.LocalContext.current
+    val health = context.openRun.health
+    val scope = androidx.compose.runtime.rememberCoroutineScope()
+    var refresh by remember { androidx.compose.runtime.mutableIntStateOf(0) }
+    val state by androidx.compose.runtime.produceState(HcState.CHECKING, refresh) {
+        value = when {
+            !health.isAvailable() -> HcState.UNAVAILABLE
+            health.hasRequiredPermissions() -> HcState.GRANTED
+            else -> HcState.NOT_GRANTED
+        }
+    }
+    val launcher = androidx.activity.compose.rememberLauncherForActivityResult(
+        androidx.health.connect.client.PermissionController.createRequestPermissionResultContract(),
+    ) { granted ->
+        if (granted.containsAll(org.openrun.app.health.HealthConnectSync.REQUIRED)) {
+            onEnabledChange(true)
+            scope.launch { health.syncPending() }
+        }
+        refresh++
+    }
+
+    when (state) {
+        HcState.CHECKING -> Unit
+        HcState.UNAVAILABLE -> Column(Modifier.padding(vertical = 8.dp)) {
+            Text(stringResource(R.string.health_connect), style = MaterialTheme.typography.bodyLarge)
+            Text(
+                stringResource(if (health.sdkStatus() == androidx.health.connect.client.HealthConnectClient.SDK_UNAVAILABLE_PROVIDER_UPDATE_REQUIRED) R.string.hc_update else R.string.hc_unavailable),
+                style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant,
+            )
+        }
+        HcState.NOT_GRANTED -> Row(Modifier.fillMaxWidth().padding(vertical = 8.dp), verticalAlignment = Alignment.CenterVertically) {
+            Column(Modifier.weight(1f).padding(end = 12.dp)) {
+                Text(stringResource(R.string.health_connect), style = MaterialTheme.typography.bodyLarge)
+                Text(stringResource(R.string.hc_sub), style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
             }
+            androidx.compose.material3.Button(onClick = { launcher.launch(org.openrun.app.health.HealthConnectSync.ALL) }) { Text(stringResource(R.string.hc_connect)) }
+        }
+        HcState.GRANTED -> SwitchRow(R.string.health_connect, if (enabled) R.string.hc_connected else R.string.hc_off, enabled) { on ->
+            onEnabledChange(on)
+            if (on) scope.launch { health.syncPending() }
         }
     }
 }

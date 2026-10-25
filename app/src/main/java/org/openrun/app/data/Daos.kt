@@ -21,6 +21,10 @@ interface RunDao {
     @Query("SELECT COUNT(*) AS runs, COALESCE(SUM(distanceM), 0) AS distanceM, COALESCE(SUM(durationSec), 0) AS durationSec FROM run")
     fun observeTotals(): Flow<Totals>
 
+    /** Sessions not yet written to Health Connect (or written when the permission was missing). */
+    @Query("SELECT * FROM run WHERE healthConnectId IS NULL ORDER BY startedAt")
+    suspend fun pendingHealth(): List<RunEntity>
+
     @Query("UPDATE run SET feeling = :feeling WHERE id = :id") suspend fun setFeeling(id: Long, feeling: Int?)
 
     @Query("UPDATE run SET healthConnectId = :hcId WHERE id = :id") suspend fun setHealthConnectId(id: Long, hcId: String?)

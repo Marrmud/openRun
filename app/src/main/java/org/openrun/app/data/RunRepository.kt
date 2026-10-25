@@ -59,6 +59,8 @@ class RunRepository(private val db: OpenRunDatabase) {
             }
         }
 
+    suspend fun pendingForHealth(): List<RunEntity> = db.runs().pendingHealth()
+
     suspend fun isCompleted(runId: Long): Boolean = db.done().completedRunIds().contains(runId)
     fun between(from: Long, to: Long): Flow<List<RunEntity>> = db.runs().observeBetween(from, to)
     fun totalKcal(): Flow<Double> = db.runs().observeTotalKcal()

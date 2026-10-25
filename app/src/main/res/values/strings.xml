@@ -217,7 +217,14 @@
     <string name="my_weight">Mon poids</string>
     <string name="my_weight_sub">Sert à estimer les calories sans montre</string>
     <string name="health_connect">Health Connect</string>
-    <string name="health_connect_soon">Bientôt</string>
+    <string name="hc_sub">Écris tes séances dans Google Health</string>
+    <string name="hc_connect">Connecter</string>
+    <string name="hc_connected">Connecté · chaque séance est écrite automatiquement</string>
+    <string name="hc_off">Désactivé · tes séances restent dans openRun</string>
+    <string name="hc_unavailable">Indisponible sur ce téléphone</string>
+    <string name="hc_update">Mets à jour Health Connect pour l\'utiliser</string>
+    <string name="hc_title_free">Course libre · openRun</string>
+    <string name="hc_title_program">Semaine %1$d · Jour %2$d · openRun</string>
 
     <!-- tips: one per week, tutoiement -->
     <string name="tip_pre_c25k_w1">Pas de pression: cours très lentement, tu dois pouvoir parler. Les marches font partie de la séance.</string>

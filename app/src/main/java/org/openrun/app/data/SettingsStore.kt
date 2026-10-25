@@ -50,6 +50,7 @@ class SettingsStore(private val store: DataStore<Preferences>) {
         val activeProgramId = stringPreferencesKey("active_program_id")
         val weeklyGoal = intPreferencesKey("weekly_goal")
         val onboarded = booleanPreferencesKey("onboarded")
+        val healthConnect = booleanPreferencesKey("health_connect")
     }
 
     private inline fun <reified E : Enum<E>> Preferences.enum(key: Preferences.Key<String>, default: E): E =
@@ -77,6 +78,7 @@ class SettingsStore(private val store: DataStore<Preferences>) {
             activeProgramId = p[K.activeProgramId],
             weeklyGoal = p[K.weeklyGoal] ?: d.weeklyGoal,
             onboarded = p[K.onboarded] ?: d.onboarded,
+            healthConnect = p[K.healthConnect] ?: d.healthConnect,
         ).sanitized()
     }
 
@@ -101,5 +103,6 @@ class SettingsStore(private val store: DataStore<Preferences>) {
         if (program != null) p[K.activeProgramId] = program else p.remove(K.activeProgramId)
         p[K.weeklyGoal] = s.weeklyGoal
         p[K.onboarded] = s.onboarded
+        p[K.healthConnect] = s.healthConnect
     }
 }

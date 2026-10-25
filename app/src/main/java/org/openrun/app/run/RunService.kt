@@ -352,6 +352,9 @@ class RunService : Service(), LocationListener {
         scope.launch {
             if (save) RunSession.savedRunId.value = app.runs.saveRun(run, trackEntities, phaseEntities, completesSession = counts)
             stopSession()
+            // after the session is safely stored and the screen is moving on: Health Connect, if the user asked for it
+            // (in the app's scope: this service is about to be destroyed along with its own)
+            if (save && settings.healthConnect) app.appScope.launch { app.health.syncPending() }
         }
     }
 

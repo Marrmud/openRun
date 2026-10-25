@@ -61,6 +61,7 @@ class SettingsStoreTest {
             beeps = false, vibratePhone = false, vibrateWatch = false, musicMode = MusicMode.DUCK,
             keepScreenOn = false, treadmill = true, autoPause = false, defaultStyle = ScreenStyle.TIMELINE,
             weightKg = 64.0, theme = ThemeMode.SYSTEM, activeProgramId = "c25k", weeklyGoal = 4, onboarded = true,
+            healthConnect = true,
         )
         store.update { custom }
         assertEquals(custom, store.settings.first())

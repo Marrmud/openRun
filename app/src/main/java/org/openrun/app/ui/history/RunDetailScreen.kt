@@ -132,7 +132,14 @@ fun RunDetailScreen(runId: Long, onBack: () -> Unit) {
             text = { Text(stringResource(R.string.delete_body)) },
             confirmButton = {
                 Button(
-                    onClick = { confirmDelete = false; scope.launch { app.runs.deleteRun(runId); onBack() } },
+                    onClick = {
+                        confirmDelete = false
+                        scope.launch {
+                            app.runs.deleteRun(runId)
+                            app.appScope.launch { app.health.delete(runId) }
+                            onBack()
+                        }
+                    },
                     colors = ButtonDefaults.buttonColors(containerColor = MaterialTheme.colorScheme.error),
                 ) { Text(stringResource(R.string.delete)) }
             },

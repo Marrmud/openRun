@@ -12,6 +12,7 @@ import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.distinctUntilChanged
+import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.flatMapLatest
 import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.flow.map
@@ -56,6 +57,11 @@ data class HomeState(
 @OptIn(ExperimentalCoroutinesApi::class)
 class HomeViewModel(private val app: OpenRunApp) : ViewModel() {
     private val zone = ZoneId.systemDefault()
+
+    init {
+        // catch up on sessions that could not reach Health Connect when they were saved
+        app.appScope.launch { if (app.settings.settings.first().healthConnect) app.health.syncPending() }
+    }
 
     private val activeProgress: Flow<Pair<Program, ProgramProgress>?> =
         app.settings.settings.map { it.activeProgramId }.distinctUntilChanged().flatMapLatest { id ->
