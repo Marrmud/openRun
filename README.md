@@ -18,6 +18,19 @@ assez profonde pour un coureur avancé (séances structurées, calendrier, plans
 | [mockups/index.html](mockups/index.html) | Maquette interactive téléphone (à ouvrir dans un navigateur) |
 | [mockups/watch.html](mockups/watch.html) | Maquette interactive montre Wear OS |
 
+## Développement (Windows, JDK 21, Android SDK dans `local.properties`)
+
+```bash
+./gradlew :core:test                      # logique pure (programmes, progression, calories, rangs, moteur)
+./gradlew :app:assembleDebug              # l'appli
+./gradlew :app:connectedDebugAndroidTest  # stockage et réglages, sur un téléphone branché
+```
+
+Notes de terrain:
+- Si Gradle échoue avec « Unable to establish loopback connection »: `JAVA_TOOL_OPTIONS=-Djdk.net.unixdomain.tmpdir=C:\gradle-home\uds` (dossier à créer).
+- Tests sur téléphone en adb Wi-Fi: donner à `ANDROID_SERIAL` le nom mDNS (`adb devices`, ligne `adb-…_adb-tls-connect._tcp`), pas `IP:port`. Avec `IP:port`, les 16 tests passent mais Gradle rapporte un échec à tort.
+- `spike/` est le banc d'essai jetable de T0 (voir docs/T0-SPIKE.md).
+
 ## Licence
 
 Prévue: GPL-3.0-or-later (à confirmer, voir BIBLE.md).

@@ -25,3 +25,5 @@ rootProject.name = "openRun"
 include(":spike")
 // T1: the logic that decides things (programs, progress, calories, ranks, workout clock). Pure Kotlin, no Android.
 include(":core")
+// The app itself. T2 adds its storage (Room) and settings (DataStore); the screens come in T3.
+include(":app")
