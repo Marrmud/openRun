@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- The window behind Compose, before the first frame: same light surface as the app. -->
+    <style name="Theme.OpenRun" parent="@android:style/Theme.Material.Light.NoActionBar">
+        <item name="android:windowBackground">#F8FAF8</item>
+        <item name="android:statusBarColor">@android:color/transparent</item>
+        <item name="android:navigationBarColor">@android:color/transparent</item>
+    </style>
+</resources>

@@ -1,13 +1,16 @@
 package org.openrun.app
 
-import android.app.Activity
 import android.os.Bundle
-import android.widget.TextView
+import androidx.activity.ComponentActivity
+import androidx.activity.compose.setContent
+import androidx.activity.enableEdgeToEdge
+import org.openrun.app.ui.AppNav
+import org.openrun.app.ui.theme.OpenRunTheme
 
-/** Placeholder until T3 brings the real screens. */
-class MainActivity : Activity() {
+class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        setContentView(TextView(this).apply { text = "openRun"; textSize = 24f; setPadding(48, 96, 48, 48) })
+        enableEdgeToEdge()
+        setContent { OpenRunTheme { AppNav() } }
     }
 }

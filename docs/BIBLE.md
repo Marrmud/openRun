@@ -89,6 +89,7 @@ Si on s'inspire des *données* des programmes C25K, vérifier leur statut (les p
 ## 5. Journal de bord
 
 - 2026-10-25: cadrage, décisions D1 à D13, maquette téléphone v0.
+- 2026-10-25: T3 fait: coque Compose Material 3 (thème clair aux couleurs de la maquette) avec Accueil, « Où en es-tu ? », Parcours, Programme (conseil par semaine, saut de jour avec confirmation), Aperçu de séance, Réglages complets (voix masque ses options, musique dans « Voix et sons »). Séries hebdomadaires dans `core/Weeks` (9 tests). Écran de course et Historique: provisoires. Vérifié sur le Pixel par captures.
 - 2026-10-25: T2 fait: module `:app` (applicationId `org.openrun.app`), Room 2.8.5 + KSP sur AGP 9, DataStore. Tables: séance, points GPS, résultats par phase, séances faites. Réglages = `AppSettings` dans `core/` (règle testée: aucun focus audio si voix et bips sont coupés, ou en mode Superposer). 6 tests purs + 16 tests sur téléphone.
 - 2026-10-25: T0 spike validé à l'oreille (Superposer / Baisser / Pause OK, voir T0-SPIKE.md); T1 `core/` fait: 4 programmes (Pré-C25K 9 séances, C25K 27, Pont 18, C210K 42), progression avec sauts de jours, calories (ACSM), rangs, distance GPS, moteur de séance (suivant, précédent, recommencer, longs écarts). 52 tests.
 - 2026-10-25: rangs aux calories (D15), réglage musique déplacé (D23), maquette montre v0 (`mockups/watch.html`), D23 à D25.

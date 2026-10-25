@@ -1,0 +1,173 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">openRun</string>
+
+    <!-- navigation -->
+    <string name="tab_home">Accueil</string>
+    <string name="tab_parcours">Parcours</string>
+    <string name="tab_history">Historique</string>
+    <string name="settings">Réglages</string>
+    <string name="back">Retour</string>
+    <string name="confirm">Confirmer</string>
+    <string name="cancel">Annuler</string>
+
+    <!-- home -->
+    <string name="today">Aujourd\'hui</string>
+    <string name="week_day">Semaine %1$d · Jour %2$d</string>
+    <string name="session_summary">~%1$d min · %2$d courses</string>
+    <string name="session_minutes">~%1$d min</string>
+    <string name="start">Démarrer</string>
+    <string name="begin">Commencer</string>
+    <string name="see_session">Voir la séance</string>
+    <string name="other_session">Autre séance</string>
+    <string name="free_run">Course libre</string>
+    <string name="this_week">Cette semaine</string>
+    <string name="welcome_title">Bienvenue</string>
+    <string name="welcome_body">Dis-nous où tu en es et on te propose la bonne séance pour démarrer.</string>
+    <string name="choose_start">Choisir mon point de départ</string>
+    <string name="program_done_title">Programme terminé !</string>
+    <string name="program_done_body">Bravo, tu as fini toutes les séances. Choisis la suite.</string>
+    <string name="choose_next_program">Choisir un autre programme</string>
+    <plurals name="week_streak">
+        <item quantity="one">%d semaine d\'affilée</item>
+        <item quantity="other">%d semaines d\'affilée</item>
+    </plurals>
+    <string name="rank_progress">%1$d / %2$d kcal</string>
+    <string-array name="rank_tiers">
+        <item>Fer</item><item>Bronze</item><item>Argent</item><item>Or</item><item>Platine</item><item>Diamant</item>
+    </string-array>
+    <string-array name="rank_divisions">
+        <item>I</item><item>II</item><item>III</item>
+    </string-array>
+
+    <!-- where are you / parcours -->
+    <string name="where_are_you">Où en es-tu ?</string>
+    <string name="where_are_you_sub">Choisis ton point de départ. Tout est ouvert, tu peux changer quand tu veux.</string>
+    <string name="change_start_sub">Change de point de départ quand tu veux</string>
+    <string name="level_zero">Je pars de zéro</string>
+    <string name="level_zero_sub">Pré-C25K · 3 semaines</string>
+    <string name="level_minute">Je cours environ 1 minute</string>
+    <string name="level_minute_sub">Du canapé au 5 km · 9 semaines</string>
+    <string name="level_five_km">Je cours 5 km sans m\'arrêter</string>
+    <string name="level_five_km_sub">Pont vers 10K · 6 semaines</string>
+    <string name="level_ten_km">Je cours déjà 10 km ou plus</string>
+    <string name="level_ten_km_sub">Course libre · les plans avancés arrivent</string>
+    <string name="lets_go">C\'est parti</string>
+    <string name="resume">Reprendre</string>
+    <string name="here">Ici</string>
+    <string name="sessions_done">%1$d / %2$d séances faites</string>
+    <plurals name="weeks_count">
+        <item quantity="one">%d semaine</item>
+        <item quantity="other">%d semaines</item>
+    </plurals>
+    <plurals name="sessions_count">
+        <item quantity="one">%d séance</item>
+        <item quantity="other">%d séances</item>
+    </plurals>
+
+    <!-- programs -->
+    <string name="program_pre_c25k">Pré-C25K</string>
+    <string name="program_c25k">Du canapé au 5 km</string>
+    <string name="program_bridge_10k">Pont vers 10K</string>
+    <string name="program_c210k">Du canapé au 10 km</string>
+    <string name="program_pre_c25k_blurb">Une initiation douce pour te mettre en route.</string>
+    <string name="program_c25k_blurb">Courir 5 km sans t\'arrêter en 9 semaines.</string>
+    <string name="program_bridge_10k_blurb">De 5 à 10 km, pour ceux qui courent déjà 30 minutes.</string>
+    <string name="program_c210k_blurb">Du premier pas à 10 km en 14 semaines.</string>
+    <string name="week_n">Semaine %d</string>
+    <string name="day_n">Jour %d</string>
+    <string name="about_minutes">~%d min</string>
+    <string name="start_at">Commencer à Semaine %1$d · Jour %2$d ?</string>
+    <plurals name="jump_forward">
+        <item quantity="one">%d séance précédente sera marquée comme faite.</item>
+        <item quantity="other">%d séances précédentes seront marquées comme faites.</item>
+    </plurals>
+    <plurals name="jump_back">
+        <item quantity="one">%d séance sera de nouveau à faire.</item>
+        <item quantity="other">%d séances seront de nouveau à faire.</item>
+    </plurals>
+    <string name="jump_undo_hint">Tu pourras changer d\'avis quand tu veux.</string>
+
+    <!-- session preview -->
+    <string name="phase_warmup">Échauffement</string>
+    <string name="phase_run">Course</string>
+    <string name="phase_walk">Marche</string>
+    <string name="phase_cooldown">Retour au calme</string>
+    <string name="skip_warmup">Ignorer l\'échauffement</string>
+    <string name="skip_warmup_sub">Pratique si tu marches déjà jusqu\'au départ</string>
+    <string name="skip_cooldown">Ignorer le retour au calme</string>
+    <string name="duration_s">%d s</string>
+    <string name="duration_m">%d min</string>
+    <string name="duration_ms">%1$d min %2$02d s</string>
+
+    <!-- placeholders -->
+    <string name="phases_count">%d phases</string>
+    <string name="run_coming">L\'écran de course arrive à l\'étape suivante.</string>
+    <string name="history_coming">L\'historique arrive bientôt.</string>
+
+    <!-- settings -->
+    <string name="section_voice">Voix et sons</string>
+    <string name="voice">Voix</string>
+    <string name="voice_sub">Annonce chaque phase</string>
+    <string name="voice_volume">Volume</string>
+    <string name="countdown">Compte à rebours</string>
+    <string name="countdown_sub">3, 2, 1 avant chaque changement</string>
+    <string name="encouragements">Encouragements</string>
+    <string name="time_reminder">Rappel du temps</string>
+    <string name="time_reminder_sub">Toutes les 5 minutes</string>
+    <string name="beeps">Bips</string>
+    <string name="with_music">Avec ta musique ou ta vidéo</string>
+    <string name="music_overlay">Superposer</string>
+    <string name="music_duck">Baisser</string>
+    <string name="music_pause">Pause</string>
+    <string name="music_overlay_note">Notre voix se joue par-dessus. Ta musique n\'est jamais touchée ni mise en pause.</string>
+    <string name="music_duck_note">La musique baisse pendant l\'annonce puis remonte. C\'est l\'appli de musique qui décide de combien elle baisse.</string>
+    <string name="music_pause_note">La musique est mise en pause pendant l\'annonce, puis reprend.</string>
+    <string name="section_vibrations">Vibrations</string>
+    <string name="vibrate_phone">Téléphone</string>
+    <string name="vibrate_watch">Montre</string>
+    <string name="intensity_low">Faible</string>
+    <string name="intensity_medium">Moyenne</string>
+    <string name="intensity_high">Forte</string>
+    <string name="section_session">Séance</string>
+    <string name="keep_screen_on">Garder l\'écran allumé</string>
+    <string name="treadmill">Mode tapis</string>
+    <string name="treadmill_sub">Sans GPS</string>
+    <string name="auto_pause">Auto-pause</string>
+    <string name="default_style">Style d\'écran par défaut</string>
+    <string name="style_focus">Focus</string>
+    <string name="style_timeline">Chronologie</string>
+    <string name="style_full">Complet</string>
+    <string name="weekly_goal">Séances par semaine</string>
+    <string name="goal_value">%d</string>
+    <string name="section_health">Santé</string>
+    <string name="my_weight">Mon poids</string>
+    <string name="my_weight_sub">Sert à estimer les calories sans montre</string>
+    <string name="health_connect">Health Connect</string>
+    <string name="health_connect_soon">Bientôt</string>
+
+    <!-- tips: one per week, tutoiement -->
+    <string name="tip_pre_c25k_w1">Pas de pression: cours très lentement, tu dois pouvoir parler. Les marches font partie de la séance.</string>
+    <string name="tip_pre_c25k_w2">Les passages de course s\'allongent un peu. Si c\'est dur, ralentis plutôt que de t\'arrêter.</string>
+    <string name="tip_pre_c25k_w3">Dernière semaine d\'initiation: tu cours une minute entière. Tu es prêt pour le programme 5 km.</string>
+    <string name="tip_c25k_w1">Cours à une allure qui te permet encore de parler. Les marches font partie de l\'entraînement.</string>
+    <string name="tip_c25k_w2">Tu as passé la première semaine: ton corps s\'adapte déjà. Garde une allure facile.</string>
+    <string name="tip_c25k_w3">Des intervalles plus longs. Respire régulièrement: inspire sur 2 pas, expire sur 2 pas.</string>
+    <string name="tip_c25k_w4">Quatre durées de course différentes aujourd\'hui. Ça renforce autant la tête que les jambes.</string>
+    <string name="tip_c25k_w5">Premières longues courses: ralentis volontairement, personne ne te chronomètre.</string>
+    <string name="tip_c25k_w6">Les courses s\'allongent. Détends les épaules et les mains.</string>
+    <string name="tip_c25k_w7">Tu cours 25 minutes d\'affilée. Une allure facile vaut mieux qu\'une allure rapide.</string>
+    <string name="tip_c25k_w8">28 minutes. Bois avant de partir et dors bien la veille.</string>
+    <string name="tip_c25k_w9">Dernière semaine: 30 minutes, soit environ 5 km. Savoure-le !</string>
+    <string name="tip_bridge_10k_w1">Tu passes de 5 vers 10 km: la régularité compte plus que la vitesse.</string>
+    <string name="tip_bridge_10k_w2">Ajoute de la durée sans accélérer. Une séance plus facile par semaine est normale.</string>
+    <string name="tip_bridge_10k_w3">Mange et bois bien après la séance: le corps se répare pendant le repos.</string>
+    <string name="tip_bridge_10k_w4">Si une jambe tire, raccourcis la séance. Mieux vaut moins que se blesser.</string>
+    <string name="tip_bridge_10k_w5">Tu approches l\'heure de course. Reste à une allure où tu peux parler.</string>
+    <string name="tip_bridge_10k_w6">Dernière semaine du pont: tu es prêt à viser les 10 km.</string>
+    <string name="tip_c210k_w10">Après les 5 km, on allonge la sortie longue en gardant une allure facile.</string>
+    <string name="tip_c210k_w11">Une séance plus courte en milieu de semaine laisse le corps récupérer.</string>
+    <string name="tip_c210k_w12">Tu dépasses 50 minutes. Prends de l\'eau si tu sors longtemps.</string>
+    <string name="tip_c210k_w13">55 minutes de course. Le 10 km est tout proche.</string>
+    <string name="tip_c210k_w14">Dernière semaine: une heure de course. Félicitations, tu es presque coureur de 10 km !</string>
+</resources>

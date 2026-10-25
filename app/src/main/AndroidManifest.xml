@@ -5,7 +5,7 @@
         android:name=".OpenRunApp"
         android:allowBackup="false"
         android:label="openRun"
-        android:theme="@android:style/Theme.Material.Light.NoActionBar">
+        android:theme="@style/Theme.OpenRun">
 
         <activity
             android:name=".MainActivity"
