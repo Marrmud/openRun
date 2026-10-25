@@ -1,0 +1,541 @@
+<!doctype html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>openRun · maquette v1</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Roboto+Flex:opsz,wght@8..144,400;8..144,500;8..144,700;8..144,900&family=Material+Symbols+Rounded:opsz,wght,FILL,GRAD@24,400,0..1,0&display=swap" rel="stylesheet">
+<style>
+/* ---------- Tokens (Material 3, thème clair; accent provisoire) ---------- */
+:root{
+  --primary:#00695c; --on-primary:#fff;
+  --primary-c:#b2dfd5; --on-primary-c:#00201b;
+  --secondary-c:#dbe8e4; --on-secondary-c:#14201d;
+  --surface:#f8faf8; --surface-c:#eef2f0; --surface-ch:#e6ebe8; --surface-chh:#dfe5e2;
+  --on-surface:#171d1b; --on-surface-v:#4a5552; --outline:#74807c; --outline-v:#c0c9c5;
+  --error:#ba1a1a; --error-c:#ffdad6;
+  --run:#d4440c; --run-c:#ffdbd0;
+  --walk:#1565c0; --walk-c:#d6e4ff;
+  --calm:#3f8a5f; --calm-c:#cdeed9;
+  --gold:#b26a00; --gold-c:#ffddb0;
+  --r-xl:28px; --r-l:20px; --r-m:14px;
+}
+*{box-sizing:border-box;margin:0}
+body{font-family:'Roboto Flex','Roboto',system-ui,sans-serif;background:#d9dedb;color:var(--on-surface);padding:28px 16px 60px}
+h1{font-size:22px;text-align:center} .sub{text-align:center;color:var(--on-surface-v);margin:6px auto 26px;max-width:780px;font-size:14px;line-height:1.5}
+.wall{display:flex;flex-wrap:wrap;gap:34px 26px;justify-content:center}
+.slot{display:flex;flex-direction:column;align-items:center;gap:10px}
+.cap{font-size:13px;font-weight:600;color:#33403c;text-align:center;max-width:380px}
+.cap small{display:block;font-weight:400;color:#5a6662;margin-top:2px}
+.ms{font-family:'Material Symbols Rounded';font-weight:400;font-style:normal;font-size:24px;line-height:1;display:inline-block;font-variation-settings:'FILL' 0,'wght' 400;vertical-align:middle;letter-spacing:normal;text-transform:none;white-space:nowrap}
+.ms.f{font-variation-settings:'FILL' 1,'wght' 400}
+
+.phone{width:412px;height:880px;background:var(--surface);border-radius:38px;border:8px solid #1b1f1e;overflow:hidden;position:relative;display:flex;flex-direction:column;box-shadow:0 14px 40px #0003}
+.status{height:34px;flex:none;display:flex;justify-content:space-between;align-items:center;padding:0 22px;font-size:13px;font-weight:600}
+.status .r{display:flex;gap:5px}.status .ms{font-size:16px}
+.body{flex:1;overflow:hidden;padding:0 18px;display:flex;flex-direction:column;gap:14px;position:relative;min-height:0}
+.body.scroll{overflow-y:auto;scrollbar-width:none;padding-bottom:18px}.body.scroll::-webkit-scrollbar{display:none}
+.top{display:flex;align-items:center;justify-content:space-between;padding:6px 0 0;min-height:52px;flex:none}
+.top h2{font-size:26px;font-weight:700;letter-spacing:-.3px}
+.top .date{font-size:13px;color:var(--on-surface-v);margin-top:2px}
+.iconbtn{width:44px;height:44px;border-radius:50%;display:grid;place-items:center;background:transparent;border:0;color:var(--on-surface);cursor:pointer;flex:none}
+.iconbtn.t{background:var(--surface-ch)}.iconbtn.on{background:var(--primary-c);color:var(--on-primary-c)}
+.nav{height:76px;flex:none;background:var(--surface-c);display:flex;justify-content:space-around;align-items:center;padding:0 6px 6px}
+.nav .it{display:flex;flex-direction:column;align-items:center;gap:4px;font-size:12px;font-weight:500;color:var(--on-surface-v);width:80px}
+.nav .pill{width:60px;height:30px;border-radius:15px;display:grid;place-items:center}
+.nav .it.act{color:var(--on-surface);font-weight:700}
+.nav .it.act .pill{background:var(--primary-c);color:var(--on-primary-c)}
+.nav .it.act .ms{font-variation-settings:'FILL' 1}
+
+.chips{display:flex;gap:8px;flex-wrap:wrap}
+.chip{display:inline-flex;align-items:center;gap:6px;height:32px;padding:0 12px;border-radius:9px;border:1px solid var(--outline-v);font-size:13px;font-weight:500;background:transparent;color:var(--on-surface);cursor:pointer;white-space:nowrap;font-family:inherit}
+.chip .ms{font-size:18px}.chip.warm{background:var(--gold-c);border-color:transparent;color:#3b2200}
+.chip.sel{background:var(--secondary-c);border-color:transparent}
+.btn{height:56px;border-radius:28px;border:0;font:700 17px 'Roboto Flex',sans-serif;display:inline-flex;align-items:center;justify-content:center;gap:8px;cursor:pointer;padding:0 24px}
+.btn.fill{background:var(--primary);color:var(--on-primary)}
+.btn.tonal{background:var(--secondary-c);color:var(--on-secondary-c)}
+.btn.danger{background:var(--error-c);color:#410002}
+.btn.text{background:transparent;color:var(--primary);height:44px;font-size:15px}
+.btn.big{height:72px;border-radius:36px;font-size:20px}
+.card{background:var(--surface-c);border-radius:var(--r-l);padding:16px;flex:none}
+.card.hero{background:var(--primary-c);color:var(--on-primary-c);border-radius:var(--r-xl);padding:20px}
+.lbl{font-size:12px;font-weight:600;letter-spacing:.6px;text-transform:uppercase;color:var(--on-surface-v)}
+.hero .lbl{color:#0a4a40}
+.title{font-size:22px;font-weight:700;letter-spacing:-.2px}
+.meta{font-size:14px;color:var(--on-surface-v);margin-top:2px}
+.hero .meta{color:#0a4a40}
+.row{display:flex;align-items:center;gap:12px}.sp{flex:1}
+.num{font-variant-numeric:tabular-nums;font-feature-settings:'tnum'}
+
+/* rangs */
+.rank{position:relative;display:inline-grid;place-items:center;width:var(--s,40px);height:var(--s,40px);color:var(--rc,#888);flex:none}
+.rank .ms.sh{font-size:var(--s,40px);font-variation-settings:'FILL' 1}
+.rank .ms.ru{position:absolute;font-size:calc(var(--s,40px)*.5);color:#fff;font-variation-settings:'FILL' 1,'wght' 500;margin-top:-2px}
+.rank.dim{filter:grayscale(1);opacity:.35}
+.ladder{display:flex;justify-content:space-between;margin-top:10px}
+.ladder div{display:flex;flex-direction:column;align-items:center;gap:2px;font-size:11px;color:var(--on-surface-v)}
+.ladder div.cur{font-weight:700;color:var(--on-surface)}
+
+/* barre d'intervalles */
+.tl{display:flex;gap:3px;height:34px;align-items:flex-end}
+.tl i{display:block;border-radius:4px;min-width:3px}
+.tl i.run{background:var(--run);height:100%}.tl i.walk{background:var(--walk);height:55%}.tl i.calm{background:var(--calm);height:40%}
+.tl i.done{opacity:.35}
+
+.week{display:flex;justify-content:space-between}
+.day{display:flex;flex-direction:column;align-items:center;gap:6px;font-size:12px;color:var(--on-surface-v);font-weight:500}
+.dot{width:32px;height:32px;border-radius:50%;display:grid;place-items:center;border:2px solid var(--outline-v)}
+.dot.ok{background:var(--primary);border-color:var(--primary);color:#fff}.dot.ok .ms{font-size:18px}
+.dot.today{border-color:var(--primary);color:var(--primary);font-weight:700}
+.dot.rest{border-style:dashed}
+.prog{height:10px;border-radius:5px;background:var(--surface-chh);overflow:hidden}.prog b{display:block;height:100%;background:var(--primary);border-radius:5px}
+
+/* parcours */
+.opt{display:flex;align-items:center;gap:14px;padding:12px 16px;border-radius:var(--r-l);background:var(--surface-c);cursor:pointer;border:2px solid transparent}
+.opt.sel{border-color:var(--primary);background:#e3f1ee}
+.opt .ic{width:44px;height:44px;border-radius:50%;display:grid;place-items:center;background:var(--secondary-c);flex:none}
+.opt b{font-size:16px;display:block}.opt span.s{font-size:13px;color:var(--on-surface-v)}
+.opt .radio{width:22px;height:22px;border-radius:50%;border:2px solid var(--outline);flex:none}
+.opt.sel .radio{border-color:var(--primary);background:radial-gradient(var(--primary) 45%,transparent 50%)}
+.path{position:relative;padding-left:44px;display:flex;flex-direction:column;gap:12px}
+.path:before{content:"";position:absolute;left:19px;top:12px;bottom:12px;width:4px;border-radius:2px;background:repeating-linear-gradient(var(--outline-v) 0 8px,transparent 8px 14px)}
+.node{position:relative;background:var(--surface-c);border-radius:var(--r-m);padding:12px 14px;display:flex;align-items:center;gap:10px}
+.node:before{content:"";position:absolute;left:-33px;top:50%;width:22px;height:22px;margin-top:-11px;border-radius:50%;background:var(--surface);border:4px solid var(--outline-v)}
+.node.done:before{background:var(--primary);border-color:var(--primary)}
+.node.cur{background:var(--primary-c);color:var(--on-primary-c)}.node.cur:before{border-color:var(--primary);background:#fff;box-shadow:0 0 0 5px #00695c33}
+.node b{font-size:15px;display:block}.node span.s{font-size:12px;color:var(--on-surface-v)}.node.cur span.s{color:#0a4a40}
+
+/* programme détail */
+.wk{background:var(--surface-c);border-radius:var(--r-l);padding:14px 16px;flex:none}
+.wk .h{display:flex;align-items:center;gap:10px;cursor:pointer}
+.wk .h b{font-size:20px;flex:1}
+.wk .tip{font-size:14px;line-height:1.4;color:var(--on-surface-v);margin:8px 0 12px;display:flex;gap:8px}
+.wk .tip .ms{font-size:18px;color:var(--gold);flex:none;margin-top:1px}
+.wk .days{display:flex;gap:8px}
+.wk.closed .tip,.wk.closed .days{display:none}
+.wk .sum{font-size:13px;color:var(--calm);font-weight:600}
+.dp{flex:1;border-radius:22px;padding:10px 4px;text-align:center;border:1.5px solid var(--outline-v);background:transparent;cursor:pointer;font-family:inherit;color:var(--on-surface)}
+.dp b{display:block;font-size:15px}.dp small{font-size:12px;color:var(--on-surface-v)}
+.dp.done{background:var(--calm-c);border-color:transparent}.dp.done .ms{font-size:14px;color:var(--calm)}
+.dp.cur{background:var(--primary);border-color:var(--primary);color:#fff}.dp.cur small{color:#cfe9e4}
+
+/* dialog / feuille */
+.scrim{position:absolute;inset:0;background:#0006;z-index:5}
+.sheet{position:absolute;left:0;right:0;bottom:0;background:var(--surface);border-radius:28px 28px 0 0;z-index:6;padding:12px 20px 20px;display:flex;flex-direction:column;gap:12px}
+.dialog{position:absolute;left:24px;right:24px;top:230px;background:var(--surface);border-radius:28px;z-index:6;padding:24px;display:flex;flex-direction:column;gap:12px;box-shadow:0 8px 30px #0004}
+.grab{width:36px;height:4px;border-radius:2px;background:var(--outline-v);margin:0 auto 4px}
+.sw{display:flex;align-items:center;gap:12px;min-height:48px}
+.sw .tx{flex:1}.sw .tx b{display:block;font-size:16px;font-weight:500}.sw .tx span{font-size:13px;color:var(--on-surface-v)}
+.switch{width:52px;height:32px;border-radius:16px;background:var(--surface-chh);border:2px solid var(--outline);position:relative;flex:none;cursor:pointer;transition:.15s}
+.switch:after{content:"";position:absolute;left:6px;top:6px;width:16px;height:16px;border-radius:50%;background:var(--outline);transition:.15s}
+.switch.on{background:var(--primary);border-color:var(--primary)}.switch.on:after{left:24px;top:2px;width:24px;height:24px;background:#fff}
+.group{display:flex;flex-direction:column;gap:6px}
+.step{display:flex;align-items:center;gap:10px;font-size:14px;padding:5px 0;border-bottom:1px solid var(--outline-v)}
+.step:last-child{border:0}
+.step .tag{font-weight:700;font-size:12px;letter-spacing:.5px;white-space:nowrap}
+.step .tag.run{color:var(--run)}.step .tag.walk{color:var(--walk)}.step .tag.calm{color:var(--calm)}
+
+/* course */
+.run .body{padding:0 18px 14px;gap:12px}
+.seg{display:flex;border:1px solid var(--outline);border-radius:20px;overflow:hidden;height:40px;flex:none}
+.seg button{flex:1;border:0;background:transparent;font:500 14px 'Roboto Flex',sans-serif;color:var(--on-surface);cursor:pointer;border-right:1px solid var(--outline)}
+.seg button:last-child{border:0}.seg button.on{background:var(--secondary-c);font-weight:700}
+.phase{display:flex;align-items:center;gap:8px;font-weight:700;font-size:14px;letter-spacing:.8px;text-transform:uppercase;padding:6px 14px;border-radius:16px;align-self:flex-start}
+.phase.run{background:var(--run-c);color:#7a2100}
+.view{flex:1;display:flex;flex-direction:column;gap:12px;min-height:0}
+.ctrls{display:flex;gap:10px;align-items:center;flex:none}
+.ctrls .btn.main{flex:1;height:72px;border-radius:36px;font-size:20px}
+.ctrls .iconbtn{width:60px;height:60px;background:var(--surface-ch)}
+.huge{font-size:112px;font-weight:800;letter-spacing:-4px;line-height:1;text-align:center}
+.ring{width:320px;height:320px;border-radius:50%;margin:6px auto;display:grid;place-items:center;background:conic-gradient(var(--run) var(--p,40%),var(--run-c) 0)}
+.ring>div{width:272px;height:272px;border-radius:50%;background:var(--surface);display:grid;place-items:center;text-align:center;align-content:center}
+.ring .huge{font-size:92px;letter-spacing:-3px}
+.next{background:var(--surface-c);border-radius:var(--r-m);padding:12px 16px;display:flex;align-items:center;gap:10px;font-size:15px}
+.tiles{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.tile{background:var(--surface-c);border-radius:var(--r-m);padding:12px 14px}
+.tile .v{font-size:36px;font-weight:700;letter-spacing:-1px;line-height:1.1;margin-top:2px}
+.tile .u{font-size:14px;font-weight:500;color:var(--on-surface-v);letter-spacing:0}
+.tile.wide{grid-column:span 2}.tile.wide .v{font-size:60px;letter-spacing:-2px}
+.list{display:flex;flex-direction:column;gap:6px;overflow:hidden}
+.li{display:flex;align-items:center;gap:12px;padding:10px 14px;border-radius:var(--r-m);background:var(--surface-c);font-size:15px}
+.li.cur{background:var(--run-c);font-weight:700}.li .tag{width:22px;height:22px;border-radius:50%;flex:none}
+.li.past{opacity:.45}
+.fade{position:relative}.fade:after{content:"";position:absolute;left:0;right:0;bottom:0;height:46px;background:linear-gradient(transparent,var(--surface))}
+.menu{position:absolute;right:14px;top:96px;z-index:7;background:var(--surface);border-radius:16px;box-shadow:0 6px 24px #0004;padding:8px 0;min-width:250px}
+.menu button{display:flex;gap:12px;align-items:center;width:100%;border:0;background:transparent;padding:14px 18px;font:500 15px 'Roboto Flex',sans-serif;color:var(--on-surface);cursor:pointer;text-align:left}
+.menu button:hover{background:var(--surface-c)}.menu .bad{color:var(--error)}
+
+/* fin de séance / détail */
+.cele{display:flex;align-items:center;gap:14px;padding-top:4px;flex:none}
+.cele .title{font-size:28px}
+.trace{background:var(--surface-c);border-radius:var(--r-l);padding:10px;position:relative;flex:none}
+.trace svg{width:100%;height:auto;display:block}
+.trace .tag{position:absolute;left:14px;top:12px;font-size:11px;font-weight:600;letter-spacing:.5px;color:var(--on-surface-v);background:var(--surface);padding:3px 8px;border-radius:8px}
+.srcrow{display:flex;align-items:center;gap:10px;background:var(--walk-c);color:#00306b;border-radius:var(--r-m);padding:10px 14px;font-size:13px;font-weight:600;flex:none}
+.mini{display:grid;grid-template-columns:repeat(4,1fr);gap:8px;flex:none}
+.mini div{background:var(--surface-c);border-radius:12px;padding:8px 6px;text-align:center}
+.mini b{display:block;font-size:20px;letter-spacing:-.5px}.mini span{font-size:11px;color:var(--on-surface-v)}
+.emoji{display:flex;justify-content:space-between}
+.emoji button{width:56px;height:56px;border-radius:50%;border:0;background:var(--surface-c);font-size:26px;cursor:pointer}
+.emoji button.on{background:var(--primary-c);outline:3px solid var(--primary)}
+.note{font-size:13px;color:var(--on-surface-v);background:var(--secondary-c);border-radius:var(--r-m);padding:10px 12px;line-height:1.4;display:flex;gap:8px;flex:none}
+.note .ms{font-size:20px;flex:none}
+
+/* historique */
+.sumcard{display:flex;background:var(--primary-c);color:var(--on-primary-c);border-radius:var(--r-xl);padding:16px 8px;flex:none}
+.sumcard div{flex:1;text-align:center}.sumcard b{display:block;font-size:26px;letter-spacing:-.5px}.sumcard span{font-size:12px}
+.mon{font-size:13px;font-weight:700;color:var(--primary);letter-spacing:.3px;margin-top:2px;flex:none}
+.hi{display:flex;align-items:center;gap:12px;background:var(--surface-c);border-radius:var(--r-m);padding:12px 14px;flex:none;cursor:pointer}
+.hi .ok{width:40px;height:40px;border-radius:50%;background:var(--calm-c);color:var(--calm);display:grid;place-items:center;flex:none}
+.hi b{font-size:15px;display:block}.hi span.s{font-size:12.5px;color:var(--on-surface-v)}
+.hi .r{text-align:right;font-size:13px;color:var(--on-surface-v)}.hi .r b{font-size:16px;color:var(--on-surface)}
+.wh{display:flex;align-items:center;gap:8px;font-size:13px;font-weight:700;flex:none;margin-top:2px}
+.wh span.g{color:var(--calm);font-weight:600}
+.watch{font-size:15px;color:var(--walk);margin-left:2px}
+
+/* calendrier */
+.cal{background:var(--surface-c);border-radius:var(--r-l);padding:12px 10px;flex:none}
+.cal .hd,.cal .gr{display:grid;grid-template-columns:repeat(7,1fr);text-align:center}
+.cal .hd span{font-size:12px;color:var(--on-surface-v);font-weight:600;padding-bottom:6px}
+.cal .c{height:46px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:3px;font-size:14px;cursor:pointer;border-radius:12px;font-weight:500}
+.cal .c.sel{background:var(--primary-c)}.cal .c.td b{color:var(--primary)}
+.cal .c i{width:6px;height:6px;border-radius:50%;display:block;background:transparent}
+.cal .c i.d{background:var(--calm)}.cal .c i.p{background:transparent;border:1.5px solid var(--primary)}
+.cal .c.mute{opacity:.35}
+.legend{display:flex;gap:14px;font-size:12px;color:var(--on-surface-v);flex:none}
+.legend i{display:inline-block;width:8px;height:8px;border-radius:50%;margin-right:5px;vertical-align:middle}
+.fab{position:absolute;right:18px;bottom:18px;width:60px;height:60px;border-radius:18px;background:var(--primary);color:#fff;display:grid;place-items:center;box-shadow:0 4px 12px #0003;z-index:3}
+
+/* réglages */
+.sect{display:flex;align-items:center;gap:12px;margin-top:10px;padding:10px 12px;border-radius:16px;background:var(--primary-c);color:var(--on-primary-c);font-size:17px;font-weight:700;flex:none}
+.sect .ms{font-size:24px}
+.sub-set{padding-left:16px;border-left:3px solid var(--primary-c);margin-left:10px;display:flex;flex-direction:column;flex:none}
+.slider{height:36px;display:flex;align-items:center}
+.slider .tr{flex:1;height:16px;border-radius:8px;background:var(--surface-chh);position:relative}
+.slider .tr b{position:absolute;left:0;top:0;bottom:0;border-radius:8px;background:var(--primary)}
+.slider .tr i{position:absolute;top:-6px;width:6px;height:28px;border-radius:3px;background:var(--primary);margin-left:-3px}
+.hide{display:none!important}
+</style>
+</head>
+<body>
+<h1>openRun · maquette v1 (téléphone, thème clair)</h1>
+<p class="sub">Accent et couleurs de phase <b>provisoires</b> (Material You les remplacera). Tout est cliquable: styles de course, ⋮ de la course (terminer, revenir en arrière),
+jour du programme (valide les séances précédentes), vue de l'historique, jours du calendrier, interrupteurs de réglages (la voix masque ses options).</p>
+<div class="wall" id="wall"></div>
+
+<script>
+/* ---------- utilitaires ---------- */
+const RANKS=[['Fer','#78858f'],['Bronze','#b0703a'],['Argent','#8f9ba6'],['Or','#d19a00'],['Platine','#2fa6b5'],['Diamant','#4a7df0']];
+const rank=(i,s=40,dim)=>`<span class="rank${dim?' dim':''}" style="--s:${s}px;--rc:${RANKS[i][1]}"><span class="ms sh">shield</span><span class="ms ru">directions_run</span></span>`;
+const stat=t=>`<div class="status"><span>${t}</span><span class="r"><span class="ms f">signal_cellular_alt</span><span class="ms f">wifi</span><span class="ms f">battery_full</span></span></div>`;
+const nav=a=>`<div class="nav">${[['home','Accueil'],['route','Parcours'],['calendar_month','Calendrier'],['monitoring','Historique']].map(x=>`<div class="it${x[1]===a?' act':''}"><div class="pill"><span class="ms">${x[0]}</span></div>${x[1]}</div>`).join('')}</div>`;
+const phone=(t,body,o={})=>`<div class="phone ${o.cls||''}" ${o.attr||''}>${stat(t)}<div class="body ${o.scroll?'scroll':''}">${body}</div>${o.nav?nav(o.nav):''}</div>`;
+const slot=(cap,small,ph)=>`<div class="slot">${ph}<div class="cap">${cap}<small>${small}</small></div></div>`;
+const wall=document.getElementById('wall');
+const add=h=>wall.insertAdjacentHTML('beforeend',h);
+const mmss=s=>`${Math.floor(s/60)}:${String(s%60).padStart(2,'0')}`;
+const fmt=s=>{const m=Math.floor(s/60),r=s%60;return r?`${m} min ${String(r).padStart(2,'0')}s`:`${m} min`};
+const S0=[{t:'calm',n:'Échauffement',s:300}];
+for(let i=0;i<6;i++){S0.push({t:'run',n:'Course',s:90});S0.push({t:'walk',n:'Marche',s:120})}
+S0.push({t:'calm',n:'Retour au calme',s:300});
+const tl=(el,steps,cur)=>{el.innerHTML=steps.map((x,i)=>`<i class="${x.t}${cur!=null&&i<cur?' done':''}" style="flex:${x.s}"></i>`).join('')};
+const TRACE=`<svg viewBox="0 0 360 150"><path d="M40 100 C 45 45, 100 25, 150 45 S 230 85, 275 55 S 335 30, 330 80 S 285 128, 210 118 S 95 135, 40 100Z" fill="none" stroke="var(--run)" stroke-width="5" stroke-linecap="round" stroke-linejoin="round"/><circle cx="40" cy="100" r="7" fill="var(--calm)"/><circle cx="40" cy="100" r="3" fill="#fff"/></svg>`;
+
+/* ---------- 1 · Accueil ---------- */
+add(slot('1 · Accueil','Un seul gros bouton. Séance du jour, semaine, rang. Rien d’autre à comprendre.',phone('20:42',`
+  <div class="top"><div><h2>openRun</h2><div class="date">Dimanche 25 octobre</div></div><button class="iconbtn t"><span class="ms">settings</span></button></div>
+  <div class="chips">
+    <span class="chip warm"><span class="ms f">local_fire_department</span>1 semaine d'affilée</span>
+    <span class="chip" style="padding-left:6px">${rank(1,24)}Bronze II · 620 / 1 000 kcal</span>
+  </div>
+  <div class="card hero">
+    <div class="lbl">Aujourd'hui</div>
+    <div class="title" style="margin-top:6px">Semaine 2 · Jour 1</div>
+    <div class="meta">Du canapé au 5 km</div>
+    <div class="tl" id="homeTl" style="margin:16px 0 8px"></div>
+    <div class="meta num">~31 min · 6 courses de 1 min 30</div>
+    <button class="btn fill big" style="width:100%;margin-top:16px"><span class="ms f">play_arrow</span>Démarrer</button>
+    <div class="row" style="margin-top:6px;justify-content:space-between">
+      <button class="btn text" style="color:#0a4a40">Voir la séance</button>
+      <button class="btn text" style="color:#0a4a40">Autre séance</button>
+    </div>
+  </div>
+  <div class="card">
+    <div class="row"><div class="lbl sp">Cette semaine</div><div class="num" style="font-weight:700">1 / 3</div></div>
+    <div class="week" style="margin-top:12px">
+      <div class="day">L<div class="dot ok"><span class="ms">check</span></div></div>
+      <div class="day">M<div class="dot rest"></div></div><div class="day">M<div class="dot rest"></div></div>
+      <div class="day">J<div class="dot"></div></div><div class="day">V<div class="dot"></div></div><div class="day">S<div class="dot"></div></div>
+      <div class="day">D<div class="dot today">·</div></div>
+    </div>
+  </div>
+  <div class="card">
+    <div class="row"><span class="ms" style="color:var(--gold)">flag</span><div class="sp"><b style="font-size:15px">Prochain jalon</b><div class="meta">Courir 5 min d'affilée · encore 2 séances</div></div></div>
+    <div class="prog" style="margin-top:12px"><b style="width:62%"></b></div>
+  </div>`,{nav:'Accueil'})));
+
+/* ---------- 2 · Où commencer ---------- */
+add(slot('2 · Où en es-tu ?','Une question + chemin visuel. Chaque étape a un « Ici » : on démarre où on veut, sans verrou.',phone('20:43',`
+  <div class="top"><h2>Où en es-tu ?</h2></div>
+  <div class="meta" style="margin-top:-8px;flex:none">Choisis ton point de départ. Tout est ouvert, tu peux changer quand tu veux.</div>
+  <div id="start" class="group" style="gap:8px;flex:none">
+    <div class="opt"><div class="ic"><span class="ms">weekend</span></div><div class="sp"><b>Je pars de zéro</b><span class="s">Pré-C25K · 3 semaines</span></div><div class="radio"></div></div>
+    <div class="opt sel"><div class="ic"><span class="ms">directions_walk</span></div><div class="sp"><b>Je cours environ 1 minute</b><span class="s">Du canapé au 5 km · 9 semaines</span></div><div class="radio"></div></div>
+    <div class="opt"><div class="ic"><span class="ms">directions_run</span></div><div class="sp"><b>Je cours 5 km sans m'arrêter</b><span class="s">Pont vers 10K · 6 semaines</span></div><div class="radio"></div></div>
+    <div class="opt"><div class="ic"><span class="ms">bolt</span></div><div class="sp"><b>Je cours déjà 10 km ou plus</b><span class="s">Plans libres et séances structurées</span></div><div class="radio"></div></div>
+  </div>
+  <div class="lbl" style="flex:none">Ton parcours</div>
+  <div class="path" style="flex:none">
+    <div class="node done"><div class="sp"><b>Pré-C25K</b><span class="s">3 semaines · terminé</span></div></div>
+    <div class="node cur"><div class="sp"><b>Du canapé au 5 km</b><span class="s">Semaine 2 · Jour 1</span></div><button class="chip" style="background:#fff;border:0">Reprendre</button></div>
+    <div class="node"><div class="sp"><b>Pont vers 10K</b><span class="s">6 semaines</span></div><button class="chip">Ici</button></div>
+    <div class="node"><div class="sp"><b>Du canapé au 10 km</b><span class="s">14 semaines</span></div><button class="chip">Ici</button></div>
+  </div>`,{nav:'Parcours'})));
+
+/* ---------- 3 · Programme (semaines, conseils, choix du jour) ---------- */
+const TIPS=[
+ 'Cours à une allure qui te permet encore de parler. Les pauses marche font partie de l’entraînement.',
+ 'Tu as passé la semaine 1: ton corps s’adapte déjà. Garde une allure facile.',
+ 'Des intervalles plus longs cette semaine. Respire régulièrement: inspire sur 2 pas, expire sur 2 pas.',
+ 'Quatre longueurs de course différentes aujourd’hui. Ça renforce autant la tête que les jambes.'];
+const MIN=[30,31,28,31];
+const wkHTML=w=>{
+  const st=d=>w===0?'done':(w===1&&d===0?'cur':'todo');
+  const closed=w===0?' closed':'';
+  return `<div class="wk${closed}" data-w="${w}"><div class="h"><b>Semaine ${w+1}</b>${w===0?'<span class="sum">3/3 ✓</span>':''}<span class="ms">${w===0?'expand_more':'expand_less'}</span></div>
+  <div class="tip"><span class="ms f">lightbulb</span><span>${TIPS[w]}</span></div>
+  <div class="days">${[0,1,2].map(d=>{const s=st(d);return `<button class="dp ${s==='todo'?'':s}" data-w="${w}" data-d="${d}"><b>${s==='done'?'<span class="ms f">check_circle</span> ':''}Jour ${d+1}</b><small>~${MIN[w]} min</small></button>`}).join('')}</div></div>`};
+add(slot('3 · Programme: semaines, conseils, choix du jour','Une phrase de conseil par semaine. Taper un jour futur propose de valider les séances sautées (essaie « Semaine 3 · Jour 2 »). Même logique dans l’autre sens.',phone('21:14',`
+  <div class="top" style="justify-content:flex-start;gap:6px"><button class="iconbtn" style="margin-left:-10px"><span class="ms">arrow_back</span></button><h2 style="font-size:24px">Du canapé au 5 km</h2></div>
+  <div class="meta" style="margin-top:-6px;flex:none">9 semaines · 3 séances par semaine · 2 / 27 faites</div>
+  ${[0,1,2,3].map(wkHTML).join('')}`,{scroll:true,attr:'id="progPhone"'})));
+
+/* ---------- 4 · Aperçu séance ---------- */
+add(slot('4 · Aperçu de la séance','Ignorer échauffement / retour au calme: la durée se recalcule (essaie les interrupteurs).',phone('20:43',`
+  <div class="top"><h2>openRun</h2></div><div class="card hero" style="height:150px"></div><div class="scrim"></div>
+  <div class="sheet"><div class="grab"></div>
+    <div class="row"><div class="sp"><div class="title">Semaine 2 · Jour 1</div><div class="meta num" id="pvMeta">~31 min</div></div><button class="iconbtn t"><span class="ms">close</span></button></div>
+    <div class="row" style="gap:8px;background:var(--gold-c);color:#3b2200;border-radius:12px;padding:8px 12px;font-size:13px"><span class="ms f" style="font-size:18px">lightbulb</span>${TIPS[1]}</div>
+    <div class="tl" id="pvTl"></div>
+    <div class="group" id="pvList"></div>
+    <div class="sw"><div class="tx"><b>Ignorer l'échauffement</b><span>Pratique si tu marches déjà jusqu'au départ</span></div><div class="switch" id="skipW"></div></div>
+    <div class="sw"><div class="tx"><b>Ignorer le retour au calme</b></div><div class="switch" id="skipC"></div></div>
+    <button class="btn fill big"><span class="ms f">play_arrow</span>Commencer</button></div>`)));
+
+/* ---------- 5-8 · Course ---------- */
+['focus','timeline','full'].forEach((m,i)=>add(slot(`${5+i} · Course · style « ${['Focus','Chronologie','Complet'][i]} »`,
+ ['Un énorme compte à rebours. Pour le débutant et le plein soleil. Le sélecteur change de style en pleine course.','Toute la séance d’un coup d’œil, intervalles à venir.','Grille de métriques pour l’avancé. Précédent / Suivant pour changer d’intervalle; ⋮ pour terminer ou revenir à l’échauffement.'][i],
+ phone('20:44','',{cls:'run',attr:`data-mode="${m}"`}))));
+add(slot('8 · Terminer en avance','Depuis ⋮ → « Terminer la séance » (essaie-le sur les écrans 5 à 7): enregistrer, supprimer ou continuer.',phone('20:50','',{cls:'run',attr:'data-mode="focus" data-finish="1"'})));
+
+const CUR=5,LEFT=48,TOT=90;
+function runHTML(mode){
+  const seg=`<div class="seg"><button data-m="focus" class="${mode==='focus'?'on':''}">Focus</button><button data-m="timeline" class="${mode==='timeline'?'on':''}">Chronologie</button><button data-m="full" class="${mode==='full'?'on':''}">Complet</button></div>`;
+  const hdr=`<div class="row" style="flex:none"><button class="iconbtn t" title="Verrouiller"><span class="ms">lock</span></button><div class="sp meta num" style="margin:0">S2 · J1 · 18:42</div><button class="iconbtn on vtog"><span class="ms f">record_voice_over</span></button><button class="iconbtn t more"><span class="ms">more_vert</span></button></div>`;
+  const ctrls=`<div class="ctrls"><button class="iconbtn" title="Intervalle précédent"><span class="ms">skip_previous</span></button><button class="btn fill main"><span class="ms f">pause</span>Pause</button><button class="iconbtn" title="Intervalle suivant"><span class="ms">skip_next</span></button></div>`;
+  let v='';
+  if(mode==='focus'){
+    v=`<div class="view"><span class="phase run"><span class="ms f">directions_run</span>Course · 3 / 6</span>
+    <div class="ring" style="--p:${Math.round((1-LEFT/TOT)*100)}%"><div><div class="huge num">${mmss(LEFT)}</div><div class="meta">restant</div></div></div>
+    <div class="next"><span class="ms" style="color:var(--walk)">directions_walk</span><span>Ensuite : <b>Marche · 2 min</b></span></div>
+    <div class="row" style="justify-content:space-around"><div style="text-align:center"><div class="lbl">Distance</div><div class="num" style="font-size:28px;font-weight:700">2,14<span style="font-size:14px"> km</span></div></div>
+    <div style="text-align:center"><div class="lbl">Temps</div><div class="num" style="font-size:28px;font-weight:700">18:42</div></div></div></div>`;
+  }else if(mode==='timeline'){
+    const rows=S0.slice(4,10).map((x,i)=>{const k=4+i;const col=x.t==='run'?'var(--run)':x.t==='walk'?'var(--walk)':'var(--calm)';
+      return `<div class="li${k===CUR?' cur':k<CUR?' past':''}"><span class="tag" style="background:${col}"></span><span class="sp">${x.n}</span><span class="num">${k===CUR?mmss(LEFT):fmt(x.s)}</span></div>`}).join('');
+    v=`<div class="view"><span class="phase run"><span class="ms f">directions_run</span>Course · ${mmss(LEFT)}</span>
+    <div class="card" style="padding:14px"><div class="tl rtl" style="height:56px"></div><div class="row num" style="margin-top:8px;font-size:13px;color:var(--on-surface-v)"><span>18:42</span><span class="sp"></span><span>reste 12:18</span></div></div>
+    <div class="lbl">À venir</div><div class="list fade">${rows}</div></div>`;
+  }else{
+    v=`<div class="view"><span class="phase run"><span class="ms f">directions_run</span>Course · intervalle 3/6</span><div class="tiles">
+    <div class="tile wide"><div class="lbl">Restant dans l'intervalle</div><div class="v num">${mmss(LEFT)}</div></div>
+    <div class="tile"><div class="lbl">Temps</div><div class="v num">18:42</div></div><div class="tile"><div class="lbl">Distance</div><div class="v num">2,14<span class="u"> km</span></div></div>
+    <div class="tile"><div class="lbl">Allure</div><div class="v num">5:52<span class="u"> /km</span></div></div><div class="tile"><div class="lbl">Allure moy.</div><div class="v num">8:44<span class="u"> /km</span></div></div>
+    <div class="tile"><div class="lbl">Cœur</div><div class="v num">143<span class="u"> bpm</span></div></div><div class="tile"><div class="lbl">Intervalles</div><div class="v num">3 / 6</div></div></div></div>`;
+  }
+  return seg+hdr+v+ctrls;
+}
+function finishSheet(ph){
+  const b=ph.querySelector('.body');
+  b.insertAdjacentHTML('beforeend',`<div class="scrim fin"></div><div class="sheet fin"><div class="grab"></div>
+   <div class="title">Terminer la séance ?</div><div class="meta" style="margin-top:-6px">Tu as fait <b>18:42</b> sur ~31 min (60 %) · 2,14 km.</div>
+   <button class="btn fill"><span class="ms f">save</span>Enregistrer et terminer</button>
+   <button class="btn danger"><span class="ms">delete</span>Supprimer la séance</button>
+   <button class="btn text fcont">Continuer à courir</button></div>`);
+  b.querySelector('.fcont').onclick=()=>b.querySelectorAll('.fin').forEach(e=>e.remove());
+}
+function mount(ph,mode){
+  ph.dataset.mode=mode;const b=ph.querySelector('.body');b.innerHTML=runHTML(mode);
+  const t=b.querySelector('.rtl');if(t)tl(t,S0,CUR);
+  b.querySelectorAll('.seg button').forEach(x=>x.onclick=()=>mount(ph,x.dataset.m));
+  const vt=b.querySelector('.vtog');vt.onclick=()=>{vt.classList.toggle('on');vt.firstChild.textContent=vt.classList.contains('on')?'record_voice_over':'voice_over_off'};
+  b.querySelector('.more').onclick=()=>{
+    const old=b.querySelector('.menu');if(old){old.remove();return}
+    b.insertAdjacentHTML('beforeend',`<div class="menu"><button><span class="ms">replay</span>Recommencer l'intervalle</button><button><span class="ms">undo</span>Revenir à l'échauffement</button><button class="bad fin-btn"><span class="ms">stop_circle</span>Terminer la séance…</button></div>`);
+    b.querySelector('.fin-btn').onclick=()=>{b.querySelector('.menu').remove();finishSheet(ph)};
+  };
+}
+document.querySelectorAll('.phone.run').forEach(p=>{mount(p,p.dataset.mode);if(p.dataset.finish)finishSheet(p)});
+
+/* ---------- 9 · Fin de séance ---------- */
+add(slot('9 · Fin de séance','Tracé GPS (la carte viendra plus tard), données de la montre si présentes, distance + équivalence, rang. Défile.',phone('21:15',`
+  <div class="cele"><div style="--s:64px">${rank(1,64)}</div><div><div class="title">Bien joué !</div><div class="meta" style="margin:0">Semaine 2 · Jour 1 terminé</div></div></div>
+  <div class="trace"><span class="tag">TRACÉ GPS</span>${TRACE}</div>
+  <div class="tiles" style="grid-template-columns:repeat(3,1fr);flex:none">
+    <div class="tile"><div class="lbl">Durée</div><div class="v num" style="font-size:26px">31:04</div></div>
+    <div class="tile"><div class="lbl">Distance</div><div class="v num" style="font-size:26px">3,6<span class="u"> km</span></div></div>
+    <div class="tile"><div class="lbl">Allure moy.</div><div class="v num" style="font-size:26px">8:38</div></div></div>
+  <div class="meta" style="flex:none;margin:-4px 0 0;text-align:center">3,6 km = <b style="color:var(--on-surface)">9 tours de piste</b> d'athlétisme</div>
+  <div class="srcrow"><span class="ms f" style="font-size:20px">watch</span>Données de ta Pixel Watch 4</div>
+  <div class="mini"><div><b>148</b><span>FC moy.</span></div><div><b>171</b><span>FC max</span></div><div><b>162</b><span>cadence</span></div><div><b>312</b><span>kcal</span></div></div>
+  <div class="card">
+    <div class="row">${rank(1,44)}<div class="sp"><b style="font-size:16px">Bronze II</b><div class="meta num" style="margin:0">+312 kcal · 932 / 1 000 · encore 68 avant Bronze I</div></div></div>
+    <div class="prog" style="margin-top:10px"><b style="width:93%"></b></div>
+    <div class="ladder">${RANKS.map((r,i)=>`<div class="${i===1?'cur':''}">${rank(i,26,i>1)}${r[0]}</div>`).join('')}</div>
+    <div class="meta" style="margin-top:10px">Total couru: <b style="color:var(--on-surface)">42,3 km</b> · 106 tours de piste</div>
+  </div>
+  <div><div class="lbl" style="margin-bottom:8px">Comment c'était ?</div><div class="emoji" id="emo"><button>😫</button><button>😓</button><button class="on">🙂</button><button>😄</button><button>🔥</button></div></div>
+  <div class="note"><span class="ms">health_and_safety</span>Séance enregistrée dans Health Connect, visible dans Google Health.</div>
+  <button class="btn fill big" style="flex:none">Terminer</button>`,{scroll:true})));
+
+/* ---------- 10 · Historique ---------- */
+const H=[ // titre, date, km, durée, allure, montre, mois, semaine
+ ['Semaine 1 · Jour 3','Sam 24 oct · 19:42','3,4','30:12','8:52',1,'Octobre 2026','S1'],
+ ['Semaine 1 · Jour 2','Jeu 22 oct · 16:35','3,3','30:05','9:07',1,'Octobre 2026','S1'],
+ ['Semaine 1 · Jour 1','Lun 19 oct · 18:10','3,2','30:01','9:22',0,'Octobre 2026','S1'],
+ ['Course libre','Sam 10 oct · 10:05','2,1','20:40','9:50',1,'Octobre 2026','—'],
+ ['Pré-C25K · Semaine 3','Mer 30 sep · 18:20','2,5','25:00','10:00',0,'Septembre 2026','—']];
+const hi=h=>`<div class="hi"><div class="ok"><span class="ms">check</span></div><div class="sp"><b>${h[0]}</b><span class="s">${h[1]} ${h[5]?'<span class="ms f watch">watch</span>':''}</span></div><div class="r"><b class="num">${h[2]} km</b><span class="num">${h[3]} · ${h[4]}/km</span></div></div>`;
+function histRender(mode){
+  const box=document.getElementById('hlist');let o='',last='';
+  if(mode==='date'){H.forEach(h=>{if(h[6]!==last){o+=`<div class="mon">${h[6].toUpperCase()}</div>`;last=h[6]}o+=hi(h)})}
+  else{[['S1','Du canapé au 5 km · Semaine 1','3/3 · 10,0 km'],['—','Hors programme','2 séances · 4,6 km']].forEach(g=>{o+=`<div class="wh"><span class="sp">${g[1]}</span><span class="g">${g[2]}</span></div>`;H.filter(h=>h[7]===g[0]).forEach(h=>o+=hi(h))})}
+  box.innerHTML=o;
+}
+add(slot('10 · Historique','Liste simple par date (comme Google) ou regroupée par programme/semaine. La petite montre indique des données détaillées.',phone('21:20',`
+  <div class="top"><h2>Historique</h2><button class="iconbtn t"><span class="ms">search</span></button></div>
+  <div class="sumcard"><div><b class="num">12</b><span>séances</span></div><div><b class="num">38,4</b><span>km</span></div><div><b class="num">6 h 12</b><span>de course</span></div></div>
+  <div class="seg" id="hseg"><button class="on" data-m="date">Par date</button><button data-m="prog">Par programme</button></div>
+  <div id="hlist" style="display:flex;flex-direction:column;gap:8px"></div>`,{nav:'Historique',scroll:true})));
+histRender('date');
+document.querySelectorAll('#hseg button').forEach(b=>b.onclick=()=>{document.querySelectorAll('#hseg button').forEach(x=>x.classList.remove('on'));b.classList.add('on');histRender(b.dataset.m)});
+
+/* ---------- 11 · Détail de séance ---------- */
+const FC=`<svg viewBox="0 0 360 90" style="width:100%"><defs><linearGradient id="g" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#d4440c" stop-opacity=".35"/><stop offset="1" stop-color="#d4440c" stop-opacity="0"/></linearGradient></defs><path d="M0 70 L20 62 L40 40 L55 66 L80 36 L95 62 L120 30 L135 60 L160 26 L175 60 L200 24 L215 58 L240 22 L255 56 L280 20 L295 56 L320 36 L360 66 L360 90 L0 90Z" fill="url(#g)"/><path d="M0 70 L20 62 L40 40 L55 66 L80 36 L95 62 L120 30 L135 60 L160 26 L175 60 L200 24 L215 58 L240 22 L255 56 L280 20 L295 56 L320 36 L360 66" fill="none" stroke="var(--run)" stroke-width="2.5"/></svg>`;
+const runs=[['Course 1','1:30','0,24','6:15','142'],['Course 2','1:30','0,25','6:00','151'],['Course 3','1:30','0,26','5:46','158'],['Course 4','1:30','0,25','6:00','162'],['Course 5','1:30','0,26','5:46','166'],['Course 6','1:30','0,27','5:33','171']];
+add(slot('11 · Détail d’une séance','Tracé, graphique cardiaque et tours si la montre les a fournis. Sinon, seulement ce qu’on a (phone seul).',phone('21:21',`
+  <div class="top" style="justify-content:flex-start;gap:6px"><button class="iconbtn" style="margin-left:-10px"><span class="ms">arrow_back</span></button><div class="sp"><h2 style="font-size:22px">Semaine 1 · Jour 3</h2><div class="date">Samedi 24 octobre · 19:42</div></div><button class="iconbtn t"><span class="ms">more_vert</span></button></div>
+  <div class="trace"><span class="tag">TRACÉ GPS</span>${TRACE}</div>
+  <div class="tiles" style="grid-template-columns:repeat(3,1fr);flex:none">
+    <div class="tile"><div class="lbl">Durée</div><div class="v num" style="font-size:26px">30:12</div></div>
+    <div class="tile"><div class="lbl">Distance</div><div class="v num" style="font-size:26px">3,4<span class="u"> km</span></div></div>
+    <div class="tile"><div class="lbl">Allure moy.</div><div class="v num" style="font-size:26px">8:52</div></div></div>
+  <div class="srcrow"><span class="ms f" style="font-size:20px">watch</span>Pixel Watch 4 · GPS double fréquence</div>
+  <div class="mini"><div><b>147</b><span>FC moy.</span></div><div><b>171</b><span>FC max</span></div><div><b>161</b><span>cadence</span></div><div><b>298</b><span>kcal</span></div></div>
+  <div class="card" style="padding:12px"><div class="lbl" style="margin-bottom:4px">Fréquence cardiaque</div>${FC}</div>
+  <div class="card"><div class="lbl" style="margin-bottom:6px">Courses (tours)</div>
+   ${runs.map(r=>`<div class="step num"><b style="width:80px;font-weight:600">${r[0]}</b><span class="sp"></span><span style="width:50px">${r[1]}</span><span style="width:62px">${r[2]} km</span><span style="width:54px">${r[3]}</span><span style="width:40px;text-align:right;color:var(--run)">${r[4]}</span></div>`).join('')}</div>
+  <button class="btn tonal" style="flex:none"><span class="ms">ios_share</span>Exporter en GPX</button>`,{scroll:true})));
+
+/* ---------- 12 · Calendrier ---------- */
+const DONE=[12,14,17,19,22,24],PLAN=[25,27,29,31];
+add(slot('12 · Calendrier','Mois en un coup d’œil: pastille pleine = faite, cercle = prévue. Taper un jour: détail, démarrer ou replanifier. « + » pour ajouter.',phone('21:22',`
+  <div class="top"><h2>Octobre 2026</h2><div class="row" style="gap:0"><button class="iconbtn"><span class="ms">chevron_left</span></button><button class="iconbtn"><span class="ms">chevron_right</span></button></div></div>
+  <div class="seg" style="width:200px;flex:none"><button class="on">Mois</button><button>Semaine</button></div>
+  <div class="cal"><div class="hd">${['L','M','M','J','V','S','D'].map(d=>`<span>${d}</span>`).join('')}</div><div class="gr" id="calgr"></div></div>
+  <div class="legend"><span><i style="background:var(--calm)"></i>Faite</span><span><i style="border:1.5px solid var(--primary)"></i>Prévue</span></div>
+  <div class="card" id="calcard"></div>
+  <div class="fab"><span class="ms">add</span></div>`,{nav:'Calendrier'})));
+(function(){
+  const gr=document.getElementById('calgr');let o='';
+  for(let i=0;i<3;i++)o+=`<div class="c mute"><b style="font-weight:500">${28+i}</b><i></i></div>`;
+  for(let d=1;d<=31;d++)o+=`<div class="c${d===25?' td sel':''}" data-d="${d}"><b style="font-weight:${d===25?700:500}">${d}</b><i class="${DONE.includes(d)?'d':PLAN.includes(d)?'p':''}"></i></div>`;
+  gr.innerHTML=o;
+  const card=document.getElementById('calcard');
+  const WD=['Dimanche','Lundi','Mardi','Mercredi','Jeudi','Vendredi','Samedi'];
+  const show=d=>{const wd=WD[(d+3)%7]; // 1 oct 2026 = jeudi
+    let h;
+    if(DONE.includes(d))h=`<div class="lbl">${wd} ${d} octobre</div><div class="row" style="margin-top:8px"><div class="ok" style="width:40px;height:40px;border-radius:50%;background:var(--calm-c);color:var(--calm);display:grid;place-items:center"><span class="ms">check</span></div><div class="sp"><b>Séance terminée</b><div class="meta" style="margin:0">3,4 km · 30:12 · 8:52/km</div></div><button class="btn text">Détail</button></div>`;
+    else if(PLAN.includes(d))h=`<div class="lbl">${wd} ${d} octobre${d===25?' · aujourd’hui':''}</div><div class="row" style="margin-top:8px"><div class="sp"><b>Semaine ${d===25?2:d===27?2:d===29?2:3} · Jour ${d===25?1:d===27?2:d===29?3:1}</b><div class="meta" style="margin:0">Du canapé au 5 km · ~31 min</div></div></div><div class="row" style="margin-top:12px"><button class="btn fill sp" style="height:48px">${d===25?'Démarrer':'Voir'}</button><button class="btn tonal" style="height:48px">Déplacer</button></div>`;
+    else h=`<div class="lbl">${wd} ${d} octobre</div><div class="meta" style="margin-top:8px">Jour de repos. Le repos fait progresser, rien n'est cassé.</div><button class="btn tonal" style="height:48px;margin-top:12px">Planifier une séance</button>`;
+    card.innerHTML=h};
+  show(25);
+  gr.querySelectorAll('.c[data-d]').forEach(c=>c.onclick=()=>{gr.querySelectorAll('.c').forEach(x=>x.classList.remove('sel'));c.classList.add('sel');show(+c.dataset.d)});
+})();
+
+/* ---------- 13 · Réglages ---------- */
+add(slot('13 · Réglages','Sections bien visibles. « Voix » masque ses options quand elle est désactivée; « Avec ta musique » disparaît si voix ET bips sont coupés. Défile.',phone('20:43',`
+  <div class="top"><button class="iconbtn" style="margin-left:-10px"><span class="ms">arrow_back</span></button><h2 class="sp" style="font-size:24px">Réglages</h2></div>
+  <div class="sect"><span class="ms f">volume_up</span>Voix et sons</div>
+  <div class="sw"><div class="tx"><b>Voix</b><span>Annonce chaque phase</span></div><div class="switch on" id="tVoice"></div></div>
+  <div class="sub-set" id="voiceOpts">
+    <div class="slider"><span class="ms" style="margin-right:10px">volume_down</span><div class="tr"><b style="width:70%"></b><i style="left:70%"></i></div><span class="ms" style="margin-left:10px">volume_up</span></div>
+    <div class="sw"><div class="tx"><b>Compte à rebours</b><span>3, 2, 1 avant chaque changement</span></div><div class="switch on" data-t></div></div>
+    <div class="sw"><div class="tx"><b>Encouragements</b></div><div class="switch" data-t></div></div>
+    <div class="sw"><div class="tx"><b>Rappel du temps</b><span>Toutes les 5 minutes</span></div><div class="switch" data-t></div></div>
+  </div>
+  <div class="sw"><div class="tx"><b>Bips</b></div><div class="switch on" id="tBeep"></div></div>
+  <div id="musicBox" style="display:flex;flex-direction:column;gap:10px;flex:none;padding-top:4px">
+    <div class="lbl">Avec ta musique ou ta vidéo</div>
+    <div class="seg" id="musicSeg"><button class="on">Superposer</button><button>Baisser</button><button>Pause</button></div>
+    <div class="note" id="musicNote"><span class="ms">info</span><span></span></div>
+  </div>
+  <div class="sect"><span class="ms f">vibration</span>Vibrations</div>
+  <div class="sw"><div class="tx"><b>Téléphone</b></div><div class="switch on" id="tVib"></div></div>
+  <div class="sub-set" id="vibOpts"><div class="seg" style="margin:4px 0 8px"><button>Faible</button><button class="on">Moyenne</button><button>Forte</button></div></div>
+  <div class="sw"><div class="tx"><b>Montre</b></div><div class="switch on" data-t></div></div>
+  <div class="sect"><span class="ms f">directions_run</span>Séance</div>
+  <div class="sw"><div class="tx"><b>Garder l'écran allumé</b></div><div class="switch on" data-t></div></div>
+  <div class="sw"><div class="tx"><b>Mode tapis</b><span>Sans GPS</span></div><div class="switch" data-t></div></div>
+  <div class="sw"><div class="tx"><b>Auto-pause</b></div><div class="switch on" data-t></div></div>
+  <div class="sw"><div class="tx"><b>Style d'écran par défaut</b></div><span class="chip sel">Focus<span class="ms">arrow_drop_down</span></span></div>
+  <div class="sect"><span class="ms f">favorite</span>Santé</div>
+  <div class="sw"><div class="tx"><b>Mon poids</b><span>Sert à estimer les calories sans montre</span></div><span class="chip sel">72 kg<span class="ms">arrow_drop_down</span></span></div>
+  <div class="sw"><div class="tx"><b>Health Connect</b><span>Connecté · écriture automatique</span></div><span class="ms f" style="color:var(--primary)">check_circle</span></div>
+  <div class="sect"><span class="ms f">palette</span>Apparence et langue</div>
+  <div class="sw"><div class="tx"><b>Thème</b></div><span class="chip sel">Clair<span class="ms">arrow_drop_down</span></span></div>
+  <div class="sw"><div class="tx"><b>Couleurs dynamiques</b></div><div class="switch" data-t></div></div>
+  <div class="sw"><div class="tx"><b>Guide et questions fréquentes</b></div><span class="ms">chevron_right</span></div>`,{scroll:true})));
+
+/* ---------- interactions ---------- */
+tl(document.getElementById('homeTl'),S0);
+const skipW=document.getElementById('skipW'),skipC=document.getElementById('skipC');
+function renderPreview(){
+  const sw=skipW.classList.contains('on'),sc=skipC.classList.contains('on');
+  const st=S0.filter((x,i)=>!(sw&&i===0)&&!(sc&&i===S0.length-1));
+  tl(document.getElementById('pvTl'),st);
+  document.getElementById('pvMeta').textContent='~'+Math.round(st.reduce((a,x)=>a+x.s,0)/60)+' min';
+  const L=[];if(!sw)L.push(['calm','Échauffement','5 min']);L.push(['run','Course','1 min 30 ×6'],['walk','Marche','2 min ×6']);if(!sc)L.push(['calm','Retour au calme','5 min']);
+  document.getElementById('pvList').innerHTML=L.map(r=>`<div class="step"><span class="tag ${r[0]}">${r[1].toUpperCase()}</span><span class="sp"></span><b class="num">${r[2]}</b></div>`).join('');
+}
+[skipW,skipC].forEach(s=>s.onclick=()=>{s.classList.toggle('on');renderPreview()});renderPreview();
+document.querySelectorAll('[data-t]').forEach(s=>s.onclick=()=>s.classList.toggle('on'));
+document.querySelectorAll('#start .opt').forEach(o=>o.onclick=()=>{document.querySelectorAll('#start .opt').forEach(x=>x.classList.remove('sel'));o.classList.add('sel')});
+document.querySelectorAll('#emo button').forEach(b=>b.onclick=()=>{document.querySelectorAll('#emo button').forEach(x=>x.classList.remove('on'));b.classList.add('on')});
+// réglages dynamiques
+const tV=document.getElementById('tVoice'),tB=document.getElementById('tBeep'),tVib=document.getElementById('tVib');
+const notes=['Notre voix se joue par-dessus. Ta musique n’est jamais touchée ni mise en pause.','La musique baisse pendant l’annonce puis remonte. L’appli de musique décide de combien elle baisse.','La musique est mise en pause pendant l’annonce, puis reprend.'];
+function syncSettings(){
+  document.getElementById('voiceOpts').classList.toggle('hide',!tV.classList.contains('on'));
+  document.getElementById('vibOpts').classList.toggle('hide',!tVib.classList.contains('on'));
+  document.getElementById('musicBox').classList.toggle('hide',!(tV.classList.contains('on')||tB.classList.contains('on')));
+}
+[tV,tB,tVib].forEach(t=>t.onclick=()=>{t.classList.toggle('on');syncSettings()});
+document.querySelectorAll('#musicSeg button').forEach((b,i)=>b.onclick=()=>{document.querySelectorAll('#musicSeg button').forEach(x=>x.classList.remove('on'));b.classList.add('on');document.querySelector('#musicNote span:last-child').textContent=notes[i]});
+document.querySelector('#musicNote span:last-child').textContent=notes[0];syncSettings();
+// programme: accordéon + choix du jour
+const pp=document.getElementById('progPhone');
+pp.querySelectorAll('.wk .h').forEach(h=>h.onclick=()=>{const w=h.parentElement;w.classList.toggle('closed');h.lastElementChild.textContent=w.classList.contains('closed')?'expand_more':'expand_less'});
+pp.querySelectorAll('.dp').forEach(b=>b.onclick=()=>{
+  const w=+b.dataset.w,d=+b.dataset.d,idx=w*3+d,cur=1*3+0;pp.querySelectorAll('.dlg').forEach(e=>e.remove());
+  if(idx===cur)return;
+  const n=Math.abs(idx-cur),fwd=idx>cur;
+  pp.querySelector('.body').insertAdjacentHTML('beforeend',`<div class="scrim dlg"></div><div class="dialog dlg"><div class="title" style="font-size:20px">Commencer à Semaine ${w+1} · Jour ${d+1} ?</div>
+   <div class="meta" style="line-height:1.4">${fwd?`${n} séance${n>1?'s':''} précédente${n>1?'s':''} ser${n>1?'ont':'a'} marquée${n>1?'s':''} comme faite${n>1?'s':''}.`:`${n} séance${n>1?'s':''} ser${n>1?'ont':'a'} de nouveau à faire.`} Tu pourras annuler ça dans l'historique.</div>
+   <div class="row" style="justify-content:flex-end"><button class="btn text dno">Annuler</button><button class="btn fill dyes" style="height:48px">Confirmer</button></div></div>`);
+  pp.querySelector('.dno').onclick=pp.querySelector('.dyes').onclick=()=>pp.querySelectorAll('.dlg').forEach(e=>e.remove());
+});
+</script>
+</body>
+</html>

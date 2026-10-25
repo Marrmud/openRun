@@ -1,0 +1,117 @@
+<!doctype html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>openRun · maquette montre v0</title>
+<link href="https://fonts.googleapis.com/css2?family=Roboto+Flex:opsz,wght@8..144,400;8..144,500;8..144,700;8..144,900&family=Material+Symbols+Rounded:opsz,wght,FILL,GRAD@24,400,0..1,0&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg:#000; --surf:#1b1f1e; --surf2:#262b29; --on:#f1f5f3; --on-v:#a9b5b0;
+  --primary:#7fd6c4; --on-primary:#00201b;
+  --run:#ff7a45; --run-c:#4a2415; --walk:#6aa9ff; --walk-c:#14284a; --calm:#6fcf97; --gold:#ffb74d; --err:#ff8a80;
+}
+*{box-sizing:border-box;margin:0}
+body{font-family:'Roboto Flex',system-ui,sans-serif;background:#d9dedb;padding:28px 16px 60px;color:#171d1b}
+h1{font-size:22px;text-align:center}.sub{text-align:center;color:#4a5552;margin:6px auto 26px;max-width:780px;font-size:14px;line-height:1.5}
+.wall{display:flex;flex-wrap:wrap;gap:34px 30px;justify-content:center}
+.slot{display:flex;flex-direction:column;align-items:center;gap:12px}
+.cap{font-size:13px;font-weight:600;color:#33403c;text-align:center;max-width:340px}.cap small{display:block;font-weight:400;color:#5a6662;margin-top:2px}
+.ms{font-family:'Material Symbols Rounded';font-weight:400;font-style:normal;font-size:24px;line-height:1;display:inline-block;font-variation-settings:'FILL' 0;vertical-align:middle;white-space:nowrap}
+.ms.f{font-variation-settings:'FILL' 1}
+/* boîtier + écran rond (~450px réels, affiché à 340) */
+.watch{width:372px;height:372px;border-radius:50%;background:#2c3130;padding:16px;box-shadow:0 14px 40px #0004;position:relative}
+.scr{width:100%;height:100%;border-radius:50%;background:var(--bg);color:var(--on);overflow:hidden;position:relative;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center}
+.scr .ring{position:absolute;inset:0}
+.num{font-variant-numeric:tabular-nums}
+.big{font-size:84px;font-weight:800;letter-spacing:-3px;line-height:1}
+.lab{font-size:13px;font-weight:700;letter-spacing:1.2px;text-transform:uppercase}
+.lab.run{color:var(--run)}.lab.walk{color:var(--walk)}.lab.calm{color:var(--calm)}
+.dim{color:var(--on-v);font-size:14px}
+.pill{display:inline-flex;align-items:center;justify-content:center;gap:8px;height:52px;border-radius:26px;padding:0 26px;font:700 17px 'Roboto Flex',sans-serif;border:0;cursor:pointer}
+.pill.fill{background:var(--primary);color:var(--on-primary)}
+.pill.tonal{background:var(--surf2);color:var(--on)}
+.pill.bad{background:#4a1e1a;color:var(--err)}
+.round{width:64px;height:64px;border-radius:50%;border:0;background:var(--surf2);color:var(--on);display:grid;place-items:center;cursor:pointer}
+.round .ms{font-size:30px}.round.main{width:84px;height:84px;background:var(--primary);color:var(--on-primary)}
+.round.main .ms{font-size:40px}
+.hr{display:flex;align-items:center;gap:5px;font-size:20px;font-weight:700}.hr .ms{color:var(--err);font-size:20px}
+.dots{position:absolute;bottom:22px;display:flex;gap:6px}.dots i{width:7px;height:7px;border-radius:50%;background:#555}.dots i.on{background:var(--primary)}
+.rank{position:relative;display:inline-grid;place-items:center;width:var(--s,40px);height:var(--s,40px);color:var(--rc,#888)}
+.rank .ms.sh{font-size:var(--s,40px);font-variation-settings:'FILL' 1}
+.rank .ms.ru{position:absolute;font-size:calc(var(--s,40px)*.5);color:#fff;font-variation-settings:'FILL' 1,'wght' 500;margin-top:-2px}
+.tl{display:flex;gap:2px;height:22px;align-items:flex-end;width:190px}.tl i{display:block;border-radius:3px;min-width:2px}
+.tl i.run{background:var(--run);height:100%}.tl i.walk{background:var(--walk);height:55%}.tl i.calm{background:var(--calm);height:40%}
+.row3{display:flex;flex-direction:column;gap:2px;width:220px}
+.row3>div{display:flex;justify-content:space-between;align-items:baseline;padding:5px 0;border-bottom:1px solid #2c3130}
+.row3>div:last-child{border:0}.row3 b{font-size:34px;letter-spacing:-1px}.row3 span{font-size:13px;color:var(--on-v)}
+.clk{position:absolute;top:30px;font-size:15px;font-weight:600;color:var(--on-v)}
+.pager{position:absolute;inset:0;display:grid;grid-template-columns:1fr 1fr}
+.pager button{background:transparent;border:0;cursor:pointer}
+</style>
+</head>
+<body>
+<h1>openRun · maquette montre (Wear OS, Pixel Watch 4)</h1>
+<p class="sub">Écran rond ~450 px. <b>Thème sombre volontaire</b>: écran OLED, lisible au soleil comme de nuit, économie de batterie; c'est la norme Wear OS.
+La montre peut tout faire seule (GPS, FC, intervalles) et envoie la séance au téléphone. Écran « Course »: clique à gauche/droite pour changer de page, et sur la pause.</p>
+<div class="wall" id="wall"></div>
+<script>
+const RANKS=[['Fer','#78858f'],['Bronze','#b0703a'],['Argent','#8f9ba6'],['Or','#d19a00'],['Platine','#2fa6b5'],['Diamant','#4a7df0']];
+const rank=(i,s=40)=>`<span class="rank" style="--s:${s}px;--rc:${RANKS[i][1]}"><span class="ms sh">shield</span><span class="ms ru">directions_run</span></span>`;
+const S0=[{t:'calm',s:300}];for(let i=0;i<6;i++){S0.push({t:'run',s:90});S0.push({t:'walk',s:120})}S0.push({t:'calm',s:300});
+const tl=(cur)=>`<div class="tl">${S0.map((x,i)=>`<i class="${x.t}" style="flex:${x.s};opacity:${cur!=null&&i<cur?.3:1}"></i>`).join('')}</div>`;
+// arc de progression autour de l'écran (r=164 sur viewBox 340)
+const arc=(p,col,bg)=>{const r=162,c=2*Math.PI*r;return `<svg class="ring" viewBox="0 0 340 340"><circle cx="170" cy="170" r="${r}" fill="none" stroke="${bg}" stroke-width="12"/><circle cx="170" cy="170" r="${r}" fill="none" stroke="${col}" stroke-width="12" stroke-linecap="round" stroke-dasharray="${c*p} ${c}" transform="rotate(-90 170 170)"/></svg>`};
+const wall=document.getElementById('wall');
+const add=(c,s,h)=>wall.insertAdjacentHTML('beforeend',`<div class="slot"><div class="watch"><div class="scr">${h}</div></div><div class="cap">${c}<small>${s}</small></div></div>`);
+
+add('1 · Séance du jour','Ouverture de l’appli ou tuile: la séance, un seul bouton. Rang discret.',
+`<div class="clk">20:42</div><div style="display:flex;align-items:center;gap:8px;margin-bottom:6px">${rank(1,28)}<span class="dim">Bronze II</span></div>
+ <div class="lab" style="color:var(--primary)">Aujourd'hui</div><div style="font-size:26px;font-weight:700;margin:2px 0 8px">Semaine 2 · J1</div>
+ ${tl()}<div class="dim num" style="margin:8px 0 12px">~31 min · 6 courses</div>
+ <button class="pill fill"><span class="ms f">play_arrow</span>Démarrer</button>`);
+
+add('2 · Prêt (GPS)','Recherche du signal avec la FC en direct. Le bouton s’active quand le GPS est prêt; on peut démarrer sans attendre.',
+`${arc(1,'#7fd6c4','#14332d')}<div class="lab" style="color:var(--primary)">GPS prêt</div><div class="hr" style="margin:6px 0 4px"><span class="ms f">favorite</span>72</div>
+ <div class="dim">Semaine 2 · J1</div><button class="pill fill" style="margin-top:14px"><span class="ms f">play_arrow</span>Go</button>`);
+
+// course interactive
+add('3 · Course (3 pages)','Page 1 Focus, page 2 Données, page 3 Contrôles. Clique à droite / à gauche de l’écran pour changer de page. Haptique à chaque changement de phase.',
+`<div id="runscr" style="width:100%;height:100%;display:flex;flex-direction:column;align-items:center;justify-content:center"></div>
+ <div class="pager"><button id="pl"></button><button id="pr"></button></div>`);
+const run=document.getElementById('runscr');let page=0,paused=false;
+function drawRun(){
+  let h='';
+  if(page===0){h=`${arc(0.47,'#ff7a45','#4a2415')}<div class="lab run">Course · 3/6</div><div class="big num" style="margin:4px 0">0:48</div>
+   <div class="hr"><span class="ms f">favorite</span>143</div><div class="dim" style="margin-top:10px">Ensuite · <span style="color:var(--walk);font-weight:700">Marche 2:00</span></div>`}
+  else if(page===1){h=`<div class="lab run" style="margin-bottom:6px">Course · 0:48</div><div class="row3"><div><b class="num">5:52</b><span>/km</span></div><div><b class="num">2,14</b><span>km</span></div><div><b class="num">18:42</b><span>temps</span></div></div>`}
+  else{h=`<div class="lab" style="color:var(--on-v);margin-bottom:12px">${paused?'En pause':'Contrôles'}</div>
+   <div style="display:flex;gap:14px;align-items:center"><button class="round" title="Précédent"><span class="ms">skip_previous</span></button><button class="round main" id="pz"><span class="ms f">${paused?'play_arrow':'pause'}</span></button><button class="round" title="Suivant"><span class="ms">skip_next</span></button></div>
+   <div style="display:flex;gap:12px;margin-top:14px"><button class="round" style="width:52px;height:52px"><span class="ms" style="font-size:24px">lock</span></button><button class="round" style="width:52px;height:52px;background:#4a1e1a;color:var(--err)"><span class="ms" style="font-size:24px">stop</span></button></div>`}
+  run.innerHTML=h+`<div class="dots">${[0,1,2].map(i=>`<i class="${i===page?'on':''}"></i>`).join('')}</div>`;
+  const pz=document.getElementById('pz');if(pz)pz.onclick=e=>{e.stopPropagation();paused=!paused;drawRun()};
+}
+document.getElementById('pl').onclick=()=>{page=Math.max(0,page-1);drawRun()};
+document.getElementById('pr').onclick=()=>{page=Math.min(2,page+1);drawRun()};
+drawRun();
+// le contenu laisse passer les clics vers le pager, sauf ses boutons
+const st=document.createElement('style');st.textContent='#runscr{position:relative;z-index:2;pointer-events:none}#runscr button{pointer-events:auto}.pager{z-index:1}';document.head.appendChild(st);
+
+add('4 · Marche','Même écran, couleur de phase différente (bleu). Libellé + haptique distinct, jamais la couleur seule.',
+`${arc(0.3,'#6aa9ff','#14284a')}<div class="lab walk">Marche · 3/6</div><div class="big num" style="margin:4px 0">1:24</div>
+ <div class="hr"><span class="ms f">favorite</span>131</div><div class="dim" style="margin-top:10px">Ensuite · <span style="color:var(--run);font-weight:700">Course 1:30</span></div>`);
+
+add('5 · Terminer en avance','Depuis la page Contrôles (bouton stop): même choix que sur le téléphone.',
+`<div style="font-size:22px;font-weight:700;margin-bottom:4px">Terminer ?</div><div class="dim num" style="margin-bottom:12px">18:42 · 2,14 km</div>
+ <button class="pill fill" style="height:46px;width:220px"><span class="ms f">save</span>Enregistrer</button>
+ <button class="pill bad" style="height:46px;width:220px;margin-top:8px"><span class="ms">delete</span>Supprimer</button>
+ <button class="pill tonal" style="height:40px;width:180px;margin-top:8px;font-size:15px">Continuer</button>`);
+
+add('6 · Bien joué','Distance, temps, calories vers le rang suivant. Envoi au téléphone puis à Health Connect.',
+`<div style="margin-bottom:2px">${rank(1,54)}</div><div style="font-size:24px;font-weight:800">Bien joué !</div>
+ <div class="row3" style="width:200px;margin-top:6px"><div><b class="num" style="font-size:28px">3,6</b><span>km</span></div><div><b class="num" style="font-size:28px">31:04</b><span>durée</span></div></div>
+ <div class="dim num" style="margin-top:6px">+312 kcal · Bronze I dans 68</div>
+ <div style="display:flex;align-items:center;gap:6px;color:var(--calm);font-size:13px;font-weight:600;margin-top:8px"><span class="ms f" style="font-size:18px">check_circle</span>Envoyée au téléphone</div>`);
+</script>
+</body>
+</html>
