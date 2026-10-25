@@ -100,9 +100,63 @@
     <string name="duration_m">%d min</string>
     <string name="duration_ms">%1$d min %2$02d s</string>
 
+    <!-- run screen -->
+    <string name="week_day_short">S%1$d · J%2$d</string>
+    <string name="pause">Pause</string>
+    <string name="resume_run">Reprendre</string>
+    <string name="paused">En pause</string>
+    <string name="auto_paused">Pause auto</string>
+    <string name="finish">Terminer</string>
+    <string name="finish_menu">Terminer la séance…</string>
+    <string name="finish_title">Terminer la séance ?</string>
+    <string name="finish_progress">Tu as fait %1$s sur ~%2$d min (%3$d %%) · %4$s km.</string>
+    <string name="finish_progress_free">Tu as couru %1$s · %2$s km.</string>
+    <string name="save_and_finish">Enregistrer et terminer</string>
+    <string name="discard">Supprimer la séance</string>
+    <string name="keep_running">Continuer à courir</string>
+    <string name="restart_interval">Recommencer l\'intervalle</string>
+    <string name="back_to_warmup">Revenir à l\'échauffement</string>
+    <string name="lock">Verrouiller</string>
+    <string name="unlock_hint">Maintiens le cadenas pour déverrouiller</string>
+    <string name="previous_interval">Intervalle précédent</string>
+    <string name="next_interval">Intervalle suivant</string>
+    <string name="remaining">restant</string>
+    <string name="elapsed">écoulé</string>
+    <string name="next_up">Ensuite : %1$s · %2$s</string>
+    <string name="distance">Distance</string>
+    <string name="time">Temps</string>
+    <string name="pace">Allure</string>
+    <string name="avg_pace">Allure moy.</string>
+    <string name="calories">Calories</string>
+    <string name="intervals">Intervalles</string>
+    <string name="gps">GPS</string>
+    <string name="gps_off">Sans GPS</string>
+    <string name="upcoming">À venir</string>
+    <string name="left_total">reste %s</string>
+    <string name="remaining_interval">Restant dans l\'intervalle</string>
+    <string name="run_done_title">Séance terminée</string>
+
+    <!-- spoken -->
+    <string name="run_go">C\'est parti</string>
+    <string name="run_done_voice">Séance terminée. Bravo !</string>
+    <string name="encourage_half">Tu es à la moitié, continue comme ça.</string>
+    <string name="encourage_last_run">Dernière course, tu y es presque.</string>
+    <string name="reminder_minutes">%d minutes</string>
+    <string name="notif_channel">Séance en cours</string>
+
+    <!-- permissions -->
+    <string name="perm_title">Pour compter ta distance</string>
+    <string name="perm_body">openRun a besoin de ta position pendant la séance pour mesurer la distance et l\'allure, et d\'afficher une notification pour continuer écran verrouillé. Rien ne quitte ton téléphone.</string>
+    <string name="allow">Autoriser</string>
+    <string name="run_without_gps">Courir sans GPS</string>
+    <string name="perm_privacy">Ta position reste sur ton téléphone</string>
+
+    <!-- summary -->
+    <string name="well_done">Bien joué !</string>
+    <string name="laps_equiv">%1$s km = %2$s tours de piste</string>
+    <string name="kcal_gained">+%1$d kcal · encore %2$d avant le prochain rang</string>
+
     <!-- placeholders -->
-    <string name="phases_count">%d phases</string>
-    <string name="run_coming">L\'écran de course arrive à l\'étape suivante.</string>
     <string name="history_coming">L\'historique arrive bientôt.</string>
 
     <!-- settings -->

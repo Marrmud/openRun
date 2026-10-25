@@ -33,6 +33,8 @@ import org.openrun.app.R
 import org.openrun.app.ui.home.HomeScreen
 import org.openrun.app.ui.program.ParcoursScreen
 import org.openrun.app.ui.program.ProgramScreen
+import org.openrun.app.ui.run.RunRoute
+import org.openrun.app.ui.run.SummaryScreen
 import org.openrun.app.ui.settings.SettingsScreen
 import org.openrun.app.ui.start.StartScreen
 import org.openrun.core.Programs
@@ -46,6 +48,9 @@ private object Routes {
     const val SETTINGS = "settings"
     const val RUN = "run?programId={programId}&index={index}&skipWarmup={skipWarmup}&skipCooldown={skipCooldown}"
 
+    const val SUMMARY = "summary/{runId}"
+
+    fun summary(runId: Long) = "summary/$runId"
     fun start(first: Boolean) = "start?first=$first"
     fun program(id: String) = "program/$id"
     fun run(programId: String?, index: Int, sw: Boolean, sc: Boolean) =
@@ -141,20 +146,20 @@ fun AppNav() {
                     navArgument("skipWarmup") { type = NavType.BoolType; defaultValue = false },
                     navArgument("skipCooldown") { type = NavType.BoolType; defaultValue = false },
                 ),
-            ) { entry -> RunRoute(entry) { nav.popBackStack() } }
+            ) { entry ->
+                val a = entry.arguments
+                RunRoute(
+                    programId = a?.getString("programId")?.takeIf { it.isNotEmpty() },
+                    index = a?.getInt("index") ?: 0,
+                    skipWarmup = a?.getBoolean("skipWarmup") ?: false,
+                    skipCooldown = a?.getBoolean("skipCooldown") ?: false,
+                    onSaved = { id -> nav.navigate(Routes.summary(id)) { popUpTo(Routes.HOME) } },
+                    onClose = { nav.popBackStack(Routes.HOME, inclusive = false) },
+                )
+            }
+            composable(Routes.SUMMARY, arguments = listOf(navArgument("runId") { type = NavType.LongType })) { entry ->
+                SummaryScreen(entry.arguments?.getLong("runId") ?: 0L, onDone = { nav.popBackStack(Routes.HOME, inclusive = false) })
+            }
         }
     }
-}
-
-@Composable
-private fun RunRoute(entry: NavBackStackEntry, onBack: () -> Unit) {
-    val a = entry.arguments
-    val programId = a?.getString("programId").orEmpty()
-    RunPlaceholder(
-        program = Programs.all.firstOrNull { it.id == programId },
-        index = a?.getInt("index") ?: 0,
-        skipWarmup = a?.getBoolean("skipWarmup") ?: false,
-        skipCooldown = a?.getBoolean("skipCooldown") ?: false,
-        onBack = onBack,
-    )
 }

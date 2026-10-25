@@ -41,6 +41,38 @@ class TrackTest {
         assertNotNull(Track.paceSecPerKm(100.0, 30.0))
     }
 
+    @Test fun theLiveAccumulatorAgreesWithAddingUpTheWholeTrack() {
+        val pts = listOf(p(48.000, 0), p(48.001, 40), p(48.0015, 60, acc = 90f), p(48.009, 61), p(48.002, 80), p(48.0021, 81, acc = 5f))
+        val acc = TrackAccumulator()
+        var live = 0.0
+        pts.forEach { live += acc.add(it) }
+        assertEquals(Track.distanceM(pts), live, 0.0001)
+        assertEquals(live, acc.distanceM, 0.0001)
+    }
+
+    @Test fun anIgnoredFixAddsNothing() {
+        val acc = TrackAccumulator()
+        acc.add(p(48.000, 0))
+        assertEquals(0.0, acc.add(p(48.001, 40, acc = 80f)), 0.0)
+        assertEquals(0.0, acc.add(p(48.009, 41)), 0.0) // 1 km in a second
+        assertEquals(111.2, acc.add(p(48.001, 60)), 0.5)
+    }
+
+    @Test fun recentPaceLooksOnlyAtTheLastWindow() {
+        // slow for a minute (1 m/s), then fast for 30 s (4 m/s): the pace right now is the fast one
+        val pts = mutableListOf<TrackPoint>()
+        var lat = 48.0
+        for (t in 0..60) { pts += p(lat, t.toLong()); lat += 1.0 / 111_195.0 }
+        for (t in 61..90) { pts += p(lat, t.toLong()); lat += 4.0 / 111_195.0 }
+        val pace = Track.recentPaceSecPerKm(pts, windowMs = 30_000)!!
+        assertEquals(250.0, pace, 12.0) // 4 m/s is 4:10 per km
+    }
+
+    @Test fun noRecentPaceWithoutEnoughPoints() {
+        assertNull(Track.recentPaceSecPerKm(emptyList()))
+        assertNull(Track.recentPaceSecPerKm(listOf(p(48.0, 0))))
+    }
+
     @Test fun nineLapsForThreePointSixKilometres() {
         assertEquals(9.0, Track.laps(3600.0), 0.0001)
     }
