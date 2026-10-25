@@ -29,6 +29,7 @@ assez profonde pour un coureur avancé (séances structurées, calendrier, plans
 Notes de terrain:
 - Si Gradle échoue avec « Unable to establish loopback connection »: `JAVA_TOOL_OPTIONS=-Djdk.net.unixdomain.tmpdir=C:\gradle-home\uds` (dossier à créer).
 - Tests sur téléphone en adb Wi-Fi: donner à `ANDROID_SERIAL` le nom mDNS (`adb devices`, ligne `adb-…_adb-tls-connect._tcp`), pas `IP:port`. Avec `IP:port`, les 16 tests passent mais Gradle rapporte un échec à tort.
+- Build debug seulement: `adb shell am broadcast -n org.openrun.app/.debug.DemoSeedReceiver` ajoute trois séances de démonstration (avec tracé, tours et données de montre simulées) pour voir l'historique sans courir. Pour tout effacer: `adb shell pm clear org.openrun.app`.
 - `spike/` est le banc d'essai jetable de T0 (voir docs/T0-SPIKE.md).
 
 ## Licence

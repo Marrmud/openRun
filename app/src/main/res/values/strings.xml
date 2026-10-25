@@ -156,8 +156,27 @@
     <string name="laps_equiv">%1$s km = %2$s tours de piste</string>
     <string name="kcal_gained">+%1$d kcal · encore %2$d avant le prochain rang</string>
 
-    <!-- placeholders -->
-    <string name="history_coming">L\'historique arrive bientôt.</string>
+    <string name="new_rank">Nouveau rang !</string>
+    <string name="how_was_it">Comment c\'était ?</string>
+
+    <!-- history and detail -->
+    <string name="sessions_label">séances</string>
+    <string name="of_running">de course</string>
+    <string name="history_empty">Ta première séance apparaîtra ici. Elle prend une minute à lancer.</string>
+    <string name="by_date">Par date</string>
+    <string name="by_program">Par programme</string>
+    <string name="free_runs">Courses libres</string>
+    <string name="partial">partielle</string>
+    <string name="watch_data">Données de ta montre</string>
+    <string name="no_track">Pas de tracé pour cette séance</string>
+    <string name="elevation">Dénivelé</string>
+    <string name="hr_avg">FC moy.</string>
+    <string name="hr_max">FC max</string>
+    <string name="cadence">Cadence</string>
+    <string name="laps">Tours</string>
+    <string name="delete">Supprimer</string>
+    <string name="delete_title">Supprimer cette séance ?</string>
+    <string name="delete_body">Elle sera retirée de l\'historique et de ta progression. Le programme la remet à faire.</string>
 
     <!-- settings -->
     <string name="section_voice">Voix et sons</string>

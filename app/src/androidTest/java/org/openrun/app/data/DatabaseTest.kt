@@ -76,6 +76,31 @@ class DatabaseTest {
         assertEquals(1, p.currentIndex)
     }
 
+    @Test fun aCutShortSessionKeepsItsProgramButDoesNotCompleteIt() = runBlocking {
+        val id = repo.saveRun(run(session = 4), completesSession = false)
+        assertEquals(Programs.C25K, repo.run(id)!!.programId)
+        assertTrue(repo.progress(c25k).first().done.isEmpty())
+        val item = repo.historyItems().first().single()
+        assertEquals(false, item.completed)
+        assertEquals(4, item.sessionIndex)
+    }
+
+    @Test fun historyItemsSayWhichRunsCompletedTheirSession() = runBlocking {
+        val completed = repo.saveRun(run(startedAt = 1_000, session = 0))
+        val partial = repo.saveRun(run(startedAt = 2_000, session = 1), completesSession = false)
+        val free = repo.saveRun(run(startedAt = 3_000))
+        val items = repo.historyItems().first()
+        assertEquals(listOf(free, partial, completed), items.map { it.id })
+        assertEquals(listOf(false, false, true), items.map { it.completed })
+        assertTrue(repo.isCompleted(completed)); assertEquals(false, repo.isCompleted(partial))
+    }
+
+    @Test fun aSessionSkippedOverIsNotListedAsRun() = runBlocking {
+        repo.applyJump(c25k, repo.progressNow(c25k).planJump(3))
+        assertEquals(setOf(0, 1, 2), repo.progress(c25k).first().done)
+        assertTrue(repo.historyItems().first().isEmpty())
+    }
+
     @Test fun aFreeRunDoesNotTouchProgress() = runBlocking {
         repo.saveRun(run())
         assertTrue(repo.progress(c25k).first().done.isEmpty())

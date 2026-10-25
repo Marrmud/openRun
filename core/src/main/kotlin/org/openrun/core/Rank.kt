@@ -17,6 +17,15 @@ data class Rank(
 }
 
 object Ranks {
+    /** The new rank when a session moved the total past a division boundary, else null. */
+    fun promotion(beforeKcal: Double, afterKcal: Double, kcalPerDivision: Int = KCAL_PER_DIVISION): Rank? {
+        val before = forTotal(beforeKcal, kcalPerDivision)
+        val after = forTotal(afterKcal, kcalPerDivision)
+        val moved = after.tier.ordinal > before.tier.ordinal ||
+            (after.tier == before.tier && after.division < before.division)
+        return if (moved) after else null
+    }
+
     /** Provisional (docs/MVP.md): one figure for every step, to adjust with real data. */
     const val KCAL_PER_DIVISION = 1000
     private const val DIVISIONS = 3

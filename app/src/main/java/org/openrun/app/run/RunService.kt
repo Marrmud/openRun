@@ -338,8 +338,8 @@ class RunService : Service(), LocationListener {
             durationSec = (activeMs / 1000).toInt(),
             distanceM = acc.distanceM,
             kcal = kcalNow(),
-            programId = if (counts) programId else null,
-            sessionIndex = if (counts) sessionIndex else null,
+            programId = programId,
+            sessionIndex = sessionIndex,
             treadmill = !gpsOn,
         )
         val trackEntities = points.mapIndexed { i, p -> TrackPointEntity(0, i, p.lat, p.lon, p.accuracyM, p.timeMs, altitudes.getOrNull(i)) }
@@ -350,7 +350,7 @@ class RunService : Service(), LocationListener {
         running = false
         ticker?.cancel()
         scope.launch {
-            if (save) RunSession.savedRunId.value = app.runs.saveRun(run, trackEntities, phaseEntities)
+            if (save) RunSession.savedRunId.value = app.runs.saveRun(run, trackEntities, phaseEntities, completesSession = counts)
             stopSession()
         }
     }

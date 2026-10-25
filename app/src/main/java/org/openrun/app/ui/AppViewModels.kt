@@ -80,6 +80,12 @@ class HomeViewModel(private val app: OpenRunApp) : ViewModel() {
     }.hot(viewModelScope, null)
 }
 
+// ---------- History ----------
+
+class HistoryViewModel(app: OpenRunApp) : ViewModel() {
+    val items: StateFlow<List<org.openrun.core.HistoryItem>?> = app.runs.historyItems().map<List<org.openrun.core.HistoryItem>, List<org.openrun.core.HistoryItem>?> { it }.hot(viewModelScope, null)
+}
+
 // ---------- Programs ----------
 
 class ParcoursViewModel(private val app: OpenRunApp) : ViewModel() {

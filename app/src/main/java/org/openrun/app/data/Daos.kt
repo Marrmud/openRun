@@ -55,6 +55,13 @@ interface DoneDao {
     @Query("DELETE FROM done_session WHERE programId = :programId AND sessionIndex IN (:indices)")
     suspend fun delete(programId: String, indices: List<Int>)
 
+    /** The sessions really run (not the ones skipped over): which runs completed their program session. */
+    @Query("SELECT runId FROM done_session WHERE runId IS NOT NULL")
+    fun observeCompletedRunIds(): Flow<List<Long>>
+
+    @Query("SELECT runId FROM done_session WHERE runId IS NOT NULL")
+    suspend fun completedRunIds(): List<Long>
+
     @Query("DELETE FROM done_session WHERE runId = :runId")
     suspend fun deleteByRun(runId: Long)
 }

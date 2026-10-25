@@ -33,6 +33,8 @@ import org.openrun.app.R
 import org.openrun.app.ui.home.HomeScreen
 import org.openrun.app.ui.program.ParcoursScreen
 import org.openrun.app.ui.program.ProgramScreen
+import org.openrun.app.ui.history.HistoryScreen
+import org.openrun.app.ui.history.RunDetailScreen
 import org.openrun.app.ui.run.RunRoute
 import org.openrun.app.ui.run.SummaryScreen
 import org.openrun.app.ui.settings.SettingsScreen
@@ -49,7 +51,9 @@ private object Routes {
     const val RUN = "run?programId={programId}&index={index}&skipWarmup={skipWarmup}&skipCooldown={skipCooldown}"
 
     const val SUMMARY = "summary/{runId}"
+    const val DETAIL = "detail/{runId}"
 
+    fun detail(runId: Long) = "detail/$runId"
     fun summary(runId: Long) = "summary/$runId"
     fun start(first: Boolean) = "start?first=$first"
     fun program(id: String) = "program/$id"
@@ -110,7 +114,14 @@ fun AppNav() {
                 val active by vm.activeProgramId.collectAsStateWithLifecycle()
                 ParcoursScreen(progress, active, onProgram = { nav.navigate(Routes.program(it)) }, onWhereAreYou = { nav.navigate(Routes.start(false)) })
             }
-            composable(Routes.HISTORY) { HistoryPlaceholder() }
+            composable(Routes.HISTORY) {
+                val vm: HistoryViewModel = viewModel(factory = factory(app) { HistoryViewModel(it) })
+                val items by vm.items.collectAsStateWithLifecycle()
+                HistoryScreen(items, onOpen = { nav.navigate(Routes.detail(it)) })
+            }
+            composable(Routes.DETAIL, arguments = listOf(navArgument("runId") { type = NavType.LongType })) { entry ->
+                RunDetailScreen(entry.arguments?.getLong("runId") ?: 0L, onBack = { nav.popBackStack() })
+            }
             composable(
                 Routes.START,
                 // Opened with no argument on a first launch; every other way in passes first=false.
