@@ -1,9 +1,19 @@
+import java.util.Properties
+
 plugins {
     alias(libs.plugins.android.application)
     alias(libs.plugins.kotlin.compose)
     alias(libs.plugins.ksp)
     alias(libs.plugins.room)
 }
+
+// Where the release key comes from: the environment (CI), else a local keystore.properties (never committed).
+// Without either, the release build still works but is left unsigned.
+val keystoreProps = Properties().apply {
+    val file = rootProject.file("keystore.properties")
+    if (file.exists()) file.inputStream().use { load(it) }
+}
+fun signingValue(env: String, key: String): String? = System.getenv(env) ?: keystoreProps.getProperty(key)
 
 android {
     namespace = "org.openrun.app"
@@ -16,6 +26,32 @@ android {
         versionCode = 1
         versionName = "0.1.0"
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
+    }
+
+    signingConfigs {
+        val storeFile = signingValue("OPENRUN_KEYSTORE_FILE", "storeFile")
+        if (storeFile != null) {
+            create("release") {
+                this.storeFile = file(storeFile)
+                storePassword = signingValue("OPENRUN_KEYSTORE_PASSWORD", "storePassword")
+                keyAlias = signingValue("OPENRUN_KEY_ALIAS", "keyAlias")
+                keyPassword = signingValue("OPENRUN_KEY_PASSWORD", "keyPassword")
+            }
+        }
+    }
+
+    buildTypes {
+        debug {
+            // lives next to the real app on the same phone, with its own data
+            applicationIdSuffix = ".debug"
+            versionNameSuffix = "-debug"
+        }
+        release {
+            isMinifyEnabled = true
+            isShrinkResources = true
+            proguardFiles(getDefaultProguardFile("proguard-android-optimize.txt"), "proguard-rules.pro")
+            signingConfigs.findByName("release")?.let { signingConfig = it }
+        }
     }
 
     compileOptions {

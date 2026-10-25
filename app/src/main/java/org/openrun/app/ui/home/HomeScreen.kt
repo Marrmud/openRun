@@ -66,6 +66,11 @@ fun HomeScreen(
     onChooseStart: () -> Unit,
     onFreeRun: () -> Unit,
     onSettings: () -> Unit,
+    active: org.openrun.app.run.RunUiState? = null,
+    onResume: () -> Unit = {},
+    interrupted: org.openrun.app.ui.HomeViewModel.Interrupted? = null,
+    onSaveInterrupted: () -> Unit = {},
+    onDiscardInterrupted: () -> Unit = {},
 ) {
     if (state == null) { Box(Modifier.fillMaxSize()); return }
     var preview by remember { mutableStateOf<Int?>(null) }
@@ -112,6 +117,39 @@ fun HomeScreen(
                 label = { Text("${rankName(state.rank)} · ${rankProgressText(state.rank)}") },
                 leadingIcon = { RankBadge(state.rank.tier, 24.dp) },
             )
+        }
+
+        if (active != null) {
+            Surface(shape = RoundedCornerShape(20.dp), color = MaterialTheme.colorScheme.primary, contentColor = MaterialTheme.colorScheme.onPrimary) {
+                Row(Modifier.fillMaxWidth().padding(horizontal = 18.dp, vertical = 12.dp), verticalAlignment = Alignment.CenterVertically) {
+                    Column(Modifier.weight(1f)) {
+                        Text(stringResource(R.string.session_running), fontWeight = FontWeight.Bold)
+                        Text(org.openrun.app.ui.run.clock(active.elapsedMs), style = MaterialTheme.typography.bodyMedium)
+                    }
+                    Button(
+                        onClick = onResume,
+                        colors = androidx.compose.material3.ButtonDefaults.buttonColors(containerColor = MaterialTheme.colorScheme.onPrimary, contentColor = MaterialTheme.colorScheme.primary),
+                    ) { Text(stringResource(R.string.resume_run)) }
+                }
+            }
+        }
+        if (interrupted != null && active == null) {
+            Surface(shape = RoundedCornerShape(20.dp), color = MaterialTheme.colorScheme.errorContainer, contentColor = MaterialTheme.colorScheme.onErrorContainer) {
+                Column(Modifier.padding(18.dp)) {
+                    Text(stringResource(R.string.interrupted_title), style = MaterialTheme.typography.titleMedium, fontWeight = FontWeight.Bold)
+                    Text(
+                        stringResource(
+                            R.string.interrupted_body, org.openrun.app.ui.run.clock(interrupted.checkpoint.activeMs),
+                            org.openrun.app.ui.run.kmText(interrupted.distanceM),
+                        ),
+                        style = MaterialTheme.typography.bodyMedium, modifier = Modifier.padding(top = 4.dp),
+                    )
+                    Row(Modifier.padding(top = 10.dp), horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                        Button(onClick = onSaveInterrupted) { Text(stringResource(R.string.keep_it)) }
+                        TextButton(onClick = onDiscardInterrupted) { Text(stringResource(R.string.throw_away), color = MaterialTheme.colorScheme.onErrorContainer) }
+                    }
+                }
+            }
         }
 
         val program = state.program

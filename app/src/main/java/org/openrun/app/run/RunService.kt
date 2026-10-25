@@ -94,6 +94,9 @@ class RunService : Service(), LocationListener {
     private var paused = false
     private var autoPaused = false
     private var lastNotificationAt = 0L
+    private var lastCheckpointAt = 0L
+    private var skipWarmup = false
+    private var skipCooldown = false
 
     // GPS
     private var gpsOn = false
@@ -140,13 +143,16 @@ class RunService : Service(), LocationListener {
         programId = intent.getStringExtra(EXTRA_PROGRAM)?.takeIf { it.isNotEmpty() }
         sessionIndex = if (programId != null) intent.getIntExtra(EXTRA_INDEX, 0) else null
         val program = programId?.let { id -> Programs.all.firstOrNull { it.id == id } }
+        skipWarmup = intent.getBooleanExtra(EXTRA_SKIP_WARMUP, false)
+        skipCooldown = intent.getBooleanExtra(EXTRA_SKIP_COOLDOWN, false)
         workout = program?.sessions?.getOrNull(sessionIndex ?: 0)?.let { w ->
-            w.let { if (intent.getBooleanExtra(EXTRA_SKIP_WARMUP, false)) it.withoutWarmup() else it }
-                .let { if (intent.getBooleanExtra(EXTRA_SKIP_COOLDOWN, false)) it.withoutCooldown() else it }
+            w.let { if (skipWarmup) it.withoutWarmup() else it }.let { if (skipCooldown) it.withoutCooldown() else it }
         }
         if (program == null) { programId = null; sessionIndex = null }
 
         scope.launch {
+            // a session left behind by a kill is saved before a new one starts: never lose a run
+            app.recovery.pending()?.let { app.recovery.save(it) }
             settings = app.settings.settings.first()
             // keep following changes, so the voice switch on the run screen acts at once
             launch { app.settings.settings.collect { settings = it } }
@@ -177,6 +183,7 @@ class RunService : Service(), LocationListener {
         }
 
         lastTickAt = SystemClock.elapsedRealtime()
+        lastCheckpointAt = lastTickAt
         if (w != null) announcePhase(0) else audio?.say(getString(R.string.run_go), settings)
         publish()
         ticker = scope.launch { while (isActive && running) { tick(); delay(250) } }
@@ -235,6 +242,7 @@ class RunService : Service(), LocationListener {
         }
         publish()
         if (now - lastNotificationAt >= 1000) { lastNotificationAt = now; updateNotification() }
+        if (now - lastCheckpointAt >= 15_000) { lastCheckpointAt = now; writeCheckpoint() }
     }
 
     private fun announcePhase(index: Int) {
@@ -288,14 +296,31 @@ class RunService : Service(), LocationListener {
 
     // ---------- state published to the screens ----------
 
-    private fun kcalNow(): Double {
+    /** The session as the saver wants it. [copy] gives it its own lists, for what is written while the run goes on. */
+    private fun currentInput(copy: Boolean): SessionInput {
         val w = workout
-        val segments = if (w == null) {
-            listOf(Calories.Segment(true, phaseSecMs[0] / 1000.0, if (gpsOn && phaseDistM[0] > 0) phaseDistM[0] else null))
-        } else w.phases.indices.filter { phaseSecMs[it] > 0 }.map {
-            Calories.Segment(w.phases[it].kind == PhaseKind.RUN, phaseSecMs[it] / 1000.0, if (gpsOn && phaseDistM[it] > 0) phaseDistM[it] else null)
-        }
-        return Calories.kcal(settings.weightKg, segments)
+        return SessionInput(
+            programId = programId, sessionIndex = sessionIndex, workout = w,
+            startedWallMs = startedWallMs, activeMs = activeMs, workoutFinished = w != null && runState.finished,
+            positionMs = w?.let { WorkoutRunner.elapsedMs(it, runState) } ?: 0L,
+            phaseSecMs = if (copy) phaseSecMs.copyOf() else phaseSecMs,
+            phaseDistM = if (copy) phaseDistM.copyOf() else phaseDistM,
+            points = if (copy) ArrayList(points) else points,
+            altitudes = if (copy) ArrayList(altitudes) else altitudes,
+            gpsOn = gpsOn, weightKg = settings.weightKg, distanceM = acc.distanceM,
+        )
+    }
+
+    private fun kcalNow(): Double = SessionSaver.kcal(currentInput(copy = false))
+
+    /** Written every few seconds: if the app is killed during a run, the session is offered for saving next time. */
+    private fun writeCheckpoint() {
+        val i = currentInput(copy = true)
+        val cp = Checkpoint(
+            i.programId, i.sessionIndex, skipWarmup, skipCooldown, i.startedWallMs, i.activeMs, i.workoutFinished,
+            i.positionMs, i.phaseSecMs, i.phaseDistM, i.points, i.altitudes, i.gpsOn, i.weightKg, System.currentTimeMillis(),
+        )
+        scope.launch(Dispatchers.IO) { RunCheckpoints.write(this@RunService, cp) }
     }
 
     private fun publish() {
@@ -328,29 +353,13 @@ class RunService : Service(), LocationListener {
     // ---------- saving ----------
 
     private fun finish(save: Boolean) {
-        val w = workout
-        val finished = w != null && runState.finished
-        val position = w?.let { WorkoutRunner.elapsedMs(it, runState) } ?: 0L
-        val planned = (w?.totalSeconds ?: 0) * 1000L
-        val counts = w != null && Cues.countsAsDone(position, planned, finished)
-        val run = RunEntity(
-            startedAt = startedWallMs,
-            durationSec = (activeMs / 1000).toInt(),
-            distanceM = acc.distanceM,
-            kcal = kcalNow(),
-            programId = programId,
-            sessionIndex = sessionIndex,
-            treadmill = !gpsOn,
-        )
-        val trackEntities = points.mapIndexed { i, p -> TrackPointEntity(0, i, p.lat, p.lon, p.accuracyM, p.timeMs, altitudes.getOrNull(i)) }
-        val phaseEntities = w?.phases?.indices?.filter { phaseSecMs[it] > 0 }?.map {
-            PhaseResultEntity(0, it, w.phases[it].kind.name, (phaseSecMs[it] / 1000).toInt(), phaseDistM[it])
-        }.orEmpty()
+        val bundle = SessionSaver.bundle(currentInput(copy = false))
         // stop counting first, so nothing moves while the database is written
         running = false
         ticker?.cancel()
         scope.launch {
-            if (save) RunSession.savedRunId.value = app.runs.saveRun(run, trackEntities, phaseEntities, completesSession = counts)
+            if (save) RunSession.savedRunId.value = app.runs.saveRun(bundle.run, bundle.points, bundle.phases, completesSession = bundle.completesSession)
+            RunCheckpoints.clear(this@RunService) // the session is in the database now, or was thrown away on purpose
             stopSession()
             // after the session is safely stored and the screen is moving on: Health Connect, if the user asked for it
             // (in the app's scope: this service is about to be destroyed along with its own)

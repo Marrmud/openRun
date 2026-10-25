@@ -1,4 +1,4 @@
-# MVP (validé le 2026-10-25)
+# MVP (validé le 2026-10-25, construit: T0 à T7 faits, reste le test GPS dehors)
 
 ## Objectif
 

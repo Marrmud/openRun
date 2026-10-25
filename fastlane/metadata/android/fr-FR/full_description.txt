@@ -1,0 +1,14 @@
+openRun est une appli de course à pied libre, gratuite, sans compte ni publicité.
+
+Elle te guide du canapé aux 5 puis 10 km (programmes type Couch to 5K), à ton rythme, depuis le point de départ que tu choisis. Aucune semaine verrouillée.
+
+• Programmes guidés: Pré-C25K, Du canapé au 5 km, Pont vers 10K, Du canapé au 10 km
+• Course libre avec distance, allure et tracé GPS
+• Écran de course en trois styles: Focus, Chronologie, Complet
+• Voix, bips et vibrations, chacun avec son interrupteur
+• Avec ta musique ou ta vidéo: superposer, baisser ou mettre en pause, au choix. Tout couper ne touche jamais à ce que tu écoutes
+• Rangs de Fer à Diamant selon les calories dépensées, objectif par semaine, historique et détail de chaque séance
+• Écriture optionnelle dans Health Connect (Google Health)
+• Reprise d'une séance interrompue
+
+Ta position et tes séances restent sur ton téléphone. Aucune mesure d'audience.

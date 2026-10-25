@@ -63,6 +63,26 @@ class HomeViewModel(private val app: OpenRunApp) : ViewModel() {
         app.appScope.launch { if (app.settings.settings.first().healthConnect) app.health.syncPending() }
     }
 
+    /** A session cut short by a kill of the app, waiting for the user to keep it or throw it away. */
+    data class Interrupted(val checkpoint: org.openrun.app.run.Checkpoint, val distanceM: Double)
+
+    private val _interrupted = kotlinx.coroutines.flow.MutableStateFlow(
+        if (org.openrun.app.run.RunSession.isActive) null
+        else app.recovery.pending()?.let { Interrupted(it, it.toInput().distanceM) },
+    )
+    val interrupted: StateFlow<Interrupted?> = _interrupted
+
+    fun saveInterrupted(onSaved: (Long) -> Unit) {
+        val cp = _interrupted.value?.checkpoint ?: return
+        _interrupted.value = null
+        viewModelScope.launch { app.recovery.save(cp)?.let(onSaved) }
+    }
+
+    fun discardInterrupted() {
+        _interrupted.value = null
+        app.recovery.discard()
+    }
+
     private val activeProgress: Flow<Pair<Program, ProgramProgress>?> =
         app.settings.settings.map { it.activeProgramId }.distinctUntilChanged().flatMapLatest { id ->
             if (id == null) flowOf(null)

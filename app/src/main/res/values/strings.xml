@@ -100,6 +100,12 @@
     <string name="duration_m">%d min</string>
     <string name="duration_ms">%1$d min %2$02d s</string>
 
+    <string name="session_running">Séance en cours</string>
+    <string name="interrupted_title">Séance interrompue</string>
+    <string name="interrupted_body">Une séance s\'est arrêtée avant la fin (%1$s, %2$s km). Tu peux la garder ou la supprimer.</string>
+    <string name="keep_it">Enregistrer</string>
+    <string name="throw_away">Supprimer</string>
+
     <!-- run screen -->
     <string name="week_day_short">S%1$d · J%2$d</string>
     <string name="pause">Pause</string>
@@ -225,6 +231,11 @@
     <string name="hc_update">Mets à jour Health Connect pour l\'utiliser</string>
     <string name="hc_title_free">Course libre · openRun</string>
     <string name="hc_title_program">Semaine %1$d · Jour %2$d · openRun</string>
+
+    <string name="section_about">À propos</string>
+    <string name="about_version">openRun · version %s</string>
+    <string name="about_license">Logiciel libre sous licence GPL-3.0 ou plus. Gratuit, sans compte, sans publicité.</string>
+    <string name="about_privacy">Tes séances et ta position restent sur ton téléphone. Elles ne partent vers Health Connect que si tu l\'as demandé.</string>
 
     <!-- tips: one per week, tutoiement -->
     <string name="tip_pre_c25k_w1">Pas de pression: cours très lentement, tu dois pouvoir parler. Les marches font partie de la séance.</string>

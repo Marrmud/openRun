@@ -24,6 +24,8 @@
     <application
         android:name=".OpenRunApp"
         android:allowBackup="false"
+        android:icon="@mipmap/ic_launcher"
+        android:roundIcon="@mipmap/ic_launcher"
         android:label="openRun"
         android:theme="@style/Theme.OpenRun">
 

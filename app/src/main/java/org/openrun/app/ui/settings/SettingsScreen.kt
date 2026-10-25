@@ -108,6 +108,17 @@ fun SettingsScreen(vm: SettingsViewModel, onBack: () -> Unit) {
             Section(Icons.Filled.Favorite, R.string.section_health)
             StepperRow(R.string.my_weight, "${s.weightKg.toInt()} kg", { vm.update { it.copy(weightKg = it.weightKg - 1) } }, { vm.update { it.copy(weightKg = it.weightKg + 1) } }, subtitle = R.string.my_weight_sub)
             HealthConnectRow(enabled = s.healthConnect) { on -> vm.update { it.copy(healthConnect = on) } }
+
+            // ---- about ----
+            Section(Icons.Filled.Info, R.string.section_about)
+            val version = androidx.compose.ui.platform.LocalContext.current.let { c ->
+                runCatching { c.packageManager.getPackageInfo(c.packageName, 0).versionName }.getOrNull().orEmpty()
+            }
+            Column(Modifier.padding(vertical = 8.dp), verticalArrangement = Arrangement.spacedBy(4.dp)) {
+                Text(stringResource(R.string.about_version, version), style = MaterialTheme.typography.bodyLarge)
+                Text(stringResource(R.string.about_license), style = MaterialTheme.typography.bodyMedium, color = MaterialTheme.colorScheme.onSurfaceVariant)
+                Text(stringResource(R.string.about_privacy), style = MaterialTheme.typography.bodyMedium, color = MaterialTheme.colorScheme.onSurfaceVariant)
+            }
         }
     }
 }

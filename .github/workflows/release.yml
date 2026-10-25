@@ -1,0 +1,46 @@
+name: Release
+
+# Pousser un tag v* (par exemple v0.1.0) construit l'APK signé et le joint à une release GitHub.
+# Les quatre secrets décrivent la clé de signature (voir README): OPENRUN_KEYSTORE_BASE64 est le fichier .jks encodé en base64.
+on:
+  push:
+    tags: ['v*']
+
+permissions:
+  contents: write
+
+jobs:
+  release:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: 21
+      - uses: gradle/actions/setup-gradle@v4
+      - name: Tests
+        run: ./gradlew :core:test
+      - name: Clé de signature
+        run: echo "$OPENRUN_KEYSTORE_BASE64" | base64 -d > "$RUNNER_TEMP/openrun-release.jks"
+        env:
+          OPENRUN_KEYSTORE_BASE64: ${{ secrets.OPENRUN_KEYSTORE_BASE64 }}
+      - name: APK de release
+        run: ./gradlew :app:assembleRelease
+        env:
+          OPENRUN_KEYSTORE_FILE: ${{ runner.temp }}/openrun-release.jks
+          OPENRUN_KEYSTORE_PASSWORD: ${{ secrets.OPENRUN_KEYSTORE_PASSWORD }}
+          OPENRUN_KEY_ALIAS: ${{ secrets.OPENRUN_KEY_ALIAS }}
+          OPENRUN_KEY_PASSWORD: ${{ secrets.OPENRUN_KEY_PASSWORD }}
+      - name: Nommer l'APK et calculer son empreinte
+        run: |
+          VERSION="${GITHUB_REF_NAME#v}"
+          cp app/build/outputs/apk/release/app-release.apk "openRun-${VERSION}.apk"
+          sha256sum "openRun-${VERSION}.apk" > "openRun-${VERSION}.apk.sha256"
+      - name: Publier
+        uses: softprops/action-gh-release@v2
+        with:
+          files: |
+            openRun-*.apk
+            openRun-*.apk.sha256
+          generate_release_notes: true

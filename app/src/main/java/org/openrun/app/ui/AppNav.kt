@@ -99,7 +99,14 @@ fun AppNav() {
             composable(Routes.HOME) {
                 val vm: HomeViewModel = viewModel(factory = factory(app) { HomeViewModel(it) })
                 val state by vm.state.collectAsStateWithLifecycle()
+                val active by org.openrun.app.run.RunSession.state.collectAsStateWithLifecycle()
+                val interrupted by vm.interrupted.collectAsStateWithLifecycle()
                 HomeScreen(
+                    active = active,
+                    onResume = { active?.let { nav.navigate(Routes.run(it.programId, it.sessionIndex ?: 0, false, false)) } },
+                    interrupted = interrupted,
+                    onSaveInterrupted = { vm.saveInterrupted { id -> nav.navigate(Routes.summary(id)) } },
+                    onDiscardInterrupted = vm::discardInterrupted,
                     state = state,
                     onStart = { id, i, sw, sc -> nav.navigate(Routes.run(id, i, sw, sc)) },
                     onOtherSession = { nav.navigate(Routes.program(it)) },

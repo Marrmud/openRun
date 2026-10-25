@@ -12,5 +12,6 @@ class OpenRunApp : Application() {
     val database by lazy { OpenRunDatabase.open(this) }
     val runs by lazy { RunRepository(database) }
     val settings by lazy { SettingsStore(this) }
+    val recovery by lazy { org.openrun.app.run.RunRecovery(this) }
     val health by lazy { org.openrun.app.health.HealthConnectSync(this, runs) }
 }
