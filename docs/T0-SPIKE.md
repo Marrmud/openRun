@@ -23,7 +23,21 @@ n'a pas de raison technique d'exister chez nous.
 Décision technique prise: **`LocationManager` plutôt que Fused Location** (la bible disait Fused). Pas de dépendance
 Google Play Services, donc compatible F-Droid et téléphones sans GMS. À revoir si la précision déçoit.
 
+## Résultats de l'auteur (2026-10-25, vidéo en cours, écoute réelle)
+
+| Mode | Ce qui se passe |
+|---|---|
+| Superposer | La voix se superpose, la vidéo n'est pas touchée |
+| Baisser | La vidéo baisse pendant l'annonce |
+| Pause | La vidéo se met en pause pendant l'annonce, puis reprend |
+
+Les trois modes marchent comme prévu. Le design des réglages (D21, D23) est validé tel quel.
+
 ## Reste à vérifier sur le terrain (tests de l'auteur)
+
+Encore à faire, dehors: GPS écran verrouillé (30 min), vibrations écran verrouillé, bips. Peut se faire lors d'une vraie séance, avec le spike en poche.
+
+Liste complète:
 
 À faire dehors, une vidéo ou une musique qui joue, écran verrouillé, téléphone en poche.
 

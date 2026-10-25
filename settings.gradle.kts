@@ -21,5 +21,7 @@ dependencyResolutionManagement {
 }
 
 rootProject.name = "openRun"
-// T0: throwaway technical spike (docs/MVP.md). The real app comes in :app and :core.
+// T0: throwaway technical spike (docs/MVP.md).
 include(":spike")
+// T1: the logic that decides things (programs, progress, calories, ranks, workout clock). Pure Kotlin, no Android.
+include(":core")
