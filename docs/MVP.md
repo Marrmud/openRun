@@ -1,4 +1,4 @@
-# MVP (proposition à valider)
+# MVP (validé le 2026-10-25)
 
 ## Objectif
 
@@ -80,9 +80,9 @@ Le risque le plus élevé est la course elle-même (GPS écran verrouillé + aud
 - Séance visible dans Google Health, une seule fois.
 - Aucune permission demandée sans explication; l'appli fonctionne sans compte ni réseau.
 
-## Points que je te propose de trancher
+## Points tranchés
 
-1. **Seuils de rang:** valeur provisoire de **1 000 kcal par division** pour tout (modifiable en un seul endroit), à affiner après quelques semaines de vraies données ?
-2. **« Coureur d'une heure »** repoussé en v1 (programme long, données à écrire): d'accord ?
-3. **Langues:** français seulement au MVP, anglais en v1 ?
-4. **Courses libres au MVP** (sans programme) ou uniquement les programmes ?
+1. **Seuils de rang:** **1 000 kcal par division** pour tout, provisoire, dans une seule constante; à affiner avec de vraies données.
+2. **« Coureur d'une heure »:** repoussé en v1.
+3. **Langues:** français seul au MVP, anglais en v1 (les textes vivent déjà dans des ressources traduisibles).
+4. **Course libre:** incluse au MVP.
