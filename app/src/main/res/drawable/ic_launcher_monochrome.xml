@@ -1,0 +1,41 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Generated from logo/android/*.svg of the logo pack (the SVG dashed arc is written out as a real arc here,
+     since vector drawables have no stroke-dasharray). The group maps the pack's own placement onto the 108 dp canvas. -->
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="108dp"
+    android:height="108dp"
+    android:viewportWidth="108"
+    android:viewportHeight="108">
+    <group
+        android:pivotX="0"
+        android:pivotY="0"
+        android:scaleX="0.78"
+        android:scaleY="0.78"
+        android:translateX="18.9"
+        android:translateY="11.88">
+        <path
+            android:pathData="M13,45L20,45M9,55L19,55M13,65L20,65"
+            android:fillColor="#00000000"
+            android:strokeColor="#000000"
+            android:strokeWidth="5"
+            android:strokeLineCap="round" />
+        <path
+            android:pathData="M82,54A24,24 0 1 1 58,30"
+            android:fillColor="#00000000"
+            android:strokeColor="#000000"
+            android:strokeWidth="12"
+            android:strokeLineCap="round" />
+        <path
+            android:pathData="M68.47,37.03a6.5,6.5 0 1,0 13.0,0a6.5,6.5 0 1,0 -13.0,0z"
+            android:fillColor="#000000" />
+        <path
+            android:pathData="M50.90,52.30a2.6,2.6 0 1,0 5.2,0a2.6,2.6 0 1,0 -5.2,0z"
+            android:fillColor="#000000" />
+        <path
+            android:pathData="M62.90,52.30a2.6,2.6 0 1,0 5.2,0a2.6,2.6 0 1,0 -5.2,0z"
+            android:fillColor="#000000" />
+        <path
+            android:pathData="M54.6,58.6Q58,63.6 61.4,58.6z"
+            android:fillColor="#000000" />
+    </group>
+</vector>

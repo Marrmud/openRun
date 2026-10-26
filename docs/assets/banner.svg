@@ -1,0 +1,23 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1000 270" width="1000" height="270" role="img" aria-label="openRun: appli de course à pied libre et gratuite">
+  <rect x="3" y="3" width="994" height="264" rx="34" fill="#00695C" stroke="#0B2A25" stroke-width="6"/>
+
+  <!-- the mascot: the ring running, the yellow dot is the sun -->
+  <svg x="70" y="42" width="232" height="186" viewBox="3 18 86 72">
+    <path d="M13 45 L20 45 M9 55 L19 55 M13 65 L20 65" fill="none" stroke="#B2DFD8" stroke-width="5" stroke-linecap="round"/>
+    <circle cx="58" cy="54" r="24" fill="none" stroke="#0B2A25" stroke-width="18" stroke-dasharray="113.1 200" stroke-linecap="round"/>
+    <circle cx="58" cy="54" r="24" fill="none" stroke="#FFFFFF" stroke-width="11" stroke-dasharray="113.1 200" stroke-linecap="round"/>
+    <circle cx="74.97" cy="37.03" r="8.4" fill="#0B2A25"/>
+    <circle cx="74.97" cy="37.03" r="5.1" fill="#FFC93C"/>
+    <circle cx="52" cy="52" r="4.4" fill="#FFFFFF" stroke="#0B2A25" stroke-width="1.6"/>
+    <circle cx="64" cy="52" r="4.4" fill="#FFFFFF" stroke="#0B2A25" stroke-width="1.6"/>
+    <circle cx="53.5" cy="52.3" r="2.3" fill="#0B2A25"/>
+    <circle cx="65.5" cy="52.3" r="2.3" fill="#0B2A25"/>
+    <path d="M54.6 58.6 Q58 63.6 61.4 58.6 Z" fill="#FF7A9A" stroke="#0B2A25" stroke-width="1.4" stroke-linejoin="round"/>
+  </svg>
+
+  <g font-family="'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif">
+    <text x="335" y="136" font-size="104" font-weight="800" letter-spacing="-3" fill="#FFFFFF">open<tspan fill="#FFC93C">Run</tspan></text>
+    <text x="339" y="186" font-size="30" font-weight="600" fill="#DDF3EF">Appli de course à pied libre et gratuite</text>
+    <text x="339" y="224" font-size="20" fill="#B2DFD8">du canapé au 10 km · sans compte · tes données chez toi · GPL-3.0+</text>
+  </g>
+</svg>
