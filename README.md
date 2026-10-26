@@ -1,5 +1,5 @@
 <p align="center">
-  <img src="docs/assets/banner.svg" alt="openRun: appli de course à pied libre et gratuite" width="100%">
+  <img src="docs/assets/banner.png" alt="openRun: appli de course à pied libre et gratuite" width="100%">
 </p>
 
 <h3 align="center">Une appli de course à pied que tu possèdes vraiment.</h3>
@@ -68,11 +68,7 @@ débuter, qui reste utile quand on progresse, et dont le code est ouvert pour qu
 ## Captures d'écran
 
 <p align="center">
-  <img src="docs/assets/screens/home.png" width="19%" alt="Accueil">
-  <img src="docs/assets/screens/session.png" width="19%" alt="Aperçu d'une séance">
-  <img src="docs/assets/screens/run.png" width="19%" alt="Écran de course">
-  <img src="docs/assets/screens/detail.png" width="19%" alt="Détail d'une séance">
-  <img src="docs/assets/screens/history.png" width="19%" alt="Historique">
+  <img src="docs/assets/screens-placeholder.png" alt="Captures d'écran à venir" width="100%">
 </p>
 
 ## Installer
@@ -139,6 +135,7 @@ téléphone, ta version d'Android et ce qui s'est passé. Pour proposer du code,
 | [docs/MVP.md](docs/MVP.md) | Périmètre du MVP et tranches de construction |
 | [docs/FEATURES.md](docs/FEATURES.md) | Toutes les idées de fonctionnalités, par palier |
 | [docs/DESIGN.md](docs/DESIGN.md) | Principes de design et contraintes |
+| [design/](design) | Logo, mascotte et planche de marque (sources du design) |
 | [mockups/](mockups/index.html) | Maquettes HTML (téléphone et montre) |
 
 ## Licence

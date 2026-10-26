@@ -1,0 +1,24 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 108 108" width="1024" height="1024">
+<defs>
+<linearGradient id="bg" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#34C7AE"/><stop offset="0.55" stop-color="#00695C"/><stop offset="1" stop-color="#003D35"/></linearGradient>
+<linearGradient id="ring" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#FFFFFF"/><stop offset="1" stop-color="#E3F4F0" stop-opacity="0.65"/></linearGradient>
+<radialGradient id="dot" cx="0.35" cy="0.3" r="0.8"><stop offset="0" stop-color="#FFF3C4"/><stop offset="0.5" stop-color="#FFC93C"/><stop offset="1" stop-color="#D99A00"/></radialGradient>
+<linearGradient id="sheen" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#FFFFFF" stop-opacity="0.42"/><stop offset="1" stop-color="#FFFFFF" stop-opacity="0"/></linearGradient>
+<filter id="soft" x="-20%" y="-20%" width="140%" height="140%"><feGaussianBlur stdDeviation="1.6"/></filter>
+</defs>
+<rect width="108" height="108" fill="url(#bg)"/>
+<ellipse cx="54" cy="6" rx="72" ry="40" fill="url(#sheen)"/>
+<g transform="translate(54 54) scale(0.78) translate(-45 -54)">
+<path d="M13 45 L20 45 M9 55 L19 55 M13 65 L20 65" fill="none" stroke="#FFFFFF" stroke-opacity="0.6" stroke-width="5" stroke-linecap="round"/>
+<circle cx="58" cy="57.5" r="24" fill="none" stroke="#00201B" stroke-opacity="0.3" stroke-width="12" stroke-dasharray="113.1 200" stroke-linecap="round" filter="url(#soft)"/>
+<circle cx="58" cy="54" r="24" fill="none" stroke="#FFFFFF" stroke-opacity="0.45" stroke-width="12.8" stroke-dasharray="113.1 200" stroke-linecap="round"/>
+<circle cx="58" cy="54" r="24" fill="none" stroke="url(#ring)" stroke-width="11.2" stroke-dasharray="113.1 200" stroke-linecap="round"/>
+<circle cx="58" cy="54" r="29.2" fill="none" stroke="#FFFFFF" stroke-width="1.3" stroke-linecap="round" stroke-dasharray="36 300" transform="rotate(145 58 54)"/>
+<circle cx="75" cy="40.5" r="6.6" fill="#00201B" fill-opacity="0.3" filter="url(#soft)"/>
+<circle cx="74.97" cy="37.03" r="6.6" fill="url(#dot)"/>
+<ellipse cx="73" cy="34.6" rx="2.5" ry="1.5" fill="#FFFFFF" fill-opacity="0.9" transform="rotate(-25 73 34.6)"/>
+<circle cx="52" cy="52" r="4.4" fill="#FFFFFF"/><circle cx="64" cy="52" r="4.4" fill="#FFFFFF"/>
+<circle cx="53.5" cy="52.3" r="2.3" fill="#0B2A25"/><circle cx="65.5" cy="52.3" r="2.3" fill="#0B2A25"/>
+<path d="M54.6 58.6 Q58 63.6 61.4 58.6 Z" fill="#FF7A9A"/>
+</g>
+</svg>

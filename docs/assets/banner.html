@@ -1,0 +1,61 @@
+<!doctype html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<title>openRun: bannière</title>
+<!-- Source de docs/assets/banner.png. Le mot-symbole est celui de design/brand-sheet (version verte): le « o » est la
+     mascotte coureuse, en Fredoka 600. Rendu: voir docs/assets/README.md. -->
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Fredoka:wght@500;600;700&display=swap">
+<style>
+  html, body { margin: 0; background: transparent; }
+  .panel {
+    width: 1000px; height: 300px; box-sizing: border-box; border-radius: 40px; background: #00695C;
+    display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 14px;
+    font-family: Fredoka, 'Roboto', system-ui, sans-serif;
+    /* the green panel's variables, as in the brand sheet */
+    --ink: #0B2A25; --ring: #FFFFFF; --dot: #FFC93C; --eye: #FFFFFF; --mouth: #FF7A9A;
+    --line: #B2DFD8; --shoe: #FFC93C; --shadow: #00564C;
+  }
+  .word { margin: 0; display: flex; align-items: center; font-size: 132px; font-weight: 600; line-height: 1; letter-spacing: -1.4px; color: #FFFFFF; }
+  .word .run { color: #FFC93C; }
+  .word svg.o { display: block; align-self: flex-end; width: 107px; height: 115px; margin: 0 3px 14px 0; }
+  .tag { margin: 0; font-size: 30px; font-weight: 500; color: #E3F4F0; }
+  .sub { margin: 0; font-size: 20px; font-weight: 500; color: #B2DFD8; letter-spacing: .2px; }
+</style>
+</head>
+<body>
+<svg width="0" height="0" style="position:absolute" aria-hidden="true">
+  <defs>
+    <symbol id="bHead" viewBox="0 0 108 108">
+      <path d="M13 45 L20 45 M9 55 L19 55 M13 65 L20 65" fill="none" stroke-width="5" stroke-linecap="round" style="stroke: var(--line)"/>
+      <circle cx="58" cy="54" r="24" fill="none" stroke-width="18" stroke-linecap="round" stroke-dasharray="113.1 200" style="stroke: var(--ink)"/>
+      <circle cx="58" cy="54" r="24" fill="none" stroke-width="11" stroke-linecap="round" stroke-dasharray="113.1 200" style="stroke: var(--ring)"/>
+      <circle cx="74.97" cy="37.03" r="8.4" style="fill: var(--ink)"/>
+      <circle cx="74.97" cy="37.03" r="5.1" style="fill: var(--dot)"/>
+      <circle cx="52" cy="52" r="4.4" style="fill: var(--eye); stroke: var(--ink)" stroke-width="1.6"/>
+      <circle cx="64" cy="52" r="4.4" style="fill: var(--eye); stroke: var(--ink)" stroke-width="1.6"/>
+      <circle cx="53.5" cy="52.3" r="2.3" style="fill: var(--ink)"/>
+      <circle cx="65.5" cy="52.3" r="2.3" style="fill: var(--ink)"/>
+      <path d="M54.6 58.6 Q58 63.6 61.4 58.6 Z" stroke-width="1.4" stroke-linejoin="round" style="fill: var(--mouth); stroke: var(--ink)"/>
+    </symbol>
+    <symbol id="bRunner" viewBox="3 8 97 104">
+      <ellipse cx="58" cy="108" rx="19" ry="2.8" style="fill: var(--shadow)"/>
+      <path d="M53 82 L46 99 M64 82 L71 95" fill="none" stroke-width="4" stroke-linecap="round" style="stroke: var(--ink)"/>
+      <ellipse cx="43.5" cy="101" rx="6.8" ry="3.8" stroke-width="2" style="fill: var(--shoe); stroke: var(--ink)"/>
+      <ellipse cx="74" cy="96.5" rx="6.8" ry="3.8" stroke-width="2" transform="rotate(-25 74 96.5)" style="fill: var(--shoe); stroke: var(--ink)"/>
+      <use href="#bHead" x="0" y="0" width="108" height="108"/>
+    </symbol>
+  </defs>
+</svg>
+
+<div class="panel">
+  <p class="word">
+    <svg class="o" viewBox="3 8 97 104" role="img" aria-label="o"><use href="#bRunner"/></svg>
+    <span>pen</span><span class="run">Run</span>
+  </p>
+  <p class="tag">Appli de course à pied libre et gratuite</p>
+  <p class="sub">du canapé au 10 km · sans compte · tes données chez toi</p>
+</div>
+</body>
+</html>

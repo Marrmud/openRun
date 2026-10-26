@@ -1,0 +1,182 @@
+<!doctype html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<title>openRun – Tête (vert)</title>
+<script src="./vendor/react.js"></script>
+<script src="./vendor/react-dom.js"></script>
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Fredoka:wght@500;600;700&amp;display=swap">
+<style>
+body{margin:0}
+a{color:#0B2A25}a:hover{color:#00695C}
+</style>
+</helmet>
+<div style="width: 1280px; height: 1240px; box-sizing: border-box; padding: 56px; background: #F6F8F6; font-family: Fredoka, 'Roboto', system-ui, sans-serif; color: {{ink}}; display: grid; grid-template-columns: 420px 1fr; grid-template-rows: 1fr auto 340px; gap: 32px">
+
+<svg width="0" height="0" style="position: absolute" aria-hidden="true">
+<defs>
+<symbol id="bHead" viewBox="0 0 108 108">
+<path d="M13 45 L20 45 M9 55 L19 55 M13 65 L20 65" fill="none" stroke-width="5" stroke-linecap="round" style="stroke: var(--line)"></path>
+<circle cx="58" cy="54" r="24" fill="none" stroke-width="18" stroke-linecap="round" stroke-dasharray="113.1 200" style="stroke: var(--ink)"></circle>
+<circle cx="58" cy="54" r="24" fill="none" stroke-width="11" stroke-linecap="round" stroke-dasharray="113.1 200" style="stroke: var(--ring)"></circle>
+<circle cx="74.97" cy="37.03" r="8.4" style="fill: var(--ink)"></circle>
+<circle cx="74.97" cy="37.03" r="5.1" style="fill: var(--dot)"></circle>
+<circle cx="52" cy="52" r="4.4" style="fill: var(--eye); stroke: var(--ink)" stroke-width="1.6"></circle>
+<circle cx="64" cy="52" r="4.4" style="fill: var(--eye); stroke: var(--ink)" stroke-width="1.6"></circle>
+<circle cx="53.5" cy="52.3" r="2.3" style="fill: var(--ink)"></circle>
+<circle cx="65.5" cy="52.3" r="2.3" style="fill: var(--ink)"></circle>
+<path d="M54.6 58.6 Q58 63.6 61.4 58.6 Z" stroke-width="1.4" stroke-linejoin="round" style="fill: var(--mouth); stroke: var(--ink)"></path>
+</symbol>
+<symbol id="bRunner" viewBox="3 8 97 104">
+<ellipse cx="58" cy="108" rx="19" ry="2.8" style="fill: var(--shadow)"></ellipse>
+<path d="M53 82 L46 99 M64 82 L71 95" fill="none" stroke-width="4" stroke-linecap="round" style="stroke: var(--ink)"></path>
+<ellipse cx="43.5" cy="101" rx="6.8" ry="3.8" stroke-width="2" style="fill: var(--shoe); stroke: var(--ink)"></ellipse>
+<ellipse cx="74" cy="96.5" rx="6.8" ry="3.8" stroke-width="2" transform="rotate(-25 74 96.5)" style="fill: var(--shoe); stroke: var(--ink)"></ellipse>
+<use href="#bHead" x="0" y="0" width="108" height="108"></use>
+</symbol>
+<linearGradient id="gqBg" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#34C7AE"></stop><stop offset="0.55" style="stop-color: {{green}}"></stop><stop offset="1" stop-color="#003D35"></stop></linearGradient>
+<linearGradient id="gqRing" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#FFFFFF" stop-opacity="1"></stop><stop offset="1" stop-color="#E3F4F0" stop-opacity="0.65"></stop></linearGradient>
+<linearGradient id="gqDarkRing" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#E6FBF6"></stop><stop offset="1" stop-color="#6FD9C4" stop-opacity="0.8"></stop></linearGradient>
+<radialGradient id="gqDot" cx="0.35" cy="0.3" r="0.8"><stop offset="0" stop-color="#FFF3C4"></stop><stop offset="0.5" style="stop-color: {{yellow}}"></stop><stop offset="1" stop-color="#D99A00"></stop></radialGradient>
+<linearGradient id="gqSheen" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#FFFFFF" stop-opacity="0.42"></stop><stop offset="1" stop-color="#FFFFFF" stop-opacity="0"></stop></linearGradient>
+<filter id="gqSoft" x="-20%" y="-20%" width="140%" height="140%"><feGaussianBlur stdDeviation="1.6"></feGaussianBlur></filter>
+<symbol id="bGlassHead" viewBox="0 0 108 108">
+<path d="M13 45 L20 45 M9 55 L19 55 M13 65 L20 65" fill="none" stroke="#FFFFFF" stroke-opacity="0.6" stroke-width="5" stroke-linecap="round"></path>
+<circle cx="58" cy="57.5" r="24" fill="none" stroke="#00201B" stroke-opacity="0.3" stroke-width="12" stroke-linecap="round" stroke-dasharray="113.1 200" filter="url(#gqSoft)"></circle>
+<circle cx="58" cy="54" r="24" fill="none" stroke="#FFFFFF" stroke-opacity="0.45" stroke-width="12.8" stroke-linecap="round" stroke-dasharray="113.1 200"></circle>
+<circle cx="58" cy="54" r="24" fill="none" stroke-width="11.2" stroke-linecap="round" stroke-dasharray="113.1 200" style="stroke: var(--ringpaint)"></circle>
+<circle cx="58" cy="54" r="29.2" fill="none" stroke="#FFFFFF" stroke-width="1.3" stroke-linecap="round" stroke-dasharray="36 300" transform="rotate(145 58 54)"></circle>
+<circle cx="58" cy="54" r="18.9" fill="none" stroke="#FFFFFF" stroke-opacity="0.55" stroke-width="0.8" stroke-linecap="round" stroke-dasharray="20 300" transform="rotate(20 58 54)"></circle>
+<circle cx="75" cy="40.5" r="6.6" fill="#00201B" fill-opacity="0.3" filter="url(#gqSoft)"></circle>
+<circle cx="74.97" cy="37.03" r="6.6" fill="url(#gqDot)"></circle>
+<ellipse cx="73" cy="34.6" rx="2.5" ry="1.5" fill="#FFFFFF" fill-opacity="0.9" transform="rotate(-25 73 34.6)"></ellipse>
+<circle cx="52" cy="52" r="4.4" fill="#FFFFFF"></circle>
+<circle cx="64" cy="52" r="4.4" fill="#FFFFFF"></circle>
+<circle cx="53.5" cy="52.3" r="2.3" fill="#0B2A25"></circle>
+<circle cx="65.5" cy="52.3" r="2.3" fill="#0B2A25"></circle>
+<path d="M54.6 58.6 Q58 63.6 61.4 58.6 Z" style="fill: {{pink}}"></path>
+</symbol>
+</defs>
+</svg>
+
+<div style="background: #FFFFFF; border-radius: 28px; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 24px">
+<svg width="280" height="280" viewBox="0 0 108 108" role="img" aria-label="Icône openRun" style="display: block; border-radius: 50%; background: {{green}}; --ink: {{ink}}; --ring: #FFFFFF; --dot: {{yellow}}; --eye: #FFFFFF; --mouth: {{pink}}; --line: {{mint}}"><use href="#bHead"></use></svg>
+<p style="margin: 0; padding: 8px 18px; border-radius: 999px; background: #E0EDEA; font-size: 15px; font-weight: 500">Icône principale</p>
+</div>
+
+<div style="display: grid; grid-template-rows: 1fr 1fr; gap: 32px">
+<div style="background: #FFFFFF; border-radius: 28px; display: flex; align-items: center; justify-content: center">
+<p style="margin: 0; display: flex; align-items: center; font-size: 96px; font-weight: 600; line-height: 1; letter-spacing: -1px">
+<svg width="78" height="84" viewBox="3 8 97 104" role="img" aria-label="o" style="display: block; align-self: flex-end; margin: 0 2px 10px 0; --ink: {{ink}}; --ring: #FFFFFF; --dot: {{yellow}}; --eye: #FFFFFF; --mouth: {{pink}}; --line: {{green}}; --shoe: {{pink}}; --shadow: #DCE5E2"><use href="#bRunner"></use></svg>
+<span>pen</span><span style="color: {{green}}">Run</span>
+</p>
+</div>
+<div style="background: {{green}}; border-radius: 28px; display: flex; align-items: center; justify-content: center">
+<p style="margin: 0; display: flex; align-items: center; font-size: 96px; font-weight: 600; line-height: 1; letter-spacing: -1px; color: #FFFFFF">
+<svg width="78" height="84" viewBox="3 8 97 104" role="img" aria-label="o" style="display: block; align-self: flex-end; margin: 0 2px 10px 0; --ink: {{ink}}; --ring: #FFFFFF; --dot: {{yellow}}; --eye: #FFFFFF; --mouth: {{pink}}; --line: {{mint}}; --shoe: {{yellow}}; --shadow: #00564C"><use href="#bRunner"></use></svg>
+<span>pen</span><span style="color: {{yellow}}">Run</span>
+</p>
+</div>
+</div>
+
+<div style="grid-column: 1 / 3; background: #FFFFFF; border-radius: 28px; padding: 24px 32px; display: flex; align-items: center; gap: 26px">
+
+<div style="display: flex; flex-direction: column; align-items: center; gap: 8px">
+<svg width="80" height="80" viewBox="0 0 108 108" role="img" aria-label="Variante menthe" style="display: block; border-radius: 50%; background: {{mint}}; --ink: {{ink}}; --ring: #FFFFFF; --dot: {{yellow}}; --eye: #FFFFFF; --mouth: {{pink}}; --line: {{green}}"><use href="#bHead"></use></svg>
+<span style="font-size: 13px; font-weight: 500">Menthe</span>
+</div>
+<div style="display: flex; flex-direction: column; align-items: center; gap: 8px">
+<svg width="80" height="80" viewBox="0 0 108 108" role="img" aria-label="Variante jaune" style="display: block; border-radius: 50%; background: {{yellow}}; --ink: {{ink}}; --ring: #FFFFFF; --dot: {{green}}; --eye: #FFFFFF; --mouth: {{pink}}; --line: {{ink}}"><use href="#bHead"></use></svg>
+<span style="font-size: 13px; font-weight: 500">Jaune</span>
+</div>
+<div style="display: flex; flex-direction: column; align-items: center; gap: 8px">
+<svg width="80" height="80" viewBox="0 0 108 108" role="img" aria-label="Variante sombre" style="display: block; border-radius: 50%; background: #0F1A18; --ink: #000000; --ring: {{mint}}; --dot: {{yellow}}; --eye: #FFFFFF; --mouth: {{pink}}; --line: {{green}}"><use href="#bHead"></use></svg>
+<span style="font-size: 13px; font-weight: 500">Sombre</span>
+</div>
+<div style="display: flex; flex-direction: column; align-items: center; gap: 8px">
+<svg width="80" height="80" viewBox="0 0 108 108" role="img" aria-label="Icône thématique" style="display: block; border-radius: 50%; background: #D7E8E4; --ink: #0F2E29; --ring: #D7E8E4; --dot: #0F2E29; --eye: #D7E8E4; --mouth: #0F2E29; --line: #0F2E29"><use href="#bHead"></use></svg>
+<span style="font-size: 13px; font-weight: 500">Themed</span>
+</div>
+<div style="display: flex; flex-direction: column; align-items: center; gap: 8px">
+<div style="display: flex; align-items: flex-end; gap: 12px; height: 80px">
+<svg width="48" height="48" viewBox="0 0 108 108" aria-hidden="true" style="display: block; border-radius: 50%; background: {{green}}; --ink: {{ink}}; --ring: #FFFFFF; --dot: {{yellow}}; --eye: #FFFFFF; --mouth: {{pink}}; --line: {{mint}}"><use href="#bHead"></use></svg>
+<svg width="32" height="32" viewBox="0 0 108 108" aria-hidden="true" style="display: block; border-radius: 50%; background: {{green}}; --ink: {{ink}}; --ring: #FFFFFF; --dot: {{yellow}}; --eye: #FFFFFF; --mouth: {{pink}}; --line: {{mint}}"><use href="#bHead"></use></svg>
+</div>
+<span style="font-size: 13px; font-weight: 500">48 · 32</span>
+</div>
+
+<div style="flex: 1"></div>
+
+<div style="display: flex; flex-wrap: wrap; gap: 8px; max-width: 470px; justify-content: flex-end">
+<span style="display: inline-flex; align-items: center; gap: 8px; padding: 9px 14px; border-radius: 999px; background: #E0EDEA; font-size: 14px; font-weight: 500"><span style="width: 18px; height: 18px; border-radius: 50%; background: {{green}}"></span>{{green}}</span>
+<span style="display: inline-flex; align-items: center; gap: 8px; padding: 9px 14px; border-radius: 999px; background: #E0EDEA; font-size: 14px; font-weight: 500"><span style="width: 18px; height: 18px; border-radius: 50%; background: {{mint}}"></span>{{mint}}</span>
+<span style="display: inline-flex; align-items: center; gap: 8px; padding: 9px 14px; border-radius: 999px; background: #E0EDEA; font-size: 14px; font-weight: 500"><span style="width: 18px; height: 18px; border-radius: 50%; background: {{ink}}"></span>{{ink}}</span>
+<span style="display: inline-flex; align-items: center; gap: 8px; padding: 9px 14px; border-radius: 999px; background: #E0EDEA; font-size: 14px; font-weight: 500"><span style="width: 18px; height: 18px; border-radius: 50%; background: {{yellow}}"></span>{{yellow}}</span>
+<span style="display: inline-flex; align-items: center; gap: 8px; padding: 9px 14px; border-radius: 999px; background: #E0EDEA; font-size: 14px; font-weight: 500"><span style="width: 18px; height: 18px; border-radius: 50%; background: {{pink}}"></span>{{pink}}</span>
+</div>
+</div>
+
+<div style="grid-column: 1 / 3; position: relative; overflow: hidden; border-radius: 28px; background: linear-gradient(150deg, #073F38 0%, {{green}} 50%, #1E7F70 100%); color: #FFFFFF">
+<div style="position: absolute; width: 360px; height: 360px; left: -80px; top: 120px; border-radius: 50%; background: {{mint}}; filter: blur(80px); opacity: 0.55"></div>
+<div style="position: absolute; width: 300px; height: 300px; left: 560px; top: -140px; border-radius: 50%; background: {{yellow}}; filter: blur(90px); opacity: 0.5"></div>
+<div style="position: absolute; width: 320px; height: 320px; left: 960px; top: 140px; border-radius: 50%; background: {{pink}}; filter: blur(100px); opacity: 0.45"></div>
+<div style="position: relative; box-sizing: border-box; height: 100%; padding: 36px 48px; display: flex; align-items: center; gap: 48px">
+<div style="display: flex; flex-direction: column; gap: 6px; width: 170px">
+<p style="margin: 0; font-size: 13px; font-weight: 600; letter-spacing: 1.5px">LIQUID GLASS</p>
+<p style="margin: 0; font-size: 15px; font-weight: 500; opacity: 0.92">Version iOS 26</p>
+</div>
+<div style="display: flex; flex-direction: column; align-items: center; gap: 12px">
+<svg width="230" height="230" viewBox="0 0 108 108" role="img" aria-label="Icône Liquid Glass" style="display: block; border-radius: 52px; box-shadow: 0 18px 40px rgba(0,30,25,0.4); --ringpaint: url(#gqRing)">
+<rect width="108" height="108" fill="url(#gqBg)"></rect>
+<ellipse cx="54" cy="6" rx="72" ry="40" fill="url(#gqSheen)"></ellipse>
+<use href="#bGlassHead"></use>
+</svg>
+<span style="font-size: 13px; font-weight: 500">Default</span>
+</div>
+<div style="display: flex; flex-direction: column; align-items: center; gap: 12px">
+<svg width="136" height="136" viewBox="0 0 108 108" role="img" aria-label="Icône Liquid Glass sombre" style="display: block; border-radius: 31px; box-shadow: 0 12px 28px rgba(0,0,0,0.35); --ringpaint: url(#gqDarkRing)">
+<rect width="108" height="108" fill="#16181A"></rect>
+<ellipse cx="54" cy="6" rx="72" ry="40" fill="url(#gqSheen)" fill-opacity="0.25"></ellipse>
+<use href="#bGlassHead"></use>
+</svg>
+<span style="font-size: 13px; font-weight: 500">Dark</span>
+</div>
+<div style="display: flex; flex-direction: column; align-items: center; gap: 12px">
+<div style="width: 136px; height: 136px; box-sizing: border-box; border-radius: 31px; background: rgba(255,255,255,0.16); backdrop-filter: blur(18px) saturate(170%); -webkit-backdrop-filter: blur(18px) saturate(170%); border: 1px solid rgba(255,255,255,0.55); box-shadow: inset 0 1px 0 rgba(255,255,255,0.7), 0 12px 28px rgba(0,30,25,0.25)">
+<svg width="134" height="134" viewBox="0 0 108 108" role="img" aria-label="Icône Liquid Glass clear" style="display: block; --ringpaint: rgba(255,255,255,0.78)"><use href="#bGlassHead"></use></svg>
+</div>
+<span style="font-size: 13px; font-weight: 500">Clear</span>
+</div>
+<div style="display: flex; flex-direction: column; align-items: center; gap: 12px">
+<div style="display: flex; align-items: flex-end; gap: 14px; height: 136px">
+<svg width="60" height="60" viewBox="0 0 108 108" aria-hidden="true" style="display: block; border-radius: 14px; --ringpaint: url(#gqRing)"><rect width="108" height="108" fill="url(#gqBg)"></rect><ellipse cx="54" cy="6" rx="72" ry="40" fill="url(#gqSheen)"></ellipse><use href="#bGlassHead"></use></svg>
+<svg width="40" height="40" viewBox="0 0 108 108" aria-hidden="true" style="display: block; border-radius: 9px; --ringpaint: url(#gqRing)"><rect width="108" height="108" fill="url(#gqBg)"></rect><ellipse cx="54" cy="6" rx="72" ry="40" fill="url(#gqSheen)"></ellipse><use href="#bGlassHead"></use></svg>
+</div>
+<span style="font-size: 13px; font-weight: 500">60 · 40</span>
+</div>
+</div>
+</div>
+
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"green":{"editor":"color","default":"#00695C"},"mint":{"editor":"color","default":"#B2DFD8"},"ink":{"editor":"color","default":"#0B2A25"},"yellow":{"editor":"color","default":"#FFC93C"},"pink":{"editor":"color","default":"#FF7A9A"},"$preview":{"width":1280,"height":1240}}'>
+class Component extends DCLogic {
+renderVals() {
+return {
+green: this.props.green ?? '#00695C',
+mint: this.props.mint ?? '#B2DFD8',
+ink: this.props.ink ?? '#0B2A25',
+yellow: this.props.yellow ?? '#FFC93C',
+pink: this.props.pink ?? '#FF7A9A'
+};
+}
+}
+</script>
+</body>
+</html>

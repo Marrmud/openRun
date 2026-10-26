@@ -1,0 +1,47 @@
+<!doctype html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<title>openRun: emplacement des captures</title>
+<!-- Source de docs/assets/screens-placeholder.png, remplacée par de vraies captures après la refonte du design. -->
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Fredoka:wght@500;600&display=swap">
+<style>
+  html, body { margin: 0; background: transparent; }
+  .wrap { width: 1000px; height: 470px; box-sizing: border-box; padding: 30px 40px; border-radius: 32px; background: #F1F6F4; border: 3px solid #DCE9E5;
+          font-family: Fredoka, 'Roboto', system-ui, sans-serif; color: #0B2A25; display: flex; flex-direction: column; gap: 22px; }
+  h2 { margin: 0; font-size: 26px; font-weight: 600; }
+  h2 span { color: #00695C; }
+  .row { display: flex; gap: 22px; justify-content: space-between; flex: 1; }
+  .phone { flex: 1; display: flex; flex-direction: column; align-items: center; gap: 10px; }
+  .screen { flex: 1; width: 100%; border-radius: 26px; border: 3px dashed #9CC9C0; background: #E3F1EE; display: flex; align-items: center; justify-content: center; }
+  .screen svg { width: 52px; height: 52px; opacity: .8; }
+  .label { font-size: 17px; font-weight: 500; color: #3F6A63; }
+  --ink: #0B2A25;
+</style>
+</head>
+<body>
+<svg width="0" height="0" style="position:absolute" aria-hidden="true">
+  <defs>
+    <symbol id="head" viewBox="0 0 108 108">
+      <path d="M13 45 L20 45 M9 55 L19 55 M13 65 L20 65" fill="none" stroke="#00695C" stroke-width="5" stroke-linecap="round"/>
+      <circle cx="58" cy="54" r="24" fill="none" stroke="#0B2A25" stroke-width="18" stroke-linecap="round" stroke-dasharray="113.1 200"/>
+      <circle cx="58" cy="54" r="24" fill="none" stroke="#FFFFFF" stroke-width="11" stroke-linecap="round" stroke-dasharray="113.1 200"/>
+      <circle cx="74.97" cy="37.03" r="8.4" fill="#0B2A25"/><circle cx="74.97" cy="37.03" r="5.1" fill="#FFC93C"/>
+      <circle cx="52" cy="52" r="4.4" fill="#FFFFFF" stroke="#0B2A25" stroke-width="1.6"/><circle cx="64" cy="52" r="4.4" fill="#FFFFFF" stroke="#0B2A25" stroke-width="1.6"/>
+      <circle cx="53.5" cy="52.3" r="2.3" fill="#0B2A25"/><circle cx="65.5" cy="52.3" r="2.3" fill="#0B2A25"/>
+      <path d="M54.6 58.6 Q58 63.6 61.4 58.6 Z" fill="#FF7A9A" stroke="#0B2A25" stroke-width="1.4" stroke-linejoin="round"/>
+    </symbol>
+  </defs>
+</svg>
+<div class="wrap">
+  <h2>Captures d'écran <span>bientôt</span>, avec le nouveau design</h2>
+  <div class="row">
+    <div class="phone"><div class="screen"><svg><use href="#head"/></svg></div><span class="label">Accueil</span></div>
+    <div class="phone"><div class="screen"><svg><use href="#head"/></svg></div><span class="label">Séance</span></div>
+    <div class="phone"><div class="screen"><svg><use href="#head"/></svg></div><span class="label">Course</span></div>
+    <div class="phone"><div class="screen"><svg><use href="#head"/></svg></div><span class="label">Détail</span></div>
+    <div class="phone"><div class="screen"><svg><use href="#head"/></svg></div><span class="label">Historique</span></div>
+  </div>
+</div>
+</body>
+</html>
