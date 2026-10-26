@@ -1,10 +1,13 @@
 name: Release
 
-# Pousser un tag v* (par exemple v0.1.0) construit l'APK signÃ© et le joint Ã  une release GitHub.
-# Les quatre secrets dÃ©crivent la clÃ© de signature (voir README): OPENRUN_KEYSTORE_BASE64 est le fichier .jks encodÃ© en base64.
+# Lancé à la main (Actions > Release > Run workflow) une fois les quatre secrets de signature ajoutés (voir README).
+# Pour l'instant les APK sont signés en local et joints à la release à la main.
 on:
-  push:
-    tags: ['v*']
+  workflow_dispatch:
+    inputs:
+      version:
+        description: 'Numéro de version (par exemple 0.1.0), la release sera taguée v<version>'
+        required: true
 
 permissions:
   contents: write
@@ -34,12 +37,13 @@ jobs:
           OPENRUN_KEY_PASSWORD: ${{ secrets.OPENRUN_KEY_PASSWORD }}
       - name: Nommer l'APK et calculer son empreinte
         run: |
-          VERSION="${GITHUB_REF_NAME#v}"
+          VERSION="${{ inputs.version }}"
           cp app/build/outputs/apk/release/app-release.apk "openRun-${VERSION}.apk"
           sha256sum "openRun-${VERSION}.apk" > "openRun-${VERSION}.apk.sha256"
       - name: Publier
         uses: softprops/action-gh-release@v2
         with:
+          tag_name: v${{ inputs.version }}
           files: |
             openRun-*.apk
             openRun-*.apk.sha256
