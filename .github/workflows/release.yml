@@ -1,12 +1,13 @@
 name: Release
 
-# LancÈ ‡ la main (Actions > Release > Run workflow) une fois les quatre secrets de signature ajoutÈs (voir README).
-# Pour l'instant les APK sont signÈs en local et joints ‡ la release ‡ la main.
+# Lanc√© √† la main (Actions > Release > Run workflow) une fois les quatre secrets de signature ajout√©s (voir README).
+# Pour l'instant les APK sont sign√©s en local et joints √† la release √† la main.
+# OPENRUN_KEYSTORE_BASE64 est le fichier .jks encod√© en base64.
 on:
   workflow_dispatch:
     inputs:
       version:
-        description: 'NumÈro de version (par exemple 0.1.0), la release sera taguÈe v<version>'
+        description: 'Version number (for example 0.1.0); the release is tagged v<version>'
         required: true
 
 permissions:
