@@ -12,6 +12,7 @@ Principe: petites tranches testables, la logique d'abord (`core/` pur + tests), 
 | 4. Parcours et historique | Point de départ libre, accueil, historique, fin de séance + XP | MVP téléphone |
 | 5. Santé | Écriture Health Connect | Séance visible dans Google Health |
 | 6. Montre | Enregistrement autonome `ExerciseClient`, sync téléphone | MVP montre (Pixel Watch 4) |
+| 6bis. Permissions en contexte | Suivi GPS optionnel (désactivé par défaut), écran d'introduction avec interrupteurs, état et guide batterie. Après les premiers retours d'une vraie sortie | Aucune autorisation demandée sans que l'utilisateur ait activé la fonction |
 | 7. v1 | Constructeur de séances, calendrier, plans par objectif, adaptatif, zones/VDOT, export | Appli complète |
 | 8. Diffusion | Guide d'installation, F-Droid, autres Wear OS | Release publique |
 | 9. Plus tard | Carte (fin de séance et détail), charge, chaussures, page Guide/FAQ enrichie, iOS/Apple Watch | |

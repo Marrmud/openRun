@@ -93,6 +93,15 @@ Le périmètre précis du MVP, qui fait foi, est dans [MVP.md](MVP.md). « MVP m
 | Complications / tuile "séance du jour" | v1 montre |
 | Synchronisation vers le téléphone, écriture Health Connect | MVP montre |
 
+## Autorisations et batterie (décisions D32 à D35)
+
+| Fonction | Palier |
+|---|---|
+| Suivi GPS **optionnel, désactivé par défaut**: la position n'est demandée qu'en l'activant (remplace le « mode tapis ») | v1 (juste après les premiers retours terrain) |
+| Écran d'introduction après « Où en es-tu ? »: explique et propose, avec un interrupteur par fonction (GPS, Health Connect, rappels), la boîte système n'apparaissant qu'à l'activation | v1 |
+| État de la batterie dans Réglages (« Sans restriction » ou « À corriger ») + bouton vers le réglage Android + guide au premier usage du GPS | v1 |
+| Rappels de séance (notifications), proposés à l'introduction et demandés à l'activation, avec le calendrier | v1 |
+
 ## Paramètres
 
 Langue, unités, thème (clair, sombre, système), couleurs dynamiques, audio (voir BIBLE.md), garder l'écran allumé, mode tapis, auto-pause, Health Connect, exclusion batterie guidée, export/sauvegarde des données.
