@@ -1,5 +1,13 @@
 package org.openrun.app.ui.run
 
+import android.provider.Settings
+import androidx.compose.animation.animateColorAsState
+import androidx.compose.animation.core.LinearOutSlowInEasing
+import androidx.compose.animation.core.animateFloat
+import androidx.compose.animation.core.infiniteRepeatable
+import androidx.compose.animation.core.rememberInfiniteTransition
+import androidx.compose.animation.core.tween
+import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.background
 import androidx.compose.foundation.gestures.detectTapGestures
@@ -19,6 +27,9 @@ import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Check
+import androidx.compose.material.icons.filled.CheckCircle
+import androidx.compose.material.icons.filled.Flag
 import androidx.compose.material.icons.filled.Lock
 import androidx.compose.material.icons.filled.MoreVert
 import androidx.compose.material.icons.filled.Pause
@@ -29,6 +40,7 @@ import androidx.compose.material.icons.filled.SkipPrevious
 import androidx.compose.material.icons.filled.Stop
 import androidx.compose.material.icons.filled.VoiceOverOff
 import androidx.compose.material3.Button
+import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.DropdownMenu
 import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.ExperimentalMaterial3Api
@@ -36,6 +48,7 @@ import androidx.compose.material3.FilledIconToggleButton
 import androidx.compose.material3.FilledTonalIconButton
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButtonDefaults
+import androidx.compose.material3.LocalContentColor
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.SegmentedButton
 import androidx.compose.material3.SegmentedButtonDefaults
@@ -49,13 +62,16 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.alpha
+import androidx.compose.ui.draw.drawBehind
+import androidx.compose.ui.geometry.CornerRadius
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.geometry.Size
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.StrokeCap
 import androidx.compose.ui.graphics.drawscope.Stroke
 import androidx.compose.ui.input.pointer.pointerInput
+import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
@@ -63,10 +79,14 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import org.openrun.app.R
 import org.openrun.app.run.RunUiState
+import org.openrun.app.ui.components.PhaseBadge
 import org.openrun.app.ui.components.WorkoutBar
+import org.openrun.app.ui.components.phaseIcon
 import org.openrun.app.ui.theme.RunTheme
 import org.openrun.core.PhaseKind
 import org.openrun.core.ScreenStyle
+import kotlin.math.cos
+import kotlin.math.sin
 
 data class RunActions(
     val onPause: () -> Unit,
@@ -95,7 +115,9 @@ fun RunScreen(state: RunUiState, voiceOn: Boolean, initialStyle: ScreenStyle, ac
 
     androidx.activity.compose.BackHandler(enabled = !finishOpen) { if (!locked) finishOpen = true }
 
-    Box(Modifier.fillMaxSize()) {
+    // the whole screen takes the color of the phase (D36): running or walking is seen at arm's length
+    val screenColor by animateColorAsState(phaseLook(state.phase?.kind).background, tween(400), label = "phase background")
+    Box(Modifier.fillMaxSize().background(screenColor)) {
         Column(Modifier.fillMaxSize().padding(horizontal = 18.dp).padding(bottom = 14.dp), verticalArrangement = Arrangement.spacedBy(12.dp)) {
             SingleChoiceSegmentedButtonRow(Modifier.fillMaxWidth().padding(top = 8.dp)) {
                 styles.forEachIndexed { i, st ->
@@ -162,14 +184,16 @@ private fun stateTitle(s: RunUiState): String {
 
 // ---------------------------------------------------------------- styles
 
+/** How a phase looks on the run screen (D36). A free run looks like running. */
+private data class PhaseLook(val fill: Color, val pill: Color, val onPill: Color, val container: Color, val knob: Color, val background: Color)
+
 @Composable
-private fun phaseColors(kind: PhaseKind?): Pair<Color, Color> {
+private fun phaseLook(kind: PhaseKind?): PhaseLook {
     val c = RunTheme.colors
     return when (kind) {
-        PhaseKind.RUN -> c.run to c.runContainer
-        PhaseKind.WALK -> c.walk to c.walkContainer
-        PhaseKind.WARMUP, PhaseKind.COOLDOWN -> c.calm to c.calmContainer
-        null -> MaterialTheme.colorScheme.primary to MaterialTheme.colorScheme.primaryContainer
+        PhaseKind.WALK -> PhaseLook(c.walk, c.walk, c.onWalk, c.walkContainer, c.ink, c.walkBackground)
+        PhaseKind.WARMUP, PhaseKind.COOLDOWN -> PhaseLook(c.calm, c.calmContainer, c.onCalm, c.calmContainer, c.walk, c.calmBackground)
+        PhaseKind.RUN, null -> PhaseLook(c.run, c.run, c.onRun, c.runContainer, c.walk, c.runBackground)
     }
 }
 
@@ -180,48 +204,90 @@ private fun phaseName(kind: PhaseKind?): String = stringResource(when (kind) {
     null -> R.string.free_run
 })
 
+/** "3 / 6" for the runs and for the walks (D40), nothing for the warm-up and the cool-down. */
+private fun phaseCount(kind: PhaseKind?, done: Int, total: Int): String = when (kind) {
+    PhaseKind.RUN, PhaseKind.WALK -> if (total > 1) " · $done / $total" else ""
+    else -> ""
+}
+
 @Composable
 private fun PhasePill(s: RunUiState) {
-    val (color, container) = phaseColors(s.phase?.kind)
+    val look = phaseLook(s.phase?.kind)
+    val (container, content) = if (s.workoutFinished) RunTheme.colors.ink to Color.White else look.pill to look.onPill
+    val count = when (s.phase?.kind) {
+        PhaseKind.WALK -> phaseCount(PhaseKind.WALK, s.walksDone, s.walksTotal)
+        else -> phaseCount(s.phase?.kind, s.runsDone, s.runsTotal)
+    }
     val label = when {
         s.workoutFinished -> stringResource(R.string.run_done_title)
         s.paused -> stringResource(R.string.paused)
         s.autoPaused -> stringResource(R.string.auto_paused)
-        else -> phaseName(s.phase?.kind) + if (s.phase?.kind == PhaseKind.RUN && s.runsTotal > 1) " · ${s.runsDone} / ${s.runsTotal}" else ""
+        else -> phaseName(s.phase?.kind) + count
     }
-    Surface(shape = RoundedCornerShape(16.dp), color = container, contentColor = color) {
-        Text(label.uppercase(), Modifier.padding(horizontal = 14.dp, vertical = 6.dp), fontWeight = FontWeight.Bold, style = MaterialTheme.typography.labelLarge)
+    Surface(shape = RoundedCornerShape(16.dp), color = container, contentColor = content) {
+        Row(Modifier.padding(horizontal = 14.dp, vertical = 6.dp), verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+            when {
+                s.workoutFinished -> Icon(Icons.Filled.Flag, null, Modifier.size(20.dp), tint = RunTheme.colors.walk)
+                s.phase != null -> Icon(phaseIcon(s.phase.kind), null, Modifier.size(20.dp))
+            }
+            Text(label.uppercase(), fontWeight = FontWeight.Bold, style = MaterialTheme.typography.labelLarge)
+        }
     }
 }
 
 @Composable
 private fun FocusStyle(s: RunUiState) {
-    val (color, container) = phaseColors(s.phase?.kind)
+    val look = phaseLook(s.phase?.kind)
+    val track = RunTheme.colors.ink.copy(alpha = 0.07f)
     Column(Modifier.fillMaxSize(), verticalArrangement = Arrangement.spacedBy(12.dp)) {
         PhasePill(s)
         Box(Modifier.weight(1f).fillMaxWidth(), contentAlignment = Alignment.Center) {
-            val fraction = if (s.phaseMs > 0) (s.leftMs.toFloat() / s.phaseMs).coerceIn(0f, 1f) else 1f
+            // the arc fills up as the phase goes by, and the dot rides its end (the sun of the logo)
+            val done = when {
+                s.workoutFinished -> 1f
+                s.phaseMs > 0 -> (1f - s.leftMs.toFloat() / s.phaseMs).coerceIn(0f, 1f)
+                else -> 0f
+            }
             Canvas(Modifier.fillMaxWidth().aspectRatio(1f).padding(8.dp)) {
                 val stroke = 28.dp.toPx()
                 val inset = stroke / 2
                 val arcSize = Size(size.width - stroke, size.height - stroke)
-                drawArc(container, 0f, 360f, false, Offset(inset, inset), arcSize, style = Stroke(stroke))
-                if (s.workout != null) drawArc(color, -90f, 360f * fraction, false, Offset(inset, inset), arcSize, style = Stroke(stroke, cap = StrokeCap.Round))
+                drawArc(track, 0f, 360f, false, Offset(inset, inset), arcSize, style = Stroke(stroke))
+                if (s.workout != null) {
+                    drawArc(look.fill, -90f, 360f * done, false, Offset(inset, inset), arcSize, style = Stroke(stroke, cap = StrokeCap.Round))
+                    if (!s.workoutFinished) {
+                        val angle = Math.toRadians(-90.0 + 360.0 * done)
+                        val radius = arcSize.width / 2
+                        val knob = Offset(center.x + radius * cos(angle).toFloat(), center.y + radius * sin(angle).toFloat())
+                        drawCircle(look.background, 17.dp.toPx(), knob)
+                        drawCircle(look.knob, 13.dp.toPx(), knob)
+                    }
+                }
             }
             Column(horizontalAlignment = Alignment.CenterHorizontally) {
-                Text(
-                    clock(if (s.workout != null) s.leftMs + 999 else s.elapsedMs),
-                    fontSize = 88.sp, fontWeight = FontWeight.ExtraBold, letterSpacing = (-3).sp, maxLines = 1,
-                )
-                Text(stringResource(if (s.workout != null) R.string.remaining else R.string.elapsed), color = MaterialTheme.colorScheme.onSurfaceVariant)
+                if (s.workoutFinished) {
+                    Icon(Icons.Filled.Check, null, Modifier.size(96.dp), tint = RunTheme.colors.run)
+                    Text(stringResource(R.string.run_done_bravo), style = MaterialTheme.typography.headlineMedium, fontWeight = FontWeight.Bold)
+                } else {
+                    Text(
+                        clock(if (s.workout != null) s.leftMs + 999 else s.elapsedMs),
+                        fontSize = 88.sp, fontWeight = FontWeight.ExtraBold, letterSpacing = (-3).sp, maxLines = 1,
+                    )
+                    Text(stringResource(if (s.workout != null) R.string.remaining else R.string.elapsed), color = MaterialTheme.colorScheme.onSurfaceVariant)
+                }
             }
         }
         val next = s.nextPhase
-        if (next != null) {
-            Surface(shape = RoundedCornerShape(14.dp), color = MaterialTheme.colorScheme.surfaceContainer, modifier = Modifier.fillMaxWidth()) {
+        if (next != null || s.workoutFinished) {
+            Surface(shape = RoundedCornerShape(14.dp), color = MaterialTheme.colorScheme.surfaceContainerLowest, modifier = Modifier.fillMaxWidth()) {
                 Row(Modifier.padding(horizontal = 16.dp, vertical = 12.dp), verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(10.dp)) {
-                    Box(Modifier.size(14.dp).background(phaseColors(next.kind).first, CircleShape))
-                    Text(stringResource(R.string.next_up, phaseName(next.kind), clock(next.seconds * 1000L)), fontWeight = FontWeight.SemiBold)
+                    if (next != null) {
+                        PhaseBadge(next.kind)
+                        Text(stringResource(R.string.next_up, phaseName(next.kind), clock(next.seconds * 1000L)), fontWeight = FontWeight.SemiBold)
+                    } else {
+                        PhaseBadge(PhaseKind.RUN)
+                        Text(stringResource(R.string.runs_all_done, s.runsTotal), fontWeight = FontWeight.SemiBold)
+                    }
                 }
             }
         }
@@ -258,12 +324,17 @@ private fun TimelineStyle(s: RunUiState) {
         Column(Modifier.verticalScroll(rememberScrollState()), verticalArrangement = Arrangement.spacedBy(6.dp)) {
             w.phases.forEachIndexed { i, p ->
                 if (i < s.phaseIndex) return@forEachIndexed
-                val (color, container) = phaseColors(p.kind)
+                val look = phaseLook(p.kind)
                 val current = i == s.phaseIndex
-                Surface(shape = RoundedCornerShape(14.dp), color = if (current) container else MaterialTheme.colorScheme.surfaceContainer, modifier = Modifier.fillMaxWidth()) {
+                val nth = w.phases.take(i + 1).count { it.kind == p.kind }
+                val total = if (p.kind == PhaseKind.WALK) w.walkCount else w.runCount
+                Surface(
+                    shape = RoundedCornerShape(14.dp), color = if (current) look.container else MaterialTheme.colorScheme.surfaceContainerLowest,
+                    border = if (current) BorderStroke(2.dp, look.fill) else null, modifier = Modifier.fillMaxWidth(),
+                ) {
                     Row(Modifier.padding(horizontal = 14.dp, vertical = 10.dp), verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(12.dp)) {
-                        Box(Modifier.size(20.dp).background(color, CircleShape))
-                        Text(phaseName(p.kind), fontWeight = if (current) FontWeight.Bold else FontWeight.Normal, modifier = Modifier.weight(1f))
+                        PhaseBadge(p.kind)
+                        Text(phaseName(p.kind) + phaseCount(p.kind, nth, total), fontWeight = if (current) FontWeight.Bold else FontWeight.Normal, modifier = Modifier.weight(1f))
                         Text(clock(if (current) s.leftMs + 999 else p.seconds * 1000L), fontWeight = FontWeight.SemiBold)
                     }
                 }
@@ -276,9 +347,11 @@ private fun TimelineStyle(s: RunUiState) {
 private fun FullStyle(s: RunUiState) {
     Column(Modifier.fillMaxSize().verticalScroll(rememberScrollState()), verticalArrangement = Arrangement.spacedBy(10.dp)) {
         PhasePill(s)
+        val look = phaseLook(s.phase?.kind)
         Tile(
             if (s.workout != null) stringResource(R.string.remaining_interval) else stringResource(R.string.time),
             clock(if (s.workout != null) s.leftMs + 999 else s.elapsedMs), "", big = true,
+            container = look.pill, content = look.onPill,
         )
         Row(horizontalArrangement = Arrangement.spacedBy(10.dp)) {
             Tile(stringResource(R.string.time), clock(s.elapsedMs), "", Modifier.weight(1f))
@@ -297,13 +370,16 @@ private fun FullStyle(s: RunUiState) {
 }
 
 @Composable
-private fun Tile(label: String, value: String, unit: String, modifier: Modifier = Modifier, big: Boolean = false) {
-    Surface(shape = RoundedCornerShape(14.dp), color = MaterialTheme.colorScheme.surfaceContainer, modifier = modifier.fillMaxWidth()) {
+private fun Tile(
+    label: String, value: String, unit: String, modifier: Modifier = Modifier, big: Boolean = false,
+    container: Color = MaterialTheme.colorScheme.surfaceContainerLowest, content: Color = MaterialTheme.colorScheme.onSurface,
+) {
+    Surface(shape = RoundedCornerShape(14.dp), color = container, contentColor = content, modifier = modifier.fillMaxWidth()) {
         Column(Modifier.padding(horizontal = 14.dp, vertical = 12.dp)) {
-            Text(label.uppercase(), style = MaterialTheme.typography.labelMedium, color = MaterialTheme.colorScheme.onSurfaceVariant)
+            Text(label.uppercase(), style = MaterialTheme.typography.labelMedium, color = LocalContentColor.current.copy(alpha = 0.75f))
             Row(verticalAlignment = Alignment.Bottom) {
                 Text(value, fontSize = if (big) 60.sp else 34.sp, fontWeight = FontWeight.Bold, letterSpacing = if (big) (-2).sp else (-1).sp, maxLines = 1)
-                if (unit.isNotEmpty()) Text(unit, color = MaterialTheme.colorScheme.onSurfaceVariant, modifier = Modifier.padding(start = 2.dp, bottom = 5.dp))
+                if (unit.isNotEmpty()) Text(unit, color = LocalContentColor.current.copy(alpha = 0.75f), modifier = Modifier.padding(start = 2.dp, bottom = 5.dp))
             }
         }
     }
@@ -314,6 +390,10 @@ private fun Tile(label: String, value: String, unit: String, modifier: Modifier 
 @Composable
 private fun Controls(s: RunUiState, a: RunActions, onFinish: () -> Unit) {
     val isFree = s.workout == null
+    if (s.workoutFinished) {
+        FinishedButton(onClick = a.onSave)
+        return
+    }
     Row(horizontalArrangement = Arrangement.spacedBy(10.dp), verticalAlignment = Alignment.CenterVertically) {
         if (!isFree) {
             FilledTonalIconButton(onClick = a.onPrevious, modifier = Modifier.size(60.dp), colors = IconButtonDefaults.filledTonalIconButtonColors()) {
@@ -321,10 +401,6 @@ private fun Controls(s: RunUiState, a: RunActions, onFinish: () -> Unit) {
             }
         }
         when {
-            s.workoutFinished -> Button(onClick = onFinish, modifier = Modifier.weight(1f).height(72.dp)) {
-                Icon(Icons.Filled.Stop, null)
-                Text(stringResource(R.string.finish), style = MaterialTheme.typography.titleLarge, modifier = Modifier.padding(start = 8.dp))
-            }
             s.paused -> Button(onClick = a.onResume, modifier = Modifier.weight(1f).height(72.dp)) {
                 Icon(Icons.Filled.PlayArrow, null)
                 Text(stringResource(R.string.resume_run), style = MaterialTheme.typography.titleLarge, modifier = Modifier.padding(start = 8.dp))
@@ -341,6 +417,37 @@ private fun Controls(s: RunUiState, a: RunActions, onFinish: () -> Unit) {
         } else {
             FilledTonalIconButton(onClick = onFinish, modifier = Modifier.size(60.dp)) { Icon(Icons.Filled.Stop, stringResource(R.string.finish), Modifier.size(28.dp)) }
         }
+    }
+}
+
+/**
+ * Nothing left to run: the only button, yellow, with a soft halo pulsing around it so the end cannot be missed (D37).
+ * It saves straight away and opens the summary. No pulse when the system asks for fewer animations.
+ */
+@Composable
+private fun FinishedButton(onClick: () -> Unit) {
+    val c = RunTheme.colors
+    val context = LocalContext.current
+    val still = remember { Settings.Global.getFloat(context.contentResolver, Settings.Global.ANIMATOR_DURATION_SCALE, 1f) == 0f }
+    val pulse = if (still) null else rememberInfiniteTransition(label = "finish pulse").animateFloat(
+        0f, 1f, infiniteRepeatable(tween(1800, easing = LinearOutSlowInEasing)), label = "halo",
+    )
+    val haloMax = with(LocalDensity.current) { 16.dp.toPx() }
+    Button(
+        onClick = onClick,
+        colors = ButtonDefaults.buttonColors(containerColor = c.walk, contentColor = c.ink),
+        modifier = Modifier.fillMaxWidth().height(72.dp).drawBehind {
+            val t = pulse?.value ?: 0.25f
+            val spread = haloMax * t
+            val alpha = if (pulse == null) 0.4f else 0.8f * (1f - t)
+            drawRoundRect(
+                c.walk.copy(alpha = alpha), Offset(-spread, -spread), Size(size.width + 2 * spread, size.height + 2 * spread),
+                CornerRadius(size.height / 2 + spread),
+            )
+        },
+    ) {
+        Icon(Icons.Filled.CheckCircle, null)
+        Text(stringResource(R.string.finish_and_summary), style = MaterialTheme.typography.titleLarge, fontWeight = FontWeight.Bold, modifier = Modifier.padding(start = 8.dp))
     }
 }
 

@@ -46,7 +46,7 @@ import org.openrun.app.ui.run.clock
 import org.openrun.app.ui.run.kmText
 import org.openrun.app.ui.run.kmText1
 import org.openrun.app.ui.run.paceText
-import org.openrun.app.ui.theme.RunTheme
+import org.openrun.app.ui.components.PhaseBadge
 import org.openrun.core.HistoryItem
 import org.openrun.core.PhaseKind
 import org.openrun.core.Track
@@ -96,10 +96,10 @@ fun RunDetailScreen(runId: Long, onBack: () -> Unit) {
             }
 
             if (run.source == "watch" || run.avgHr != null) {
-                Surface(shape = RoundedCornerShape(14.dp), color = RunTheme.colors.walkContainer) {
+                Surface(shape = RoundedCornerShape(14.dp), color = MaterialTheme.colorScheme.primaryContainer) {
                     Row(Modifier.padding(horizontal = 14.dp, vertical = 10.dp), verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(10.dp)) {
-                        Icon(Icons.Filled.Watch, null, tint = RunTheme.colors.walk)
-                        Text(stringResource(R.string.watch_data), fontWeight = FontWeight.SemiBold, color = androidx.compose.ui.graphics.Color(0xFF00306B))
+                        Icon(Icons.Filled.Watch, null, tint = MaterialTheme.colorScheme.primary)
+                        Text(stringResource(R.string.watch_data), fontWeight = FontWeight.SemiBold, color = MaterialTheme.colorScheme.onPrimaryContainer)
                     }
                 }
                 Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
@@ -114,10 +114,12 @@ fun RunDetailScreen(runId: Long, onBack: () -> Unit) {
                 Surface(shape = RoundedCornerShape(20.dp), color = MaterialTheme.colorScheme.surfaceContainer) {
                     Column(Modifier.padding(horizontal = 14.dp, vertical = 6.dp)) {
                         var runNumber = 0
+                        var walkNumber = 0
                         d.phases.forEach { p ->
                             val kind = runCatching { PhaseKind.valueOf(p.kind) }.getOrDefault(PhaseKind.RUN)
                             if (kind == PhaseKind.RUN) runNumber++
-                            PhaseLine(kind, if (kind == PhaseKind.RUN) runNumber else null, p)
+                            if (kind == PhaseKind.WALK) walkNumber++
+                            PhaseLine(kind, when (kind) { PhaseKind.RUN -> runNumber; PhaseKind.WALK -> walkNumber; else -> null }, p)
                         }
                     }
                 }
@@ -149,17 +151,16 @@ fun RunDetailScreen(runId: Long, onBack: () -> Unit) {
 }
 
 @Composable
-private fun PhaseLine(kind: PhaseKind, runNumber: Int?, p: PhaseResultEntity) {
-    val c = RunTheme.colors
-    val color = when (kind) { PhaseKind.RUN -> c.run; PhaseKind.WALK -> c.walk; else -> c.calm }
+private fun PhaseLine(kind: PhaseKind, number: Int?, p: PhaseResultEntity) {
     val name = when (kind) {
         PhaseKind.WARMUP -> stringResource(R.string.phase_warmup)
         PhaseKind.COOLDOWN -> stringResource(R.string.phase_cooldown)
-        PhaseKind.WALK -> stringResource(R.string.phase_walk)
-        PhaseKind.RUN -> stringResource(R.string.phase_run) + " $runNumber"
+        PhaseKind.WALK -> stringResource(R.string.phase_walk) + " $number"
+        PhaseKind.RUN -> stringResource(R.string.phase_run) + " $number"
     }
     Row(Modifier.fillMaxWidth().padding(vertical = 7.dp), verticalAlignment = Alignment.CenterVertically) {
-        Text(name, color = color, fontWeight = FontWeight.Bold, modifier = Modifier.weight(1.4f))
+        PhaseBadge(kind, size = 24.dp)
+        Text(name, fontWeight = FontWeight.Bold, modifier = Modifier.weight(1.4f).padding(start = 8.dp))
         Text(clock(p.seconds * 1000L), modifier = Modifier.weight(1f))
         Text(if (p.distanceM > 0) "${kmText(p.distanceM)} km" else "–", modifier = Modifier.weight(1.1f))
         Text(paceText(Track.paceSecPerKm(p.distanceM, p.seconds.toDouble())), modifier = Modifier.weight(0.9f))

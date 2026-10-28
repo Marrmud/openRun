@@ -127,17 +127,17 @@ private fun Total(value: String, label: String) {
 private fun RunRow(item: HistoryItem, onOpen: (Long) -> Unit) {
     Surface(shape = RoundedCornerShape(14.dp), color = MaterialTheme.colorScheme.surfaceContainer, modifier = Modifier.fillMaxWidth().clickable { onOpen(item.id) }) {
         Row(Modifier.padding(horizontal = 14.dp, vertical = 12.dp), verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(12.dp)) {
-            Surface(shape = CircleShape, color = if (item.completed) org.openrun.app.ui.theme.RunTheme.colors.calmContainer else MaterialTheme.colorScheme.secondaryContainer, modifier = Modifier.size(40.dp)) {
+            Surface(shape = CircleShape, color = if (item.completed) MaterialTheme.colorScheme.primaryContainer else MaterialTheme.colorScheme.secondaryContainer, modifier = Modifier.size(40.dp)) {
                 Icon(
                     if (item.completed) Icons.Filled.Check else Icons.Filled.DirectionsRun, null, Modifier.padding(9.dp),
-                    tint = if (item.completed) org.openrun.app.ui.theme.RunTheme.colors.calm else MaterialTheme.colorScheme.onSecondaryContainer,
+                    tint = if (item.completed) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.onSecondaryContainer,
                 )
             }
             Column(Modifier.weight(1f)) {
                 Text(runTitle(item), fontWeight = FontWeight.SemiBold)
                 Row(verticalAlignment = Alignment.CenterVertically) {
                     Text(runSubtitle(item), style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
-                    if (item.hasWatchData) Icon(Icons.Filled.Watch, stringResource(R.string.watch_data), Modifier.padding(start = 6.dp).size(16.dp), tint = org.openrun.app.ui.theme.RunTheme.colors.walk)
+                    if (item.hasWatchData) Icon(Icons.Filled.Watch, stringResource(R.string.watch_data), Modifier.padding(start = 6.dp).size(16.dp), tint = MaterialTheme.colorScheme.primary)
                 }
             }
             Column(horizontalAlignment = Alignment.End) {

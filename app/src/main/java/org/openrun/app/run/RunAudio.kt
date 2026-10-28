@@ -35,7 +35,9 @@ class RunAudio(private val context: Context) : TextToSpeech.OnInitListener {
     private var tts: TextToSpeech? = TextToSpeech(context, this)
     private var ttsReady = false
     private var pendingSpeech: Pair<String, Float>? = null
-    private val tone: ToneGenerator? = try { ToneGenerator(AudioManager.STREAM_MUSIC, 80) } catch (_: RuntimeException) { null }
+    // a ToneGenerator has its volume fixed at creation, so it is made again when the beep volume changes
+    private var tone: ToneGenerator? = null
+    private var toneVolume = -1
 
     private var focus: AudioFocusRequest? = null
     private var activeOps = 0
@@ -91,15 +93,46 @@ class RunAudio(private val context: Context) : TextToSpeech.OnInitListener {
 
     // ---------- beeps and buzzes ----------
 
+    private fun toneFor(s: AppSettings): ToneGenerator? {
+        val volume = (s.beepVolume * ToneGenerator.MAX_VOLUME).toInt().coerceIn(0, ToneGenerator.MAX_VOLUME)
+        if (volume != toneVolume) {
+            tone?.release()
+            tone = try { ToneGenerator(AudioManager.STREAM_MUSIC, volume) } catch (_: RuntimeException) { null }
+            toneVolume = volume
+        }
+        return tone
+    }
+
     fun beep(s: AppSettings, long: Boolean = false) {
         if (!s.beeps) return
         beginOp(s)
-        tone?.startTone(ToneGenerator.TONE_PROP_BEEP, if (long) 350 else 120)
+        toneFor(s)?.startTone(ToneGenerator.TONE_PROP_BEEP, if (long) 350 else 120)
         main.postDelayed({ endOp() }, if (long) 700 else 450)
     }
 
-    fun phaseChange(kind: PhaseKind, text: String, s: AppSettings) {
-        beep(s, long = true)
+    /** Beeps one after the other: (start in ms, length in ms). */
+    private fun melody(s: AppSettings, notes: List<Pair<Long, Int>>) {
+        if (!s.beeps || !s.startEndSignal) return
+        beginOp(s)
+        notes.forEach { (at, length) -> main.postDelayed({ toneFor(s)?.startTone(ToneGenerator.TONE_PROP_BEEP, length) }, at) }
+        main.postDelayed({ endOp() }, notes.maxOf { it.first + it.second } + 350L)
+    }
+
+    /** "Bip, bip, biiip": the start of a race. */
+    fun startSignal(s: AppSettings) = melody(s, listOf(0L to 150, 450L to 150, 900L to 600))
+
+    /** Three long beeps: it is over. */
+    fun endSignal(s: AppSettings) = melody(s, listOf(0L to 400, 550L to 400, 1100L to 800))
+
+    /**
+     * A new phase: the voice and a buzz say which. No beep when the 3, 2, 1 countdown already led up to it, they came
+     * too close together (D39); without the countdown the beep stays, else nothing would be heard with the voice off.
+     */
+    fun phaseChange(kind: PhaseKind, text: String, s: AppSettings, first: Boolean = false) {
+        when {
+            first && s.beeps && s.startEndSignal -> startSignal(s)
+            !s.countdown -> beep(s, long = true)
+        }
         buzz(kind, s)
         say(text, s)
     }
@@ -134,7 +167,7 @@ class RunAudio(private val context: Context) : TextToSpeech.OnInitListener {
 
     fun release() {
         tts?.stop(); tts?.shutdown(); tts = null
-        tone?.release()
+        tone?.release(); tone = null; toneVolume = -1
         main.removeCallbacksAndMessages(null)
         focus?.let { audio.abandonAudioFocusRequest(it) }; focus = null
         activeOps = 0

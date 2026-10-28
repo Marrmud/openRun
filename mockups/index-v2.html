@@ -18,10 +18,12 @@
   --surface:#f5f8f6; --card:#ffffff; --surface-c:#eef3f1; --surface-ch:#e5ece9;
   --on-surface:#0f2420; --on-surface-v:#4a5a56; --outline:#71807b; --outline-v:#d2ddd9; --line:#e3eae7;
   --error:#ba1a1a; --error-c:#ffdad6;
-  /* phases : course = vert foncé, marche = menthe, échauffement/retour = jaune */
-  --run:#00695c; --run-c:#d3ede7;
-  --walk:#7fcdbd; --walk-c:#e3f4f0; --walk-t:#1d6b5e;
-  --calm:#ffc93c; --calm-c:#fff2cc; --calm-t:#7a5600;
+  /* phases (D36) : course = vert plein (primary), marche = jaune (secondary), échauffement / retour au calme = neutre.
+     Foncé contre clair : course et marche se distinguent d'un coup d'œil, même en daltonisme rouge-vert.
+     Toujours doublé d'une icône (et d'une hauteur dans la barre), jamais la couleur seule. */
+  --run:#00695c; --run-c:#d3ede7; --run-bg:#e8f3f0; --on-run:#fff;
+  --walk:#ffc93c; --walk-c:#fff2cc; --walk-bg:#fff8e6; --on-walk:#3a2a00;
+  --calm:#a9b8b4; --calm-c:#e5ece9; --calm-t:#3d4d49;
   --hr:#e8507a;
   --r-xl:28px; --r-l:22px; --r-m:16px;
   --display:'Fredoka','Roboto Flex',system-ui,sans-serif;
@@ -126,9 +128,13 @@ svg.mk,svg.rk{display:block;flex:none}
 /* barre d'intervalles */
 .tl{display:flex;gap:3px;height:34px;align-items:flex-end}
 .tl i{display:block;border-radius:4px;min-width:3px}
-.tl i.run{background:var(--run);height:100%}.tl i.walk{background:var(--walk);height:55%}.tl i.calm{background:var(--calm);height:38%}
-.tl i.done{opacity:.3}
-.hero .tl i.run{background:#fff}.hero .tl i.walk{background:#7fcdbd}.hero .tl i.calm{background:var(--yellow)}
+.tl i.run{background:var(--run);height:100%}.tl i.walk{background:var(--walk);height:60%}.tl i.calm{background:var(--calm);height:34%}
+.tl i.done{opacity:.25}
+.hero .tl i.run{background:#fff}.hero .tl i.walk{background:var(--yellow)}.hero .tl i.calm{background:#ffffff59}
+/* pastille de phase : la même icône partout (aperçu, chronologie, « ensuite ») */
+.pk{width:28px;height:28px;border-radius:50%;display:grid;place-items:center;flex:none}.pk .ms{font-size:18px}
+.pk.run{background:var(--run);color:var(--on-run)}.pk.walk{background:var(--walk);color:var(--on-walk)}.pk.calm{background:var(--calm-c);color:var(--calm-t)}
+.pk.past{background:var(--surface-ch);color:var(--on-surface-v)}
 
 .week{display:flex;justify-content:space-between}
 .day{display:flex;flex-direction:column;align-items:center;gap:6px;font-size:12px;color:var(--on-surface-v);font-weight:500}
@@ -181,37 +187,43 @@ svg.mk,svg.rk{display:block;flex:none}
 .group{display:flex;flex-direction:column;gap:6px}
 .step{display:flex;align-items:center;gap:10px;font-size:14px;padding:6px 0;border-bottom:1px solid var(--line)}
 .step:last-child{border:0}
-.step .tag{font-weight:700;font-size:12px;letter-spacing:.5px;white-space:nowrap;display:inline-flex;align-items:center;gap:8px;color:var(--ink)}
-.step .tag:before{content:"";width:10px;height:10px;border-radius:3px;background:var(--c)}
-.step .tag.run{--c:var(--run)}.step .tag.walk{--c:var(--walk)}.step .tag.calm{--c:var(--calm)}
+.step .tag{font-weight:700;font-size:15px;white-space:nowrap;color:var(--ink)}
 
 /* course */
+.phone.run{--ph:var(--run);--ph-c:var(--run-c);--ph-bg:var(--run-bg);--on-ph:var(--on-run);--knob:var(--yellow);background:var(--ph-bg)}
+.phone.run[data-k="walk"]{--ph:var(--walk);--ph-c:var(--walk-c);--ph-bg:var(--walk-bg);--on-ph:var(--on-walk);--knob:var(--ink)}
 .run .body{padding:0 18px 14px;gap:12px}
 .seg{display:flex;background:var(--surface-c);border-radius:22px;overflow:hidden;height:44px;flex:none;padding:4px;gap:4px}
 .seg button{flex:1;border:0;background:transparent;font:500 14px 'Roboto Flex',sans-serif;color:var(--on-surface-v);cursor:pointer;border-radius:18px}
 .seg button.on{background:var(--card);font-weight:700;color:var(--ink);box-shadow:0 1px 3px #0b2a2522}
 .phase{display:flex;align-items:center;gap:8px;font-weight:700;font-size:14px;letter-spacing:.8px;text-transform:uppercase;padding:7px 14px;border-radius:16px;align-self:flex-start}
-.phase.run{background:var(--run-c);color:var(--primary-d)}
+.phase.run{background:var(--run);color:var(--on-run)}.phase.walk{background:var(--walk);color:var(--on-walk)}
+.phase.done{background:var(--ink);color:#fff}.phase.done .ms{color:var(--yellow)}
 .view{flex:1;display:flex;flex-direction:column;gap:12px;min-height:0}
 .ctrls{display:flex;gap:10px;align-items:center;flex:none}
 .ctrls .btn.main{flex:1;height:72px;border-radius:36px;font-size:20px}
 .ctrls .iconbtn{width:60px;height:60px;background:var(--card);box-shadow:inset 0 0 0 1px var(--line)}
 .huge{font-size:112px;font-weight:800;letter-spacing:-4px;line-height:1;text-align:center;color:var(--ink)}
-.ring{width:320px;height:320px;border-radius:50%;margin:6px auto;display:grid;place-items:center;background:conic-gradient(var(--run) var(--p,40%),var(--run-c) 0);position:relative}
-.ring>div{width:276px;height:276px;border-radius:50%;background:var(--surface);display:grid;place-items:center;text-align:center;align-content:center}
+.ring{width:320px;height:320px;border-radius:50%;margin:6px auto;display:grid;place-items:center;background:conic-gradient(var(--ph) var(--p,40%),#0b2a2512 0);position:relative}
+.ring>div{width:276px;height:276px;border-radius:50%;background:var(--ph-bg);display:grid;place-items:center;text-align:center;align-content:center}
 .ring .huge{font-size:92px;letter-spacing:-3px}
-.ring .knob{position:absolute;width:30px;height:30px;border-radius:50%;background:var(--yellow);border:4px solid var(--surface);left:50%;top:50%;margin:-15px;transform:rotate(var(--a,0deg)) translateY(-138px)}
+.ring .knob{position:absolute;width:30px;height:30px;border-radius:50%;background:var(--knob);border:4px solid var(--ph-bg);left:50%;top:50%;margin:-15px;transform:rotate(var(--a,0deg)) translateY(-149px)}
 .next{background:var(--card);border-radius:var(--r-m);padding:12px 16px;display:flex;align-items:center;gap:10px;font-size:15px;box-shadow:inset 0 0 0 1px var(--line)}
 .tiles{display:grid;grid-template-columns:1fr 1fr;gap:10px}
 .tile{background:var(--card);border-radius:var(--r-m);padding:12px 14px;box-shadow:inset 0 0 0 1px var(--line)}
 .tile .v{font-size:36px;font-weight:700;letter-spacing:-1px;line-height:1.1;margin-top:2px;color:var(--ink)}
 .tile .u{font-size:14px;font-weight:500;color:var(--on-surface-v);letter-spacing:0}
-.tile.wide{grid-column:span 2;background:var(--primary);box-shadow:none}.tile.wide .lbl{color:var(--mint)}.tile.wide .v{font-size:60px;letter-spacing:-2px;color:#fff}
+.tile.wide{grid-column:span 2;background:var(--ph);box-shadow:none}.tile.wide .lbl{color:var(--on-ph);opacity:.8}.tile.wide .v{font-size:60px;letter-spacing:-2px;color:var(--on-ph)}
 .list{display:flex;flex-direction:column;gap:6px;overflow:hidden}
 .li{display:flex;align-items:center;gap:12px;padding:10px 14px;border-radius:var(--r-m);background:var(--card);font-size:15px;box-shadow:inset 0 0 0 1px var(--line)}
-.li.cur{background:var(--run-c);font-weight:700;box-shadow:none}.li .tag{width:22px;height:22px;border-radius:7px;flex:none}
+.li.cur{background:var(--ph-c);font-weight:700;box-shadow:inset 0 0 0 2px var(--ph)}
+.li .cnt{font-weight:500;font-size:13px;color:var(--on-surface-v);margin-left:4px}
 .li.past{opacity:.45}
-.fade{position:relative}.fade:after{content:"";position:absolute;left:0;right:0;bottom:0;height:46px;background:linear-gradient(transparent,var(--surface))}
+.fade{position:relative}.fade:after{content:"";position:absolute;left:0;right:0;bottom:0;height:46px;background:linear-gradient(transparent,var(--ph-bg,var(--surface)))}
+/* fin de séance atteinte : le seul bouton restant, jaune, pulse doucement */
+.btn.done{background:var(--yellow);color:var(--ink);animation:halo 1.8s ease-out infinite}
+@keyframes halo{0%{box-shadow:0 0 0 0 #ffc93ccc}70%{box-shadow:0 0 0 16px #ffc93c00}100%{box-shadow:0 0 0 0 #ffc93c00}}
+@media (prefers-reduced-motion:reduce){.btn.done{animation:none;box-shadow:0 0 0 4px #ffc93c66}}
 .menu{position:absolute;right:14px;top:110px;z-index:7;background:var(--card);border-radius:16px;box-shadow:0 6px 24px #0b2a2540;padding:8px 0;min-width:250px}
 .menu button{display:flex;gap:12px;align-items:center;width:100%;border:0;background:transparent;padding:14px 18px;font:500 15px 'Roboto Flex',sans-serif;color:var(--on-surface);cursor:pointer;text-align:left}
 .menu button:hover{background:var(--surface-c)}.menu .bad{color:var(--error)}
@@ -296,7 +308,7 @@ svg.mk,svg.rk{display:block;flex:none}
 <body>
 <div class="pagehead">
   <h1 id="ttl"></h1>
-  <p class="sub">Maquette v2 · DA du logo : vert openRun, menthe, jaune (action / récompense), rose (touche). Titres en Fredoka, données en Roboto Flex.
+  <p class="sub">Maquette v2 · DA du logo : vert openRun, menthe, jaune (action / récompense, et la marche en course), rose (touche). Titres en Fredoka, données en Roboto Flex.
   La mascotte <b>parle</b> (conseils, états vides, ressenti, fin de séance) mais n'apparaît <b>jamais</b> pendant la course ni sur les écrans de données. Tout reste cliquable comme en v1.</p>
 </div>
 <div class="wall" id="wall"></div>
@@ -434,6 +446,10 @@ const S0=[{t:'calm',n:'Échauffement',s:300}];
 for(let i=0;i<6;i++){S0.push({t:'run',n:'Course',s:90});S0.push({t:'walk',n:'Marche',s:120})}
 S0.push({t:'calm',n:'Retour au calme',s:300});
 const tl=(el,steps,cur)=>{el.innerHTML=steps.map((x,i)=>`<i class="${x.t}${cur!=null&&i<cur?' done':''}" style="flex:${x.s}"></i>`).join('')};
+const PK={run:'directions_run',walk:'directions_walk',calm:'self_improvement'},PN={run:'Course',walk:'Marche'};
+const pk=t=>`<span class="pk ${t}"><span class="ms f">${PK[t]}</span></span>`;
+// rang d'une course ou d'une marche parmi celles du même type (« Marche · 3 / 6 »)
+const nth=j=>S0.slice(0,j+1).filter(y=>y.t===S0[j].t).length,NB=6;
 const TRACE=`<svg viewBox="0 0 360 150"><path d="M40 100 C 45 45, 100 25, 150 45 S 230 85, 275 55 S 335 30, 330 80 S 285 128, 210 118 S 95 135, 40 100Z" fill="none" stroke="var(--primary)" stroke-width="5" stroke-linecap="round" stroke-linejoin="round"/><circle cx="40" cy="100" r="8" fill="var(--yellow)" stroke="#0b2a25" stroke-width="2"/></svg>`;
 document.getElementById('ttl').innerHTML=logo(30)+'<span style="margin-left:10px;color:#56635f;font-weight:500">· maquette v2</span>';
 
@@ -534,7 +550,7 @@ add(slot('3 · Programme','Le conseil de chaque semaine est dit par la mascotte 
   ${[0,1,2,3].map(wkHTML).join('')}`,{scroll:true,attr:'id="progPhone"'})));
 
 /* ---------- 4 · Aperçu séance ---------- */
-add(slot('4 · Aperçu de la séance','Feuille du bas. Couleurs de phase : vert = course, menthe = marche, jaune = échauffement / retour au calme.',phone('20:43',`
+add(slot('4 · Aperçu de la séance','Feuille du bas. Couleurs de phase : vert = course, jaune = marche, gris = échauffement / retour au calme, toujours avec leur icône. Dans la barre, la hauteur change aussi : lisible même sans la couleur.',phone('20:43',`
   <div class="top">${logo(26)}</div><div class="card hero" style="height:150px"></div><div class="scrim"></div>
   <div class="sheet"><div class="grab"></div>
     <div class="row"><div class="sp"><div class="title">Semaine 2 · Jour 1</div><div class="meta num" id="pvMeta">~31 min</div></div><button class="iconbtn t"><span class="ms">close</span></button></div>
@@ -546,51 +562,63 @@ add(slot('4 · Aperçu de la séance','Feuille du bas. Couleurs de phase : vert 
     <button class="btn go big"><span class="ms f">play_arrow</span>Commencer</button></div>`)));
 
 /* ---------- 5-8 · Course ---------- */
-['focus','timeline','full'].forEach((m,i)=>add(slot(`${5+i} · Course · style « ${['Focus','Chronologie','Complet'][i]} »`,
- ['Zéro mascotte, zéro déco : un énorme compte à rebours lisible en plein soleil. Le point jaune sur l’anneau rappelle le logo.','Toute la séance d’un coup d’œil, intervalles à venir.','Grille de métriques pour les confirmés. ⋮ pour terminer ou revenir à l’échauffement.'][i],
- phone('20:44','',{cls:'run',attr:`data-mode="${m}"`}))));
-add(slot('8 · Terminer en avance','Depuis ⋮ → « Terminer la séance » : enregistrer, supprimer ou continuer.',phone('20:50','',{cls:'run',attr:'data-mode="focus" data-finish="1"'})));
+const runSlot=(n,cap,small,t,mode,k,extra,isNew)=>add(slot(`${n} · ${cap}`,small,phone(t,'',{cls:'run',attr:`data-mode="${mode}" data-k="${k}"${extra||''}`}),isNew));
+runSlot('5','Course · style « Focus »','Zéro mascotte, zéro déco : un énorme compte à rebours lisible en plein soleil. Course = écran vert, le point jaune suit le bout de l’arc et rappelle le logo.','20:44','focus','run');
+runSlot('5 bis','Focus pendant la marche','Tout l’écran passe au jaune : course ou marche se reconnaît d’un coup d’œil, téléphone à bout de bras. La marche a aussi son compteur (3 / 6).','20:46','focus','walk','',true);
+runSlot('6','Course · style « Chronologie »','Toute la séance d’un coup d’œil : les phases passées s’effacent dans la barre, la liste a une pastille par type de phase et un compteur pour les courses comme pour les marches.','20:44','timeline','run');
+runSlot('7','Course · style « Complet »','Grille de métriques pour les confirmés. La grande tuile prend la couleur de la phase. ⋮ pour terminer ou revenir à l’échauffement.','20:44','full','run');
+runSlot('8','Terminer en avance','Depuis ⋮ → « Terminer la séance » : enregistrer, supprimer ou continuer.','20:50','focus','run',' data-finish="1"');
+runSlot('8 bis','Séance terminée','Il n’y a plus rien à faire : un seul bouton, jaune, qui pulse doucement. La voix, une vibration longue et le signal d’arrivée l’annoncent aussi.','21:14','focus','done','',true);
 
-const CUR=5,LEFT=48,TOT=90;
-function runHTML(mode){
+// une course (la 3e), une marche (la 3e), ou la séance finie
+const K={run:{cur:5,left:48,tot:90,t:'12:42',km:'1,52',rest:'18:18',nx:'walk',nxl:'Marche · 2 min'},
+ walk:{cur:6,left:75,tot:120,t:'14:15',km:'1,71',rest:'16:45',nx:'run',nxl:'Course · 1 min 30'},
+ done:{cur:S0.length,left:0,tot:1,t:'31:00',km:'3,61',rest:'0:00'}};
+function runHTML(mode,k){
+  const done=k==='done',d=K[k],CUR=d.cur,LEFT=d.left;
   const seg=`<div class="seg"><button data-m="focus" class="${mode==='focus'?'on':''}">Focus</button><button data-m="timeline" class="${mode==='timeline'?'on':''}">Chronologie</button><button data-m="full" class="${mode==='full'?'on':''}">Complet</button></div>`;
-  const hdr=`<div class="row" style="flex:none"><button class="iconbtn t" title="Verrouiller"><span class="ms">lock</span></button><div class="sp meta num" style="margin:0">S2 · J1 · 18:42</div><button class="iconbtn on vtog"><span class="ms f">record_voice_over</span></button><button class="iconbtn t more"><span class="ms">more_vert</span></button></div>`;
-  const ctrls=`<div class="ctrls"><button class="iconbtn" title="Intervalle précédent"><span class="ms">skip_previous</span></button><button class="btn fill main"><span class="ms f">pause</span>Pause</button><button class="iconbtn" title="Intervalle suivant"><span class="ms">skip_next</span></button></div>`;
+  const hdr=`<div class="row" style="flex:none"><button class="iconbtn t" title="Verrouiller"><span class="ms">lock</span></button><div class="sp meta num" style="margin:0">S2 · J1 · ${d.t}</div><button class="iconbtn on vtog"><span class="ms f">record_voice_over</span></button><button class="iconbtn t more"><span class="ms">more_vert</span></button></div>`;
+  const ctrls=done?`<div class="ctrls"><button class="btn done main"><span class="ms f">check_circle</span>Terminer et voir le bilan</button></div>`
+   :`<div class="ctrls"><button class="iconbtn" title="Intervalle précédent"><span class="ms">skip_previous</span></button><button class="btn fill main"><span class="ms f">pause</span>Pause</button><button class="iconbtn" title="Intervalle suivant"><span class="ms">skip_next</span></button></div>`;
+  const chip=done?`<span class="phase done"><span class="ms f">flag</span>Séance terminée</span>`
+   :`<span class="phase ${k}"><span class="ms f">${PK[k]}</span>${PN[k]} · ${nth(CUR)} / ${NB}</span>`;
   let v='';
-  const p=1-LEFT/TOT;
+  const p=done?1:1-LEFT/d.tot;
   if(mode==='focus'){
-    v=`<div class="view"><span class="phase run"><span class="ms f">directions_run</span>Course · 3 / 6</span>
-    <div class="ring" style="--p:${Math.round(p*100)}%"><div><div class="huge num">${mmss(LEFT)}</div><div class="meta">restant</div></div><span class="knob" style="--a:${Math.round(p*360)}deg"></span></div>
-    <div class="next"><span class="ms" style="color:var(--walk-t)">directions_walk</span><span>Ensuite : <b>Marche · 2 min</b></span></div>
-    <div class="row" style="justify-content:space-around"><div style="text-align:center"><div class="lbl">Distance</div><div class="num" style="font-size:28px;font-weight:700">2,14<span style="font-size:14px"> km</span></div></div>
-    <div style="text-align:center"><div class="lbl">Temps</div><div class="num" style="font-size:28px;font-weight:700">18:42</div></div></div></div>`;
+    v=`<div class="view">${chip}
+    <div class="ring" style="--p:${Math.round(p*100)}%"><div>${done?`<span class="ms" style="font-size:96px;color:var(--primary)">check</span><div class="title" style="font-size:28px">Bravo !</div>`
+      :`<div class="huge num">${mmss(LEFT)}</div><div class="meta">restant</div>`}</div>${done?'':`<span class="knob" style="--a:${Math.round(p*360)}deg"></span>`}</div>
+    <div class="next">${done?`${pk('run')}<span><b>${NB} courses sur ${NB}</b> · tout est fait</span>`:`${pk(d.nx)}<span>Ensuite : <b>${d.nxl}</b></span>`}</div>
+    <div class="row" style="justify-content:space-around"><div style="text-align:center"><div class="lbl">Distance</div><div class="num" style="font-size:28px;font-weight:700">${d.km}<span style="font-size:14px"> km</span></div></div>
+    <div style="text-align:center"><div class="lbl">Temps</div><div class="num" style="font-size:28px;font-weight:700">${d.t}</div></div></div></div>`;
   }else if(mode==='timeline'){
-    const rows=S0.slice(4,10).map((x,i)=>{const k=4+i;const col=x.t==='run'?'var(--run)':x.t==='walk'?'var(--walk)':'var(--calm)';
-      return `<div class="li${k===CUR?' cur':k<CUR?' past':''}"><span class="tag" style="background:${col}"></span><span class="sp">${x.n}</span><span class="num">${k===CUR?mmss(LEFT):fmt(x.s)}</span></div>`}).join('');
-    v=`<div class="view"><span class="phase run"><span class="ms f">directions_run</span>Course · ${mmss(LEFT)}</span>
-    <div class="card" style="padding:14px"><div class="tl rtl" style="height:56px"></div><div class="row num" style="margin-top:8px;font-size:13px;color:var(--on-surface-v)"><span>18:42</span><span class="sp"></span><span>reste 12:18</span></div></div>
-    <div class="lbl">À venir</div><div class="list fade">${rows}</div></div>`;
+    const from=done?S0.length-6:CUR-1;
+    const rows=S0.slice(from,from+6).map((x,i)=>{const j=from+i;
+      return `<div class="li${j===CUR?' cur':j<CUR?' past':''}">${j<CUR?'<span class="pk past"><span class="ms">check</span></span>':pk(x.t)}<span class="sp">${x.n}${x.t!=='calm'?`<span class="cnt num">${nth(j)} / ${NB}</span>`:''}</span><span class="num">${j===CUR?mmss(LEFT):fmt(x.s)}</span></div>`}).join('');
+    v=`<div class="view">${chip}
+    <div class="card" style="padding:14px"><div class="tl rtl" style="height:56px"></div><div class="row num" style="margin-top:8px;font-size:13px;color:var(--on-surface-v)"><span>${d.t}</span><span class="sp"></span><span>reste ${d.rest}</span></div></div>
+    <div class="lbl">Séance</div><div class="list fade">${rows}</div></div>`;
   }else{
-    v=`<div class="view"><span class="phase run"><span class="ms f">directions_run</span>Course · intervalle 3/6</span><div class="tiles">
-    <div class="tile wide"><div class="lbl">Restant dans l'intervalle</div><div class="v num">${mmss(LEFT)}</div></div>
-    <div class="tile"><div class="lbl">Temps</div><div class="v num">18:42</div></div><div class="tile"><div class="lbl">Distance</div><div class="v num">2,14<span class="u"> km</span></div></div>
+    v=`<div class="view">${chip}<div class="tiles">
+    <div class="tile wide"><div class="lbl">${done?'Durée de la séance':'Restant dans l’intervalle'}</div><div class="v num">${done?d.t:mmss(LEFT)}</div></div>
+    <div class="tile"><div class="lbl">Temps</div><div class="v num">${d.t}</div></div><div class="tile"><div class="lbl">Distance</div><div class="v num">${d.km}<span class="u"> km</span></div></div>
     <div class="tile"><div class="lbl">Allure</div><div class="v num">5:52<span class="u"> /km</span></div></div><div class="tile"><div class="lbl">Allure moy.</div><div class="v num">8:44<span class="u"> /km</span></div></div>
-    <div class="tile"><div class="lbl">Cœur</div><div class="v num">143<span class="u"> bpm</span></div></div><div class="tile"><div class="lbl">Intervalles</div><div class="v num">3 / 6</div></div></div></div>`;
+    <div class="tile"><div class="lbl">Cœur</div><div class="v num">143<span class="u"> bpm</span></div></div><div class="tile"><div class="lbl">Courses</div><div class="v num">${done?NB:3} / ${NB}</div></div></div></div>`;
   }
   return seg+hdr+v+ctrls;
 }
 function finishSheet(ph){
   const b=ph.querySelector('.body');
   b.insertAdjacentHTML('beforeend',`<div class="scrim fin"></div><div class="sheet fin"><div class="grab"></div>
-   <div class="title">Terminer la séance ?</div><div class="meta" style="margin-top:-6px">Tu as fait <b>18:42</b> sur ~31 min (60 %) · 2,14 km.</div>
+   <div class="title">Terminer la séance ?</div><div class="meta" style="margin-top:-6px">Tu as fait <b>12:42</b> sur ~31 min (41 %) · 1,52 km.</div>
    <button class="btn fill"><span class="ms f">save</span>Enregistrer et terminer</button>
    <button class="btn danger"><span class="ms">delete</span>Supprimer la séance</button>
    <button class="btn text fcont">Continuer à courir</button></div>`);
   b.querySelector('.fcont').onclick=()=>b.querySelectorAll('.fin').forEach(e=>e.remove());
 }
 function mount(ph,mode){
-  ph.dataset.mode=mode;const b=ph.querySelector('.body');b.innerHTML=runHTML(mode);
-  const t=b.querySelector('.rtl');if(t)tl(t,S0,CUR);
+  ph.dataset.mode=mode;const b=ph.querySelector('.body'),k=ph.dataset.k;b.innerHTML=runHTML(mode,k);
+  const t=b.querySelector('.rtl');if(t)tl(t,S0,K[k].cur);
   b.querySelectorAll('.seg button').forEach(x=>x.onclick=()=>mount(ph,x.dataset.m));
   const vt=b.querySelector('.vtog');vt.onclick=()=>{vt.classList.toggle('on');vt.firstChild.textContent=vt.classList.contains('on')?'record_voice_over':'voice_over_off'};
   b.querySelector('.more').onclick=()=>{
@@ -691,7 +719,7 @@ add(slot('12 · Calendrier','Pastille pleine = faite, cercle = prévue. Un jour 
 })();
 
 /* ---------- 13 · Réglages ---------- */
-add(slot('13 · Réglages','Sections en titres + groupes en cartes blanches (plus « pro » que les bandeaux pleins de la v1). Une seule mascotte, en bas, sur l’entrée du guide.',phone('20:43',`
+add(slot('13 · Réglages','Sections en titres + groupes en cartes blanches (plus « pro » que les bandeaux pleins de la v1). Une seule mascotte, en bas, sur l’entrée du guide. Les bips ont leur propre volume (au maximum par défaut) et un signal de départ et d’arrivée.',phone('20:43',`
   <div class="top"><button class="iconbtn" style="margin-left:-10px"><span class="ms">arrow_back</span></button><h2 class="sp" style="font-size:24px">Réglages</h2></div>
   <div class="sect"><span class="ms f">volume_up</span>Voix et sons</div>
   <div class="setgroup">
@@ -702,7 +730,11 @@ add(slot('13 · Réglages','Sections en titres + groupes en cartes blanches (plu
     <div class="sw"><div class="tx"><b>Encouragements</b></div><div class="switch" data-t></div></div>
     <div class="sw"><div class="tx"><b>Rappel du temps</b><span>Toutes les 5 minutes</span></div><div class="switch" data-t></div></div>
   </div>
-  <div class="sw"><div class="tx"><b>Bips</b></div><div class="switch on" id="tBeep"></div></div>
+  <div class="sw"><div class="tx"><b>Bips</b><span>Compte à rebours, départ et arrivée</span></div><div class="switch on" id="tBeep"></div></div>
+  <div class="sub-set" id="beepOpts">
+    <div class="slider"><span class="ms" style="margin-right:10px">volume_down</span><div class="tr"><b style="width:100%"></b><i style="left:100%"></i></div><span class="ms" style="margin-left:10px">volume_up</span></div>
+    <div class="sw"><div class="tx"><b>Signal de départ et d’arrivée</b><span>Quelques notes au début et à la fin de la séance</span></div><div class="switch on" data-t></div></div>
+  </div>
   </div>
   <div id="musicBox" style="display:flex;flex-direction:column;gap:10px;flex:none;padding-top:4px">
     <div class="lbl">Avec ta musique ou ta vidéo</div>
@@ -772,7 +804,7 @@ function renderPreview(){
   tl(document.getElementById('pvTl'),st);
   document.getElementById('pvMeta').textContent='~'+Math.round(st.reduce((a,x)=>a+x.s,0)/60)+' min';
   const L=[];if(!sw)L.push(['calm','Échauffement','5 min']);L.push(['run','Course','1 min 30 ×6'],['walk','Marche','2 min ×6']);if(!sc)L.push(['calm','Retour au calme','5 min']);
-  document.getElementById('pvList').innerHTML=L.map(r=>`<div class="step"><span class="tag ${r[0]}">${r[1].toUpperCase()}</span><span class="sp"></span><b class="num">${r[2]}</b></div>`).join('');
+  document.getElementById('pvList').innerHTML=L.map(r=>`<div class="step">${pk(r[0])}<span class="tag">${r[1]}</span><span class="sp"></span><b class="num">${r[2]}</b></div>`).join('');
 }
 [skipW,skipC].forEach(s=>s.onclick=()=>{s.classList.toggle('on');renderPreview()});renderPreview();
 document.querySelectorAll('[data-t]').forEach(s=>s.onclick=()=>s.classList.toggle('on'));
@@ -783,6 +815,7 @@ const notes=['Notre voix se joue par-dessus. Ta musique n’est jamais touchée 
 function syncSettings(){
   document.getElementById('voiceOpts').classList.toggle('hide',!tV.classList.contains('on'));
   document.getElementById('vibOpts').classList.toggle('hide',!tVib.classList.contains('on'));
+  document.getElementById('beepOpts').classList.toggle('hide',!tB.classList.contains('on'));
   document.getElementById('musicBox').classList.toggle('hide',!(tV.classList.contains('on')||tB.classList.contains('on')));
 }
 [tV,tB,tVib].forEach(t=>t.onclick=()=>{t.classList.toggle('on');syncSettings()});

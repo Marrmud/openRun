@@ -184,7 +184,7 @@ class RunService : Service(), LocationListener {
 
         lastTickAt = SystemClock.elapsedRealtime()
         lastCheckpointAt = lastTickAt
-        if (w != null) announcePhase(0) else audio?.say(getString(R.string.run_go), settings)
+        if (w != null) announcePhase(0, first = true) else { audio?.startSignal(settings); audio?.say(getString(R.string.run_go), settings) }
         publish()
         ticker = scope.launch { while (isActive && running) { tick(); delay(250) } }
     }
@@ -229,7 +229,7 @@ class RunService : Service(), LocationListener {
                 runState = step.state
                 step.entered.forEach { announcePhase(it) }
                 if (runState.finished) {
-                    audio?.say(getString(R.string.run_done_voice), settings); audio?.buzzEnd(settings)
+                    announceEnd()
                 } else if (step.entered.isEmpty() && settings.countdown) {
                     Cues.countdownCrossed(prevLeft, WorkoutRunner.leftMs(w, runState)).forEach { audio?.countdown(it, settings) }
                 }
@@ -245,14 +245,21 @@ class RunService : Service(), LocationListener {
         if (now - lastCheckpointAt >= 15_000) { lastCheckpointAt = now; writeCheckpoint() }
     }
 
-    private fun announcePhase(index: Int) {
+    /** The plan is over: said, buzzed and, if asked, a few notes (D38). */
+    private fun announceEnd() {
+        audio?.endSignal(settings)
+        audio?.say(getString(R.string.run_done_voice), settings)
+        audio?.buzzEnd(settings)
+    }
+
+    private fun announcePhase(index: Int, first: Boolean = false) {
         val w = workout ?: return
         val kind = w.phases[index].kind
         val name = getString(when (kind) {
             PhaseKind.WARMUP -> R.string.phase_warmup; PhaseKind.RUN -> R.string.phase_run
             PhaseKind.WALK -> R.string.phase_walk; PhaseKind.COOLDOWN -> R.string.phase_cooldown
         })
-        audio?.phaseChange(kind, name, settings)
+        audio?.phaseChange(kind, name, settings, first)
         if (settings.encouragements && kind == PhaseKind.RUN && w.phases.drop(index + 1).none { it.kind == PhaseKind.RUN } && w.runCount > 1) {
             audio?.say(getString(R.string.encourage_last_run), settings)
         }
@@ -263,7 +270,7 @@ class RunService : Service(), LocationListener {
         val step = change(w)
         runState = step.state
         step.entered.forEach { announcePhase(it) }
-        if (runState.finished) { audio?.say(getString(R.string.run_done_voice), settings); audio?.buzzEnd(settings) }
+        if (runState.finished) announceEnd()
         publish()
     }
 
@@ -335,6 +342,8 @@ class RunService : Service(), LocationListener {
             nextPhase = phases?.getOrNull(idx + 1),
             runsDone = phases?.take(idx + 1)?.count { it.kind == PhaseKind.RUN } ?: 0,
             runsTotal = w?.runCount ?: 0,
+            walksDone = phases?.take(idx + 1)?.count { it.kind == PhaseKind.WALK } ?: 0,
+            walksTotal = w?.walkCount ?: 0,
             leftMs = if (w != null) WorkoutRunner.leftMs(w, runState) else 0,
             phaseMs = phases?.getOrNull(idx)?.let { it.seconds * 1000L } ?: 0,
             elapsedMs = activeMs,

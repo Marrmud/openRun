@@ -37,6 +37,8 @@ class SettingsStore(private val store: DataStore<Preferences>) {
         val encouragements = booleanPreferencesKey("encouragements")
         val timeReminder = booleanPreferencesKey("time_reminder")
         val beeps = booleanPreferencesKey("beeps")
+        val beepVolume = floatPreferencesKey("beep_volume")
+        val startEndSignal = booleanPreferencesKey("start_end_signal")
         val vibratePhone = booleanPreferencesKey("vibrate_phone")
         val vibrationIntensity = stringPreferencesKey("vibration_intensity")
         val vibrateWatch = booleanPreferencesKey("vibrate_watch")
@@ -65,6 +67,8 @@ class SettingsStore(private val store: DataStore<Preferences>) {
             encouragements = p[K.encouragements] ?: d.encouragements,
             timeReminder = p[K.timeReminder] ?: d.timeReminder,
             beeps = p[K.beeps] ?: d.beeps,
+            beepVolume = p[K.beepVolume] ?: d.beepVolume,
+            startEndSignal = p[K.startEndSignal] ?: d.startEndSignal,
             vibratePhone = p[K.vibratePhone] ?: d.vibratePhone,
             vibrationIntensity = p.enum(K.vibrationIntensity, d.vibrationIntensity),
             vibrateWatch = p[K.vibrateWatch] ?: d.vibrateWatch,
@@ -89,6 +93,8 @@ class SettingsStore(private val store: DataStore<Preferences>) {
         p[K.encouragements] = s.encouragements
         p[K.timeReminder] = s.timeReminder
         p[K.beeps] = s.beeps
+        p[K.beepVolume] = s.beepVolume
+        p[K.startEndSignal] = s.startEndSignal
         p[K.vibratePhone] = s.vibratePhone
         p[K.vibrationIntensity] = s.vibrationIntensity.name
         p[K.vibrateWatch] = s.vibrateWatch

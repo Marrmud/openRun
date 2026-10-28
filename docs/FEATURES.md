@@ -102,6 +102,17 @@ Le périmètre précis du MVP, qui fait foi, est dans [MVP.md](MVP.md). « MVP m
 | État de la batterie dans Réglages (« Sans restriction » ou « À corriger ») + bouton vers le réglage Android + guide au premier usage du GPS | v1 |
 | Rappels de séance (notifications), proposés à l'introduction et demandés à l'activation, avec le calendrier | v1 |
 
+## Retours de la première sortie (décisions D36 à D40)
+
+| Fonction | Palier |
+|---|---|
+| Couleurs des phases: course vert plein, marche jaune, échauffement / retour au calme neutre; écran de course teinté par la phase; pastille d'icône par phase; hauteurs différentes dans la barre | Fait (écran de course), reste des écrans à la refonte v2 |
+| Fin de séance: un seul bouton jaune qui pulse, puce « Séance terminée », anneau plein avec coche | Fait |
+| Bips au volume maximum par défaut + réglage de volume des bips | Fait |
+| Signal de départ et d'arrivée (désactivable) | Fait |
+| Plus de bip de changement de phase quand le compte à rebours est actif (gardé s'il est coupé) | Fait |
+| Compteur des marches (« Marche · 3 / 6 »), comme pour les courses | Fait |
+
 ## Paramètres
 
 Langue, unités, thème (clair, sombre, système), couleurs dynamiques, audio (voir BIBLE.md), garder l'écran allumé, mode tapis, auto-pause, Health Connect, exclusion batterie guidée, export/sauvegarde des données.

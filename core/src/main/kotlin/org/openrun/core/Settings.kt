@@ -13,6 +13,10 @@ data class AppSettings(
     val encouragements: Boolean = false,
     val timeReminder: Boolean = false,
     val beeps: Boolean = true,
+    /** Loud by default: over music the beeps were hard to hear (D38). */
+    val beepVolume: Float = 1f,
+    /** A few notes when the session starts and when it is over (D38). */
+    val startEndSignal: Boolean = true,
     val vibratePhone: Boolean = true,
     val vibrationIntensity: VibrationIntensity = VibrationIntensity.MEDIUM,
     val vibrateWatch: Boolean = true,
@@ -40,6 +44,7 @@ data class AppSettings(
 
     fun sanitized(): AppSettings = copy(
         voiceVolume = voiceVolume.coerceIn(0f, 1f),
+        beepVolume = beepVolume.coerceIn(0f, 1f),
         weightKg = weightKg.coerceIn(30.0, 250.0),
         weeklyGoal = weeklyGoal.coerceIn(1, 7),
     )

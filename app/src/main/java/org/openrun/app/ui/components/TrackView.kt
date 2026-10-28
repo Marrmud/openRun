@@ -38,7 +38,7 @@ fun TrackView(points: List<TrackPoint>, modifier: Modifier = Modifier, height: a
             }
         } else {
             val color = RunTheme.colors.run
-            val start = RunTheme.colors.calm
+            val start = RunTheme.colors.walk
             Canvas(Modifier.fillMaxSize().padding(20.dp)) {
                 // fit the route in the box without changing its proportions
                 val scale = minOf(size.width / shape.widthFraction.coerceAtLeast(0.001f), size.height / shape.heightFraction.coerceAtLeast(0.001f))

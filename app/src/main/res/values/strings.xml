@@ -134,13 +134,16 @@
     <string name="pace">Allure</string>
     <string name="avg_pace">Allure moy.</string>
     <string name="calories">Calories</string>
-    <string name="intervals">Intervalles</string>
+    <string name="intervals">Courses</string>
     <string name="gps">GPS</string>
     <string name="gps_off">Sans GPS</string>
     <string name="upcoming">À venir</string>
     <string name="left_total">reste %s</string>
     <string name="remaining_interval">Restant dans l\'intervalle</string>
     <string name="run_done_title">Séance terminée</string>
+    <string name="run_done_bravo">Bravo !</string>
+    <string name="runs_all_done">%1$d courses sur %1$d · tout est fait</string>
+    <string name="finish_and_summary">Terminer et voir le bilan</string>
 
     <!-- spoken -->
     <string name="run_go">C\'est parti</string>
@@ -195,6 +198,10 @@
     <string name="time_reminder">Rappel du temps</string>
     <string name="time_reminder_sub">Toutes les 5 minutes</string>
     <string name="beeps">Bips</string>
+    <string name="beeps_sub">Compte à rebours, départ et arrivée</string>
+    <string name="beep_volume">Volume</string>
+    <string name="start_end_signal">Signal de départ et d\'arrivée</string>
+    <string name="start_end_signal_sub">Quelques notes au début et à la fin de la séance</string>
     <string name="with_music">Avec ta musique ou ta vidéo</string>
     <string name="music_overlay">Superposer</string>
     <string name="music_duck">Baisser</string>

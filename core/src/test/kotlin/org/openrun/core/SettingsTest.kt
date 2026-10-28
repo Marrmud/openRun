@@ -38,6 +38,12 @@ class SettingsTest {
         assertFalse(s.requestsAudioFocus)
     }
 
+    @Test fun beepsAreLoudByDefault() {
+        val s = AppSettings()
+        assertEquals(1f, s.beepVolume, 0f)
+        assertTrue(s.startEndSignal)
+    }
+
     @Test fun sanitizedKeepsValuesInRange() {
         val s = AppSettings(voiceVolume = 3f, weightKg = 5.0, weeklyGoal = 0).sanitized()
         assertEquals(1f, s.voiceVolume, 0f)
@@ -46,5 +52,7 @@ class SettingsTest {
         assertEquals(250.0, AppSettings(weightKg = 900.0).sanitized().weightKg, 0.0)
         assertEquals(0f, AppSettings(voiceVolume = -1f).sanitized().voiceVolume, 0f)
         assertEquals(7, AppSettings(weeklyGoal = 12).sanitized().weeklyGoal)
+        assertEquals(1f, AppSettings(beepVolume = 2f).sanitized().beepVolume, 0f)
+        assertEquals(0f, AppSettings(beepVolume = -1f).sanitized().beepVolume, 0f)
     }
 }

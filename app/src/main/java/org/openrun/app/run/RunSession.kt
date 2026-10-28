@@ -17,6 +17,8 @@ data class RunUiState(
     val nextPhase: Phase?,
     val runsDone: Int,                  // running intervals started so far (the "3" of 3 / 6)
     val runsTotal: Int,
+    val walksDone: Int,                 // the same for walks (D40: "Marche · 3 / 6")
+    val walksTotal: Int,
     val leftMs: Long,                   // time left in the phase; 0 for a free run
     val phaseMs: Long,
     val elapsedMs: Long,                // active time, pauses excluded

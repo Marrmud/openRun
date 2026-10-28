@@ -79,7 +79,16 @@ fun SettingsScreen(vm: SettingsViewModel, onBack: () -> Unit) {
                     SwitchRow(R.string.time_reminder, R.string.time_reminder_sub, s.timeReminder) { v -> vm.update { it.copy(timeReminder = v) } }
                 }
             }
-            SwitchRow(R.string.beeps, null, s.beeps) { v -> vm.update { it.copy(beeps = v) } }
+            SwitchRow(R.string.beeps, R.string.beeps_sub, s.beeps) { v -> vm.update { it.copy(beeps = v) } }
+            AnimatedVisibility(s.beeps) {
+                Column(Modifier.padding(start = 12.dp)) {
+                    Row(verticalAlignment = Alignment.CenterVertically) {
+                        Text(stringResource(R.string.beep_volume), modifier = Modifier.padding(end = 12.dp))
+                        Slider(value = s.beepVolume, onValueChange = { v -> vm.update { it.copy(beepVolume = v) } }, modifier = Modifier.weight(1f))
+                    }
+                    SwitchRow(R.string.start_end_signal, R.string.start_end_signal_sub, s.startEndSignal) { v -> vm.update { it.copy(startEndSignal = v) } }
+                }
+            }
             AnimatedVisibility(s.playsSound) { MusicBlock(s) { m -> vm.update { it.copy(musicMode = m) } } }
 
             // ---- vibrations ----

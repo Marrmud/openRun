@@ -150,7 +150,7 @@ fun ProgramScreen(vm: ProgramViewModel, onBack: () -> Unit, onStart: (programId:
 private fun DayButton(day: Int, minutes: Int, done: Boolean, current: Boolean, onClick: () -> Unit, modifier: Modifier) {
     val container = when {
         current -> MaterialTheme.colorScheme.primary
-        done -> org.openrun.app.ui.theme.RunTheme.colors.calmContainer
+        done -> MaterialTheme.colorScheme.primaryContainer
         else -> androidx.compose.ui.graphics.Color.Transparent
     }
     val content = if (current) MaterialTheme.colorScheme.onPrimary else MaterialTheme.colorScheme.onSurface
@@ -160,7 +160,7 @@ private fun DayButton(day: Int, minutes: Int, done: Boolean, current: Boolean, o
     ) {
         Column(Modifier.padding(vertical = 10.dp), horizontalAlignment = Alignment.CenterHorizontally) {
             Row(verticalAlignment = Alignment.CenterVertically) {
-                if (done && !current) Icon(Icons.Filled.CheckCircle, null, Modifier.padding(end = 4.dp), tint = org.openrun.app.ui.theme.RunTheme.colors.calm)
+                if (done && !current) Icon(Icons.Filled.CheckCircle, null, Modifier.padding(end = 4.dp), tint = MaterialTheme.colorScheme.primary)
                 Text(stringResource(R.string.day_n, day), fontWeight = FontWeight.Bold)
             }
             Text(stringResource(R.string.about_minutes, minutes), style = MaterialTheme.typography.labelMedium)

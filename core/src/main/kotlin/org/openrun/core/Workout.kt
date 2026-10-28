@@ -11,6 +11,7 @@ data class Workout(val phases: List<Phase>) {
     val totalSeconds: Int get() = phases.sumOf { it.seconds }
     val runSeconds: Int get() = phases.filter { it.kind == PhaseKind.RUN }.sumOf { it.seconds }
     val runCount: Int get() = phases.count { it.kind == PhaseKind.RUN }
+    val walkCount: Int get() = phases.count { it.kind == PhaseKind.WALK }
 
     fun withoutWarmup(): Workout =
         if (phases.firstOrNull()?.kind == PhaseKind.WARMUP) Workout(phases.drop(1)) else this

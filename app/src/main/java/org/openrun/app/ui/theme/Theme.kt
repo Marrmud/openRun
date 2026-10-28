@@ -8,23 +8,35 @@ import androidx.compose.runtime.Immutable
 import androidx.compose.runtime.staticCompositionLocalOf
 import androidx.compose.ui.graphics.Color
 
-/** Colors of the phases of a session. Always shown with a label or an icon too, never alone. */
+/**
+ * Colors of the phases of a session (D36): running is the full green of the brand, walking is yellow, warm-up and
+ * cool-down are neutral. Dark against light, so the two can be told apart at a glance, even with red-green color
+ * blindness. Always shown with an icon ([org.openrun.app.ui.components.PhaseBadge]) or a label too, never alone.
+ */
 @Immutable
 data class RunColors(
     val run: Color,
+    val onRun: Color,
     val runContainer: Color,
+    val runBackground: Color,      // the whole run screen while running
     val walk: Color,
+    val onWalk: Color,
     val walkContainer: Color,
+    val walkBackground: Color,
     val calm: Color,
+    val onCalm: Color,
     val calmContainer: Color,
+    val calmBackground: Color,
+    val ink: Color,                // the dark of the logo: text on yellow, the end of a session
     val gold: Color,
     val goldContainer: Color,
 )
 
 private val LightRunColors = RunColors(
-    run = Color(0xFFD4440C), runContainer = Color(0xFFFFDBD0),
-    walk = Color(0xFF1565C0), walkContainer = Color(0xFFD6E4FF),
-    calm = Color(0xFF3F8A5F), calmContainer = Color(0xFFCDEED9),
+    run = Color(0xFF00695C), onRun = Color.White, runContainer = Color(0xFFD3EDE7), runBackground = Color(0xFFE8F3F0),
+    walk = Color(0xFFFFC93C), onWalk = Color(0xFF3A2A00), walkContainer = Color(0xFFFFF2CC), walkBackground = Color(0xFFFFF8E6),
+    calm = Color(0xFFA9B8B4), onCalm = Color(0xFF3D4D49), calmContainer = Color(0xFFE5ECE9), calmBackground = Color(0xFFF2F6F4),
+    ink = Color(0xFF0B2A25),
     gold = Color(0xFFB26A00), goldContainer = Color(0xFFFFDDB0),
 )
 

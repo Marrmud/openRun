@@ -32,6 +32,7 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import org.openrun.app.R
+import org.openrun.app.ui.components.PhaseBadge
 import org.openrun.app.ui.components.WorkoutBar
 import org.openrun.app.ui.theme.RunTheme
 import org.openrun.app.ui.tipText
@@ -94,7 +95,6 @@ fun SessionSheet(program: Program, index: Int, onDismiss: () -> Unit, onStart: (
 /** Warm-up, then "Course 1 min 30 ×6", "Marche 2 min ×6", then cool-down: short enough to read in a glance. */
 @Composable
 private fun PhaseSummary(workout: org.openrun.core.Workout) {
-    val c = RunTheme.colors
     val context = androidx.compose.ui.platform.LocalContext.current
     val phases = workout.phases
     data class Line(val kind: PhaseKind, val label: String)
@@ -112,13 +112,13 @@ private fun PhaseSummary(workout: org.openrun.core.Workout) {
     }
     Column {
         lines.forEach { l ->
-            val color = when (l.kind) { PhaseKind.RUN -> c.run; PhaseKind.WALK -> c.walk; else -> c.calm }
             val name = when (l.kind) {
                 PhaseKind.WARMUP -> R.string.phase_warmup; PhaseKind.RUN -> R.string.phase_run
                 PhaseKind.WALK -> R.string.phase_walk; PhaseKind.COOLDOWN -> R.string.phase_cooldown
             }
-            Row(Modifier.fillMaxWidth().padding(vertical = 6.dp)) {
-                Text(stringResource(name).uppercase(), color = color, fontWeight = FontWeight.Bold, style = MaterialTheme.typography.labelLarge, modifier = Modifier.weight(1f))
+            Row(Modifier.fillMaxWidth().padding(vertical = 6.dp), verticalAlignment = Alignment.CenterVertically) {
+                PhaseBadge(l.kind)
+                Text(stringResource(name), fontWeight = FontWeight.Bold, modifier = Modifier.weight(1f).padding(start = 10.dp))
                 Text(l.label, fontWeight = FontWeight.SemiBold)
             }
         }
