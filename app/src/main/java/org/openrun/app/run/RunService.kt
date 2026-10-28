@@ -60,6 +60,9 @@ class RunService : Service(), LocationListener {
         const val ACTION_TO_START = "org.openrun.app.TO_START"
         const val ACTION_SAVE = "org.openrun.app.SAVE"
         const val ACTION_DISCARD = "org.openrun.app.DISCARD"
+        const val ACTION_GO_TO = "org.openrun.app.GO_TO"
+        const val ACTION_UNDO_GO_TO = "org.openrun.app.UNDO_GO_TO"
+        const val EXTRA_PHASE = "phase"
         const val EXTRA_PROGRAM = "program"
         const val EXTRA_INDEX = "index"
         const val EXTRA_SKIP_WARMUP = "skipWarmup"
@@ -127,6 +130,12 @@ class RunService : Service(), LocationListener {
             ACTION_PREVIOUS -> if (running) move { WorkoutRunner.previous(it, runState) }
             ACTION_RESTART -> if (running) move { WorkoutRunner.restartPhase(it, runState) }
             ACTION_TO_START -> if (running) move { WorkoutRunner.toStart(it) }
+            ACTION_GO_TO -> if (running) {
+                beforeJump = runState
+                move { WorkoutRunner.goTo(it, intent.getIntExtra(EXTRA_PHASE, runState.phaseIndex)) }
+            }
+            // back exactly where the session was before the jump, time in the phase included
+            ACTION_UNDO_GO_TO -> if (running) beforeJump?.let { back -> beforeJump = null; move { Step(back, listOf(back.phaseIndex)) } }
             ACTION_SAVE -> if (running) finish(save = true)
             ACTION_DISCARD -> if (running) finish(save = false)
         }
@@ -186,7 +195,7 @@ class RunService : Service(), LocationListener {
         lastCheckpointAt = lastTickAt
         if (w != null) announcePhase(0, first = true) else { audio?.startSignal(settings); audio?.say(getString(R.string.run_go), settings) }
         publish()
-        ticker = scope.launch { while (isActive && running) { tick(); delay(250) } }
+        ticker = scope.launch { while (isActive && running) { tick(); delay(tickDelayMs()) } }
     }
 
     private fun stopSession() {
@@ -252,6 +261,16 @@ class RunService : Service(), LocationListener {
         audio?.buzzEnd(settings)
     }
 
+    /**
+     * Four readings a second are enough, except in the last seconds of a phase: there the 3, 2, 1 beeps would land up
+     * to a quarter of a second late, unevenly (3 and 2 too close, 2 and 1 too far). So the clock reads every 50 ms there.
+     */
+    private fun tickDelayMs(): Long {
+        val w = workout ?: return 250
+        if (runState.finished || paused || autoPaused) return 250
+        return if (WorkoutRunner.leftMs(w, runState) <= 3_600) 50 else 250
+    }
+
     private fun announcePhase(index: Int, first: Boolean = false) {
         val w = workout ?: return
         val kind = w.phases[index].kind
@@ -264,6 +283,9 @@ class RunService : Service(), LocationListener {
             audio?.say(getString(R.string.encourage_last_run), settings)
         }
     }
+
+    /** Where the session was before a phase was touched in the timeline, for « Annuler ». */
+    private var beforeJump: RunState? = null
 
     private fun move(change: (Workout) -> Step) {
         val w = workout ?: return

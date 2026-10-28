@@ -47,6 +47,17 @@ import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
+import androidx.compose.foundation.BorderStroke
+import androidx.compose.foundation.background
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.ColumnScope
+import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.size
+import androidx.compose.ui.draw.clip
+import org.openrun.app.ui.components.BrandTitle
+import org.openrun.app.ui.components.LineColor
+import org.openrun.app.ui.components.PillTabs
 import org.openrun.app.R
 import kotlinx.coroutines.launch
 import org.openrun.app.ui.SettingsViewModel
@@ -59,14 +70,16 @@ import org.openrun.core.VibrationIntensity
 @Composable
 fun SettingsScreen(vm: SettingsViewModel, onBack: () -> Unit) {
     val s by vm.settings.collectAsState()
+    val context = androidx.compose.ui.platform.LocalContext.current
     Column(Modifier.fillMaxSize()) {
         Row(Modifier.padding(start = 6.dp, end = 18.dp, top = 8.dp), verticalAlignment = Alignment.CenterVertically) {
             IconButton(onClick = onBack) { Icon(Icons.AutoMirrored.Filled.ArrowBack, stringResource(R.string.back)) }
-            Text(stringResource(R.string.settings), style = MaterialTheme.typography.headlineSmall, fontWeight = FontWeight.Bold)
+            BrandTitle(stringResource(R.string.settings), size = 24)
         }
         Column(Modifier.weight(1f).verticalScroll(rememberScrollState()).padding(horizontal = 18.dp).padding(bottom = 24.dp)) {
             // ---- voice and sounds ----
             Section(Icons.AutoMirrored.Filled.VolumeUp, R.string.section_voice)
+            SetGroup {
             SwitchRow(R.string.voice, R.string.voice_sub, s.voice) { v -> vm.update { it.copy(voice = v) } }
             AnimatedVisibility(s.voice) {
                 Column(Modifier.padding(start = 12.dp)) {
@@ -89,44 +102,54 @@ fun SettingsScreen(vm: SettingsViewModel, onBack: () -> Unit) {
                     SwitchRow(R.string.start_end_signal, R.string.start_end_signal_sub, s.startEndSignal) { v -> vm.update { it.copy(startEndSignal = v) } }
                 }
             }
+            }
             AnimatedVisibility(s.playsSound) { MusicBlock(s) { m -> vm.update { it.copy(musicMode = m) } } }
 
             // ---- vibrations ----
             Section(Icons.Filled.Vibration, R.string.section_vibrations)
+            SetGroup {
             SwitchRow(R.string.vibrate_phone, null, s.vibratePhone) { v -> vm.update { it.copy(vibratePhone = v) } }
             AnimatedVisibility(s.vibratePhone) {
                 Segmented(
                     options = VibrationIntensity.entries.toList(),
                     selected = s.vibrationIntensity,
                     label = { stringResource(when (it) { VibrationIntensity.LOW -> R.string.intensity_low; VibrationIntensity.MEDIUM -> R.string.intensity_medium; VibrationIntensity.HIGH -> R.string.intensity_high }) },
-                    onSelect = { i -> vm.update { it.copy(vibrationIntensity = i) } },
+                    onSelect = { i -> vm.update { it.copy(vibrationIntensity = i) }; org.openrun.app.run.previewVibration(context, i) },
                     modifier = Modifier.padding(start = 12.dp, bottom = 8.dp),
                 )
             }
             SwitchRow(R.string.vibrate_watch, null, s.vibrateWatch) { v -> vm.update { it.copy(vibrateWatch = v) } }
+            }
 
             // ---- session ----
             Section(Icons.Filled.DirectionsRun, R.string.section_session)
-            SwitchRow(R.string.keep_screen_on, null, s.keepScreenOn) { v -> vm.update { it.copy(keepScreenOn = v) } }
+            SetGroup {
+            SwitchRow(R.string.keep_screen_on, R.string.keep_screen_on_sub, s.keepScreenOn) { v -> vm.update { it.copy(keepScreenOn = v) } }
+            SwitchRow(R.string.lock_at_start, R.string.lock_at_start_sub, s.lockAtStart) { v -> vm.update { it.copy(lockAtStart = v) } }
             SwitchRow(R.string.treadmill, R.string.treadmill_sub, s.treadmill) { v -> vm.update { it.copy(treadmill = v) } }
-            SwitchRow(R.string.auto_pause, null, s.autoPause) { v -> vm.update { it.copy(autoPause = v) } }
+            SwitchRow(R.string.auto_pause, R.string.auto_pause_sub, s.autoPause) { v -> vm.update { it.copy(autoPause = v) } }
             StyleRow(s.defaultStyle) { st -> vm.update { it.copy(defaultStyle = st) } }
             StepperRow(R.string.weekly_goal, stringResource(R.string.goal_value, s.weeklyGoal), { vm.update { it.copy(weeklyGoal = it.weeklyGoal - 1) } }, { vm.update { it.copy(weeklyGoal = it.weeklyGoal + 1) } })
+            }
 
             // ---- health ----
             Section(Icons.Filled.Favorite, R.string.section_health)
+            SetGroup {
             StepperRow(R.string.my_weight, "${s.weightKg.toInt()} kg", { vm.update { it.copy(weightKg = it.weightKg - 1) } }, { vm.update { it.copy(weightKg = it.weightKg + 1) } }, subtitle = R.string.my_weight_sub)
             HealthConnectRow(enabled = s.healthConnect) { on -> vm.update { it.copy(healthConnect = on) } }
+            }
 
             // ---- about ----
             Section(Icons.Filled.Info, R.string.section_about)
             val version = androidx.compose.ui.platform.LocalContext.current.let { c ->
                 runCatching { c.packageManager.getPackageInfo(c.packageName, 0).versionName }.getOrNull().orEmpty()
             }
+            SetGroup {
             Column(Modifier.padding(vertical = 8.dp), verticalArrangement = Arrangement.spacedBy(4.dp)) {
                 Text(stringResource(R.string.about_version, version), style = MaterialTheme.typography.bodyLarge)
                 Text(stringResource(R.string.about_license), style = MaterialTheme.typography.bodyMedium, color = MaterialTheme.colorScheme.onSurfaceVariant)
                 Text(stringResource(R.string.about_privacy), style = MaterialTheme.typography.bodyMedium, color = MaterialTheme.colorScheme.onSurfaceVariant)
+            }
             }
         }
     }
@@ -183,12 +206,20 @@ private fun HealthConnectRow(enabled: Boolean, onEnabledChange: (Boolean) -> Uni
 
 @Composable
 private fun Section(icon: ImageVector, @StringRes title: Int) {
-    Surface(shape = RoundedCornerShape(16.dp), color = MaterialTheme.colorScheme.primaryContainer, contentColor = MaterialTheme.colorScheme.onPrimaryContainer,
-        modifier = Modifier.fillMaxWidth().padding(top = 18.dp, bottom = 6.dp)) {
-        Row(Modifier.padding(horizontal = 14.dp, vertical = 10.dp), verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(12.dp)) {
-            Icon(icon, null)
-            Text(stringResource(title), style = MaterialTheme.typography.titleMedium, fontWeight = FontWeight.Bold)
+    // a title, and its icon on a small mint square
+    Row(Modifier.fillMaxWidth().padding(top = 20.dp, bottom = 10.dp), verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(12.dp)) {
+        Box(Modifier.size(36.dp).clip(RoundedCornerShape(12.dp)).background(MaterialTheme.colorScheme.primaryContainer), contentAlignment = Alignment.Center) {
+            Icon(icon, null, Modifier.size(20.dp), tint = MaterialTheme.colorScheme.onPrimaryContainer)
         }
+        BrandTitle(stringResource(title), size = 18)
+    }
+}
+
+/** The rows of a section, on one white card. */
+@Composable
+private fun SetGroup(content: @Composable ColumnScope.() -> Unit) {
+    Surface(shape = RoundedCornerShape(22.dp), color = MaterialTheme.colorScheme.surfaceContainerLowest, border = BorderStroke(1.dp, LineColor), modifier = Modifier.fillMaxWidth()) {
+        Column(Modifier.padding(horizontal = 16.dp, vertical = 4.dp), content = content)
     }
 }
 
@@ -218,14 +249,7 @@ private fun StepperRow(@StringRes title: Int, value: String, onMinus: () -> Unit
 
 @Composable
 private fun <T> Segmented(options: List<T>, selected: T, label: @Composable (T) -> String, onSelect: (T) -> Unit, modifier: Modifier = Modifier) {
-    SingleChoiceSegmentedButtonRow(modifier.fillMaxWidth()) {
-        options.forEachIndexed { i, option ->
-            SegmentedButton(
-                selected = option == selected, onClick = { onSelect(option) },
-                shape = SegmentedButtonDefaults.itemShape(i, options.size),
-            ) { Text(label(option), maxLines = 1) }
-        }
-    }
+    PillTabs(options, selected, label, onSelect, modifier)
 }
 
 /** What the voice does to the music or video playing: the setting that decides whether audio focus is asked for. */
@@ -238,9 +262,9 @@ private fun MusicBlock(s: AppSettings, onMode: (MusicMode) -> Unit) {
             label = { stringResource(when (it) { MusicMode.OVERLAY -> R.string.music_overlay; MusicMode.DUCK -> R.string.music_duck; MusicMode.PAUSE -> R.string.music_pause }) },
             onSelect = onMode,
         )
-        Surface(shape = RoundedCornerShape(14.dp), color = MaterialTheme.colorScheme.secondaryContainer) {
+        Surface(shape = RoundedCornerShape(16.dp), color = MaterialTheme.colorScheme.surfaceContainer) {
             Row(Modifier.padding(12.dp), horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-                Icon(Icons.Filled.Info, null, Modifier.padding(top = 2.dp))
+                Icon(Icons.Filled.Info, null, Modifier.padding(top = 2.dp), tint = MaterialTheme.colorScheme.primary)
                 Text(
                     stringResource(when (s.musicMode) { MusicMode.OVERLAY -> R.string.music_overlay_note; MusicMode.DUCK -> R.string.music_duck_note; MusicMode.PAUSE -> R.string.music_pause_note }),
                     style = MaterialTheme.typography.bodySmall,

@@ -55,6 +55,12 @@ object WorkoutRunner {
         return Step(RunState(i), listOf(i))
     }
 
+    /** Straight to the start of the phase at [index] (touched in the timeline), forward or back. */
+    fun goTo(workout: Workout, index: Int): Step {
+        val i = index.coerceIn(0, workout.phases.lastIndex)
+        return Step(RunState(i), listOf(i))
+    }
+
     /** Back to the first phase (the warm-up). */
     fun toStart(workout: Workout): Step = start(workout)
 

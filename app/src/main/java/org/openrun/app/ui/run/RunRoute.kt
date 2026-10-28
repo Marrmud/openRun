@@ -75,19 +75,22 @@ fun RunRoute(programId: String?, index: Int, skipWarmup: Boolean, skipCooldown: 
 
     // keep the screen on while running, if asked
     val activity = context as? Activity
-    DisposableEffect(s.keepScreenOn) {
-        if (s.keepScreenOn) activity?.window?.addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON)
+    // only while a session is on screen, not on the permission card before it
+    val keepOn = s.keepScreenOn && session != null
+    DisposableEffect(keepOn) {
+        if (keepOn) activity?.window?.addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON)
         onDispose { activity?.window?.clearFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON) }
     }
 
     val live = session
     if (live != null) {
         RunScreen(
-            state = live, voiceOn = s.voice, initialStyle = s.defaultStyle,
+            state = live, voiceOn = s.voice, initialStyle = s.defaultStyle, lockAtStart = s.lockAtStart,
             actions = RunActions(
                 onPause = { RunControl.pause(context) }, onResume = { RunControl.resume(context) },
                 onNext = { RunControl.next(context) }, onPrevious = { RunControl.previous(context) },
                 onRestartPhase = { RunControl.restartPhase(context) }, onToStart = { RunControl.toStart(context) },
+                onGoTo = { RunControl.goTo(context, it) }, onUndoGoTo = { RunControl.undoGoTo(context) },
                 onSave = { RunControl.save(context) }, onDiscard = { RunControl.discard(context) },
                 onToggleVoice = { scope.launch { app.settings.update { it.copy(voice = !it.voice) } } },
             ),

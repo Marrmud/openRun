@@ -13,6 +13,7 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.DirectionsRun
 import androidx.compose.material.icons.filled.DirectionsWalk
+import androidx.compose.material.icons.filled.AccessibilityNew
 import androidx.compose.material.icons.filled.SelfImprovement
 import androidx.compose.material.icons.filled.Shield
 import androidx.compose.material3.Icon
@@ -36,14 +37,15 @@ import org.openrun.core.Workout
 
 /** The whole session as coloured bars: tall for running, short for walking, shortest for warm-up and cool-down. Phases done fade out. */
 @Composable
-fun WorkoutBar(workout: Workout, modifier: Modifier = Modifier, height: Dp = 34.dp, doneUpTo: Int = 0) {
+fun WorkoutBar(workout: Workout, modifier: Modifier = Modifier, height: Dp = 34.dp, doneUpTo: Int = 0, onDark: Boolean = false) {
     val c = RunTheme.colors
     Row(modifier.fillMaxWidth().height(height), horizontalArrangement = Arrangement.spacedBy(3.dp), verticalAlignment = Alignment.Bottom) {
         workout.phases.forEachIndexed { i, p ->
             val (color, fraction) = when (p.kind) {
-                PhaseKind.RUN -> c.run to 1f
+                // on the green card of the day, running is drawn white
+                PhaseKind.RUN -> (if (onDark) Color.White else c.run) to 1f
                 PhaseKind.WALK -> c.walk to 0.6f
-                PhaseKind.WARMUP, PhaseKind.COOLDOWN -> c.calm to 0.34f
+                PhaseKind.WARMUP, PhaseKind.COOLDOWN -> (if (onDark) Color.White.copy(alpha = 0.35f) else c.calm) to 0.34f
             }
             Box(
                 Modifier.weight(p.seconds.toFloat()).fillMaxHeight(fraction)
@@ -68,7 +70,8 @@ fun phaseColors(kind: PhaseKind): Pair<Color, Color> {
 fun phaseIcon(kind: PhaseKind): ImageVector = when (kind) {
     PhaseKind.RUN -> Icons.Filled.DirectionsRun
     PhaseKind.WALK -> Icons.Filled.DirectionsWalk
-    PhaseKind.WARMUP, PhaseKind.COOLDOWN -> Icons.Filled.SelfImprovement
+    PhaseKind.WARMUP -> Icons.Filled.AccessibilityNew      // arms up: stretching before
+    PhaseKind.COOLDOWN -> Icons.Filled.SelfImprovement     // seated, breathing: calming down after
 }
 
 /** The round badge of a phase, the same everywhere (preview, run screen, details), so the color is never alone. */
@@ -77,20 +80,6 @@ fun PhaseBadge(kind: PhaseKind, size: Dp = 28.dp) {
     val (fill, content) = phaseColors(kind)
     Box(Modifier.size(size).background(fill, CircleShape), contentAlignment = Alignment.Center) {
         Icon(phaseIcon(kind), null, tint = content, modifier = Modifier.size(size * 0.64f))
-    }
-}
-
-private val RankColors = mapOf(
-    RankTier.FER to Color(0xFF78858F), RankTier.BRONZE to Color(0xFFB0703A), RankTier.ARGENT to Color(0xFF8F9BA6),
-    RankTier.OR to Color(0xFFD19A00), RankTier.PLATINE to Color(0xFF2FA6B5), RankTier.DIAMANT to Color(0xFF4A7DF0),
-)
-
-/** A shield in the colour of the tier, with a runner on it. */
-@Composable
-fun RankBadge(tier: RankTier, size: Dp = 40.dp, dimmed: Boolean = false) {
-    Box(Modifier.size(size).alpha(if (dimmed) 0.35f else 1f), contentAlignment = Alignment.Center) {
-        Icon(Icons.Filled.Shield, null, tint = RankColors.getValue(tier), modifier = Modifier.size(size))
-        Icon(Icons.Filled.DirectionsRun, null, tint = Color.White, modifier = Modifier.size(size * 0.5f))
     }
 }
 

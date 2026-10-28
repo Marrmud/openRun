@@ -1,18 +1,27 @@
 package org.openrun.app.ui
 
+import androidx.compose.animation.core.Animatable
+import androidx.compose.foundation.pager.HorizontalPager
+import androidx.compose.foundation.pager.rememberPagerState
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.ui.Alignment
+import androidx.compose.ui.graphics.graphicsLayer
+import kotlinx.coroutines.launch
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Home
-import androidx.compose.material.icons.filled.Route
-import androidx.compose.material.icons.filled.Timeline
+import androidx.compose.material.icons.rounded.Home
+import androidx.compose.material.icons.rounded.Insights
+import androidx.compose.material.icons.rounded.Route
 import androidx.compose.material3.Icon
 import androidx.compose.material3.NavigationBar
 import androidx.compose.material3.NavigationBarItem
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.produceState
 import androidx.compose.ui.Modifier
@@ -61,12 +70,15 @@ private object Routes {
         "run?programId=${programId ?: ""}&index=$index&skipWarmup=$sw&skipCooldown=$sc"
 }
 
+private val ScreenIn = androidx.compose.animation.fadeIn(androidx.compose.animation.core.tween(220, easing = androidx.compose.animation.core.LinearOutSlowInEasing))
+private val ScreenOut = androidx.compose.animation.fadeOut(androidx.compose.animation.core.tween(160))
+
 private data class Tab(val route: String, val label: Int, val icon: ImageVector)
 
 private val tabs = listOf(
-    Tab(Routes.HOME, R.string.tab_home, Icons.Filled.Home),
-    Tab(Routes.PARCOURS, R.string.tab_parcours, Icons.Filled.Route),
-    Tab(Routes.HISTORY, R.string.tab_history, Icons.Filled.Timeline),
+    Tab(Routes.HOME, R.string.tab_home, Icons.Rounded.Home),
+    Tab(Routes.PARCOURS, R.string.tab_parcours, Icons.Rounded.Route),
+    Tab(Routes.HISTORY, R.string.tab_history, Icons.Rounded.Insights),
 )
 
 @Composable
@@ -77,54 +89,100 @@ fun AppNav() {
     val ready = onboarded ?: return Box(Modifier.fillMaxSize())
 
     val nav = rememberNavController()
+    // highlights asked per tab: one for the first visit of the launch, one more each time the open tab is tapped again
+    val asked = androidx.compose.runtime.remember { androidx.compose.runtime.mutableStateMapOf(Routes.HOME to 1, Routes.PARCOURS to 1) }
+    val played = androidx.compose.runtime.remember { mutableMapOf<String, Int>() }
+    fun highlight(route: String) = org.openrun.app.ui.components.Highlight(asked[route] ?: 0) { id ->
+        if ((played[route] ?: 0) < id) { played[route] = id; true } else false
+    }
     val route = nav.currentBackStackEntryAsState().value?.destination?.route
+    // Accueil, Parcours and Historique are pages of one screen: swipe between them; a tap on a tab fades to it
+    val tabsPager = rememberPagerState { tabs.size }
+    val tabsFade = remember { Animatable(1f) }
+    val scope = rememberCoroutineScope()
 
+    // the run screen takes the color of the phase edge to edge, under the status and navigation bars too
+    val live by org.openrun.app.run.RunSession.state.collectAsState()
+    val onRun = route?.startsWith("run") == true
+    val behind by androidx.compose.animation.animateColorAsState(
+        if (onRun) org.openrun.app.ui.run.runScreenColor(live) else androidx.compose.material3.MaterialTheme.colorScheme.background,
+        androidx.compose.animation.core.tween(400), label = "behind",
+    )
     Scaffold(
+        containerColor = behind,
         bottomBar = {
-            if (route in tabs.map { it.route }) {
-                NavigationBar {
-                    tabs.forEach { tab ->
+            if (route == Routes.HOME) {
+                // white bar with a hairline on top, mint pill under the selected tab (mockup v2)
+                androidx.compose.foundation.layout.Column {
+                androidx.compose.material3.HorizontalDivider(color = org.openrun.app.ui.components.LineColor)
+                NavigationBar(containerColor = androidx.compose.material3.MaterialTheme.colorScheme.surfaceContainerLowest) {
+                    tabs.forEachIndexed { i, tab ->
+                        val selected = tabsPager.currentPage == i
                         NavigationBarItem(
-                            selected = route == tab.route,
-                            onClick = { nav.navigate(tab.route) { popUpTo(Routes.HOME); launchSingleTop = true } },
+                            selected = selected,
+                            onClick = {
+                                // tapping the open tab again does not reload it: it shows the thing to do there
+                                if (selected) asked[tab.route] = (asked[tab.route] ?: 0) + 1
+                                else scope.launch {
+                                    tabsFade.snapTo(0f)
+                                    tabsPager.scrollToPage(i)
+                                    tabsFade.animateTo(1f, androidx.compose.animation.core.tween(220, easing = androidx.compose.animation.core.LinearOutSlowInEasing))
+                                }
+                            },
                             icon = { Icon(tab.icon, null) },
-                            label = { Text(stringResource(tab.label)) },
+                            label = { Text(stringResource(tab.label), fontWeight = if (selected) androidx.compose.ui.text.font.FontWeight.Bold else null) },
+                            colors = androidx.compose.material3.NavigationBarItemDefaults.colors(
+                                indicatorColor = androidx.compose.material3.MaterialTheme.colorScheme.primaryContainer,
+                                selectedIconColor = androidx.compose.material3.MaterialTheme.colorScheme.onPrimaryContainer,
+                            ),
                         )
                     }
+                }
                 }
             }
         },
     ) { padding ->
-        NavHost(nav, startDestination = if (ready) Routes.HOME else Routes.START, modifier = Modifier.padding(padding)) {
+        // a short, quick cross-fade between screens (the default one is slow)
+        NavHost(
+            nav, startDestination = if (ready) Routes.HOME else Routes.START, modifier = Modifier.padding(padding),
+            enterTransition = { ScreenIn }, exitTransition = { ScreenOut }, popEnterTransition = { ScreenIn }, popExitTransition = { ScreenOut },
+        ) {
             composable(Routes.HOME) {
-                val vm: HomeViewModel = viewModel(factory = factory(app) { HomeViewModel(it) })
-                val state by vm.state.collectAsStateWithLifecycle()
-                val active by org.openrun.app.run.RunSession.state.collectAsStateWithLifecycle()
-                val interrupted by vm.interrupted.collectAsStateWithLifecycle()
-                HomeScreen(
-                    active = active,
-                    onResume = { active?.let { nav.navigate(Routes.run(it.programId, it.sessionIndex ?: 0, false, false)) } },
-                    interrupted = interrupted,
-                    onSaveInterrupted = { vm.saveInterrupted { id -> nav.navigate(Routes.summary(id)) } },
-                    onDiscardInterrupted = vm::discardInterrupted,
-                    state = state,
-                    onStart = { id, i, sw, sc -> nav.navigate(Routes.run(id, i, sw, sc)) },
-                    onOtherSession = { nav.navigate(Routes.program(it)) },
-                    onChooseStart = { nav.navigate(Routes.start(false)) },
-                    onFreeRun = { nav.navigate(Routes.run(null, 0, false, false)) },
-                    onSettings = { nav.navigate(Routes.SETTINGS) },
-                )
-            }
-            composable(Routes.PARCOURS) {
-                val vm: ParcoursViewModel = viewModel(factory = factory(app) { ParcoursViewModel(it) })
-                val progress by vm.state.collectAsStateWithLifecycle()
-                val active by vm.activeProgramId.collectAsStateWithLifecycle()
-                ParcoursScreen(progress, active, onProgram = { nav.navigate(Routes.program(it)) }, onWhereAreYou = { nav.navigate(Routes.start(false)) })
-            }
-            composable(Routes.HISTORY) {
-                val vm: HistoryViewModel = viewModel(factory = factory(app) { HistoryViewModel(it) })
-                val items by vm.items.collectAsStateWithLifecycle()
-                HistoryScreen(items, onOpen = { nav.navigate(Routes.detail(it)) })
+                HorizontalPager(tabsPager, Modifier.fillMaxSize().graphicsLayer { alpha = tabsFade.value }, verticalAlignment = Alignment.Top) { page ->
+                    when (tabs[page].route) {
+                        Routes.HOME -> {
+                            val vm: HomeViewModel = viewModel(factory = factory(app) { HomeViewModel(it) })
+                            val state by vm.state.collectAsStateWithLifecycle()
+                            val active by org.openrun.app.run.RunSession.state.collectAsStateWithLifecycle()
+                            val interrupted by vm.interrupted.collectAsStateWithLifecycle()
+                            HomeScreen(
+                                active = active,
+                                onResume = { active?.let { nav.navigate(Routes.run(it.programId, it.sessionIndex ?: 0, false, false)) } },
+                                interrupted = interrupted,
+                                onSaveInterrupted = { vm.saveInterrupted { id -> nav.navigate(Routes.summary(id)) } },
+                                onDiscardInterrupted = vm::discardInterrupted,
+                                state = state,
+                                onStart = { id, i, sw, sc -> nav.navigate(Routes.run(id, i, sw, sc)) },
+                                onOtherSession = { nav.navigate(Routes.program(it)) },
+                                onChooseStart = { nav.navigate(Routes.start(false)) },
+                                onFreeRun = { nav.navigate(Routes.run(null, 0, false, false)) },
+                                onSettings = { nav.navigate(Routes.SETTINGS) },
+                                highlight = highlight(Routes.HOME),
+                            )
+                        }
+                        Routes.PARCOURS -> {
+                            val vm: ParcoursViewModel = viewModel(factory = factory(app) { ParcoursViewModel(it) })
+                            val progress by vm.state.collectAsStateWithLifecycle()
+                            val active by vm.activeProgramId.collectAsStateWithLifecycle()
+                            ParcoursScreen(progress, active, onProgram = { nav.navigate(Routes.program(it)) }, onWhereAreYou = { nav.navigate(Routes.start(false)) }, highlight = highlight(Routes.PARCOURS))
+                        }
+                        else -> {
+                            val vm: HistoryViewModel = viewModel(factory = factory(app) { HistoryViewModel(it) })
+                            val items by vm.items.collectAsStateWithLifecycle()
+                            HistoryScreen(items, onOpen = { nav.navigate(Routes.detail(it)) })
+                        }
+                    }
+                }
             }
             composable(Routes.DETAIL, arguments = listOf(navArgument("runId") { type = NavType.LongType })) { entry ->
                 RunDetailScreen(entry.arguments?.getLong("runId") ?: 0L, onBack = { nav.popBackStack() })

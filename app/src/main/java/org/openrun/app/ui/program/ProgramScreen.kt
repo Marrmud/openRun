@@ -38,6 +38,16 @@ import androidx.compose.ui.res.pluralStringResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
+import androidx.compose.foundation.background
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.ui.draw.clip
+import androidx.compose.ui.graphics.Color
+import org.openrun.app.ui.components.BrandProgress
+import org.openrun.app.ui.components.BrandTitle
+import org.openrun.app.ui.components.LineColor
+import org.openrun.app.ui.components.Mascot
+import org.openrun.app.ui.components.Mood
 import org.openrun.app.R
 import org.openrun.app.ui.ProgramViewModel
 import org.openrun.app.ui.programNameRes
@@ -70,7 +80,7 @@ fun ProgramScreen(vm: ProgramViewModel, onBack: () -> Unit, onStart: (programId:
     Column(Modifier.fillMaxSize()) {
         Row(Modifier.padding(start = 6.dp, end = 18.dp, top = 8.dp), verticalAlignment = Alignment.CenterVertically) {
             IconButton(onClick = onBack) { Icon(Icons.AutoMirrored.Filled.ArrowBack, stringResource(R.string.back)) }
-            Text(stringResource(programNameRes(program.id)), style = MaterialTheme.typography.titleLarge, fontWeight = FontWeight.Bold)
+            BrandTitle(stringResource(programNameRes(program.id)), size = 24)
         }
         LazyColumn(Modifier.weight(1f), contentPadding = androidx.compose.foundation.layout.PaddingValues(horizontal = 18.dp, vertical = 8.dp), verticalArrangement = Arrangement.spacedBy(12.dp)) {
             item {
@@ -79,27 +89,32 @@ fun ProgramScreen(vm: ProgramViewModel, onBack: () -> Unit, onStart: (programId:
                         stringResource(R.string.sessions_done, progress.done.size, program.sessionCount),
                     style = MaterialTheme.typography.bodyMedium, color = MaterialTheme.colorScheme.onSurfaceVariant,
                 )
+                BrandProgress(progress.done.size.toFloat() / program.sessionCount.coerceAtLeast(1), modifier = Modifier.padding(top = 8.dp))
             }
             items(program.weeks, key = { it.number }) { week ->
                 val first = program.indexOf(week.number, 1)
                 val allDone = week.sessions.indices.all { (first + it) in progress.done }
                 val expanded = week.number in open
-                Surface(shape = RoundedCornerShape(20.dp), color = MaterialTheme.colorScheme.surfaceContainer) {
-                    Column(Modifier.padding(16.dp)) {
+                Surface(shape = RoundedCornerShape(22.dp), color = MaterialTheme.colorScheme.surfaceContainerLowest, border = androidx.compose.foundation.BorderStroke(1.dp, LineColor)) {
+                    Column(Modifier.padding(horizontal = 16.dp, vertical = 14.dp)) {
                         Row(
                             Modifier.fillMaxWidth().clickable { if (expanded) open.remove(week.number) else open.add(week.number) },
                             verticalAlignment = Alignment.CenterVertically,
                         ) {
-                            Text(stringResource(R.string.week_n, week.number), style = MaterialTheme.typography.titleLarge, fontWeight = FontWeight.Bold, modifier = Modifier.weight(1f))
-                            if (allDone) Icon(Icons.Filled.CheckCircle, null, tint = MaterialTheme.colorScheme.primary, modifier = Modifier.padding(end = 8.dp))
+                            BrandTitle(stringResource(R.string.week_n, week.number), size = 20, modifier = Modifier.weight(1f))
+                            if (allDone) Text("${week.sessions.size}/${week.sessions.size} ✓", color = MaterialTheme.colorScheme.primary, fontWeight = FontWeight.Bold, fontSize = 13.sp, modifier = Modifier.padding(end = 8.dp))
                             Icon(if (expanded) Icons.Filled.ExpandLess else Icons.Filled.ExpandMore, null)
                         }
                         if (expanded) {
                             val tip = tipText(week.tipKey)
                             if (tip.isNotEmpty()) {
-                                Row(Modifier.padding(vertical = 10.dp), horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-                                    Icon(Icons.Filled.Lightbulb, null, tint = org.openrun.app.ui.theme.RunTheme.colors.gold)
-                                    Text(tip, style = MaterialTheme.typography.bodyMedium, color = MaterialTheme.colorScheme.onSurfaceVariant)
+                                // the mascot says the tip of the week, in the mint of the logo
+                                Row(
+                                    Modifier.padding(top = 10.dp, bottom = 12.dp).fillMaxWidth().clip(RoundedCornerShape(14.dp)).background(Color(0xFFE6F4F0)).padding(horizontal = 12.dp, vertical = 10.dp),
+                                    horizontalArrangement = Arrangement.spacedBy(10.dp),
+                                ) {
+                                    Mascot(Mood.FRONT, 30.dp)
+                                    Text(tip, style = MaterialTheme.typography.bodyMedium)
                                 }
                             }
                             Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
@@ -155,7 +170,7 @@ private fun DayButton(day: Int, minutes: Int, done: Boolean, current: Boolean, o
     }
     val content = if (current) MaterialTheme.colorScheme.onPrimary else MaterialTheme.colorScheme.onSurface
     Surface(
-        onClick = onClick, modifier = modifier, shape = RoundedCornerShape(22.dp), color = container, contentColor = content,
+        onClick = onClick, modifier = modifier, shape = RoundedCornerShape(18.dp), color = container, contentColor = content,
         border = if (!current && !done) androidx.compose.foundation.BorderStroke(1.5.dp, MaterialTheme.colorScheme.outlineVariant) else null,
     ) {
         Column(Modifier.padding(vertical = 10.dp), horizontalAlignment = Alignment.CenterHorizontally) {
@@ -163,7 +178,7 @@ private fun DayButton(day: Int, minutes: Int, done: Boolean, current: Boolean, o
                 if (done && !current) Icon(Icons.Filled.CheckCircle, null, Modifier.padding(end = 4.dp), tint = MaterialTheme.colorScheme.primary)
                 Text(stringResource(R.string.day_n, day), fontWeight = FontWeight.Bold)
             }
-            Text(stringResource(R.string.about_minutes, minutes), style = MaterialTheme.typography.labelMedium)
+            Text(stringResource(R.string.about_minutes, minutes), fontSize = 12.sp, color = if (current) Color(0xFFCDEBE4) else MaterialTheme.colorScheme.onSurfaceVariant)
         }
     }
 }

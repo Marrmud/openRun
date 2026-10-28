@@ -34,6 +34,17 @@ import androidx.compose.ui.res.pluralStringResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
+import androidx.compose.foundation.BorderStroke
+import androidx.compose.foundation.layout.IntrinsicSize
+import androidx.compose.foundation.layout.height
+import androidx.compose.material3.VerticalDivider
+import androidx.compose.ui.graphics.Color
+import org.openrun.app.ui.components.BrandTitle
+import org.openrun.app.ui.components.LineColor
+import org.openrun.app.ui.components.PillTabs
+import org.openrun.app.ui.theme.Fredoka
+import org.openrun.app.ui.theme.RunTheme
 import org.openrun.app.R
 import org.openrun.app.ui.programNameRes
 import org.openrun.app.ui.run.clock
@@ -64,13 +75,16 @@ fun HistoryScreen(items: List<HistoryItem>?, onOpen: (Long) -> Unit) {
         Modifier.fillMaxSize(), contentPadding = androidx.compose.foundation.layout.PaddingValues(horizontal = 18.dp, vertical = 12.dp),
         verticalArrangement = Arrangement.spacedBy(8.dp),
     ) {
-        item { Text(stringResource(R.string.tab_history), style = MaterialTheme.typography.headlineMedium, fontWeight = FontWeight.Bold, modifier = Modifier.padding(bottom = 6.dp)) }
+        item { BrandTitle(stringResource(R.string.tab_history), size = 26, modifier = Modifier.padding(top = 4.dp, bottom = 6.dp)) }
         item {
-            Surface(shape = RoundedCornerShape(28.dp), color = MaterialTheme.colorScheme.primaryContainer, contentColor = MaterialTheme.colorScheme.onPrimaryContainer) {
-                Row(Modifier.fillMaxWidth().padding(vertical = 16.dp), horizontalArrangement = Arrangement.SpaceAround) {
-                    Total("${totals.runs}", stringResource(R.string.sessions_label))
-                    Total(kmText1(totals.distanceM), "km")
-                    Total(durationShort(totals.durationSec), stringResource(R.string.of_running))
+            // the totals on the ink of the logo
+            Surface(shape = RoundedCornerShape(28.dp), color = RunTheme.colors.ink, contentColor = Color.White) {
+                Row(Modifier.fillMaxWidth().height(IntrinsicSize.Min).padding(vertical = 18.dp, horizontal = 8.dp)) {
+                    Total("${totals.runs}", stringResource(R.string.sessions_label), Modifier.weight(1f))
+                    VerticalDivider(color = Color.White.copy(alpha = 0.12f))
+                    Total(kmText1(totals.distanceM), "km", Modifier.weight(1f))
+                    VerticalDivider(color = Color.White.copy(alpha = 0.12f))
+                    Total(durationShort(totals.durationSec), stringResource(R.string.of_running), Modifier.weight(1f))
                 }
             }
         }
@@ -78,17 +92,18 @@ fun HistoryScreen(items: List<HistoryItem>?, onOpen: (Long) -> Unit) {
             item { Text(stringResource(R.string.history_empty), color = MaterialTheme.colorScheme.onSurfaceVariant, modifier = Modifier.padding(top = 12.dp)) }
         } else {
             item {
-                SingleChoiceSegmentedButtonRow(Modifier.fillMaxWidth().padding(vertical = 4.dp)) {
-                    SegmentedButton(grouping == Grouping.DATE, { grouping = Grouping.DATE }, SegmentedButtonDefaults.itemShape(0, 2)) { Text(stringResource(R.string.by_date)) }
-                    SegmentedButton(grouping == Grouping.PROGRAM, { grouping = Grouping.PROGRAM }, SegmentedButtonDefaults.itemShape(1, 2)) { Text(stringResource(R.string.by_program)) }
-                }
+                PillTabs(
+                    Grouping.entries.toList(), grouping,
+                    label = { stringResource(if (it == Grouping.DATE) R.string.by_date else R.string.by_program) },
+                    onSelect = { grouping = it }, modifier = Modifier.padding(vertical = 4.dp),
+                )
             }
             when (grouping) {
                 Grouping.DATE -> History.byMonth(items, zone).forEach { month ->
                     item(key = "m${month.year}-${month.month}") {
                         Text(
                             java.time.Month.of(month.month).getDisplayName(TextStyle.FULL, Locale.getDefault()).uppercase() + " ${month.year}",
-                            style = MaterialTheme.typography.labelLarge, color = MaterialTheme.colorScheme.primary, fontWeight = FontWeight.Bold,
+                            fontSize = 12.sp, letterSpacing = 0.8.sp, color = MaterialTheme.colorScheme.primary, fontWeight = FontWeight.Bold,
                             modifier = Modifier.padding(top = 8.dp),
                         )
                     }
@@ -116,18 +131,18 @@ fun HistoryScreen(items: List<HistoryItem>?, onOpen: (Long) -> Unit) {
 }
 
 @Composable
-private fun Total(value: String, label: String) {
-    Column(horizontalAlignment = Alignment.CenterHorizontally) {
-        Text(value, style = MaterialTheme.typography.headlineSmall, fontWeight = FontWeight.Bold)
-        Text(label, style = MaterialTheme.typography.labelMedium)
+private fun Total(value: String, label: String, modifier: Modifier) {
+    Column(modifier, horizontalAlignment = Alignment.CenterHorizontally) {
+        Text(value, fontFamily = Fredoka, fontWeight = FontWeight.SemiBold, fontSize = 28.sp)
+        Text(label, fontSize = 12.sp, color = Color(0xFFB2DFD8))
     }
 }
 
 @Composable
 private fun RunRow(item: HistoryItem, onOpen: (Long) -> Unit) {
-    Surface(shape = RoundedCornerShape(14.dp), color = MaterialTheme.colorScheme.surfaceContainer, modifier = Modifier.fillMaxWidth().clickable { onOpen(item.id) }) {
+    Surface(onClick = { onOpen(item.id) }, shape = RoundedCornerShape(16.dp), color = MaterialTheme.colorScheme.surfaceContainerLowest, border = BorderStroke(1.dp, LineColor), modifier = Modifier.fillMaxWidth()) {
         Row(Modifier.padding(horizontal = 14.dp, vertical = 12.dp), verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(12.dp)) {
-            Surface(shape = CircleShape, color = if (item.completed) MaterialTheme.colorScheme.primaryContainer else MaterialTheme.colorScheme.secondaryContainer, modifier = Modifier.size(40.dp)) {
+            Surface(shape = RoundedCornerShape(13.dp), color = if (item.completed) MaterialTheme.colorScheme.primaryContainer else MaterialTheme.colorScheme.secondaryContainer, modifier = Modifier.size(40.dp)) {
                 Icon(
                     if (item.completed) Icons.Filled.Check else Icons.Filled.DirectionsRun, null, Modifier.padding(9.dp),
                     tint = if (item.completed) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.onSecondaryContainer,
@@ -141,7 +156,7 @@ private fun RunRow(item: HistoryItem, onOpen: (Long) -> Unit) {
                 }
             }
             Column(horizontalAlignment = Alignment.End) {
-                Text("${kmText(item.distanceM)} km", fontWeight = FontWeight.Bold)
+                Text("${kmText(item.distanceM)} km", fontWeight = FontWeight.Bold, color = RunTheme.colors.ink)
                 Text("${clock(item.durationSec * 1000L)} · ${paceText(Track.paceSecPerKm(item.distanceM, item.durationSec.toDouble()))}/km", style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
             }
         }

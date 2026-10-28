@@ -21,6 +21,7 @@
     <string name="see_session">Voir la séance</string>
     <string name="other_session">Autre séance</string>
     <string name="free_run">Course libre</string>
+    <string name="tip_of_week">Conseil de la semaine</string>
     <string name="this_week">Cette semaine</string>
     <string name="welcome_title">Bienvenue</string>
     <string name="welcome_body">Dis-nous où tu en es et on te propose la bonne séance pour démarrer.</string>
@@ -55,6 +56,8 @@
     <string name="lets_go">C\'est parti</string>
     <string name="resume">Reprendre</string>
     <string name="here">Ici</string>
+    <string name="your_path">Ton parcours</string>
+    <string name="finished">terminé</string>
     <string name="sessions_done">%1$d / %2$d séances faites</string>
     <plurals name="weeks_count">
         <item quantity="one">%d semaine</item>
@@ -123,7 +126,8 @@
     <string name="restart_interval">Recommencer l\'intervalle</string>
     <string name="back_to_warmup">Revenir à l\'échauffement</string>
     <string name="lock">Verrouiller</string>
-    <string name="unlock_hint">Maintiens le cadenas pour déverrouiller</string>
+    <string name="unlock_hint">Glisse pour déverrouiller</string>
+    <string name="screen_locked">Écran verrouillé</string>
     <string name="previous_interval">Intervalle précédent</string>
     <string name="next_interval">Intervalle suivant</string>
     <string name="remaining">restant</string>
@@ -138,6 +142,11 @@
     <string name="gps">GPS</string>
     <string name="gps_off">Sans GPS</string>
     <string name="upcoming">À venir</string>
+    <string name="session">Séance</string>
+    <string name="timeline_hint">Touche un intervalle pour y aller</string>
+    <string name="timeline_hint_scroll">Glisse la barre · touche un intervalle pour y aller</string>
+    <string name="went_to">Passé à %s</string>
+    <string name="undo">Annuler</string>
     <string name="left_total">reste %s</string>
     <string name="remaining_interval">Restant dans l\'intervalle</string>
     <string name="run_done_title">Séance terminée</string>
@@ -217,9 +226,13 @@
     <string name="intensity_high">Forte</string>
     <string name="section_session">Séance</string>
     <string name="keep_screen_on">Garder l\'écran allumé</string>
+    <string name="keep_screen_on_sub">Pendant la course seulement</string>
+    <string name="lock_at_start">Verrouiller l\'écran au départ</string>
+    <string name="lock_at_start_sub">L\'écran de course démarre verrouillé ; glisse pour l\'ouvrir</string>
     <string name="treadmill">Mode tapis</string>
     <string name="treadmill_sub">Sans GPS</string>
     <string name="auto_pause">Auto-pause</string>
+    <string name="auto_pause_sub">Course libre avec GPS : le chrono s\'arrête quand tu t\'arrêtes et repart avec toi</string>
     <string name="default_style">Style d\'écran par défaut</string>
     <string name="style_focus">Focus</string>
     <string name="style_timeline">Chronologie</string>
@@ -268,4 +281,11 @@
     <string name="tip_c210k_w12">Tu dépasses 50 minutes. Prends de l\'eau si tu sors longtemps.</string>
     <string name="tip_c210k_w13">55 minutes de course. Le 10 km est tout proche.</string>
     <string name="tip_c210k_w14">Dernière semaine: une heure de course. Félicitations, tu es presque coureur de 10 km !</string>
+    <string-array name="feelings">
+        <item>Très dur</item>
+        <item>Dur</item>
+        <item>Bien</item>
+        <item>Très bien</item>
+        <item>Facile</item>
+    </string-array>
 </resources>

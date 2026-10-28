@@ -18,7 +18,7 @@ import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.automirrored.filled.ArrowBack
+import androidx.compose.material.icons.automirrored.rounded.ArrowBack
 import androidx.compose.material.icons.automirrored.filled.DirectionsWalk
 import androidx.compose.material.icons.filled.Bolt
 import androidx.compose.material.icons.filled.DirectionsRun
@@ -27,7 +27,7 @@ import androidx.compose.material3.Button
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.RadioButton
+
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -42,6 +42,14 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
+import androidx.compose.foundation.background
+import androidx.compose.foundation.border
+import androidx.compose.foundation.layout.Box
+import androidx.compose.ui.draw.clip
+import androidx.compose.ui.graphics.Color
+import org.openrun.app.ui.components.BrandTitle
+import org.openrun.app.ui.components.LineColor
 import org.openrun.app.R
 import org.openrun.core.Programs
 
@@ -61,42 +69,48 @@ fun StartScreen(currentProgramId: String?, onboarded: Boolean, showBack: Boolean
     var selected by remember(currentProgramId, onboarded) {
         mutableIntStateOf(if (onboarded) levels.indexOfFirst { it.programId == currentProgramId }.coerceAtLeast(0) else 1)
     }
+    val primary = MaterialTheme.colorScheme.primary
     Column(Modifier.fillMaxSize()) {
         if (showBack) {
             IconButton(onClick = onBack, modifier = Modifier.padding(start = 6.dp, top = 8.dp)) {
-                Icon(Icons.AutoMirrored.Filled.ArrowBack, stringResource(R.string.back))
+                Icon(Icons.AutoMirrored.Rounded.ArrowBack, stringResource(R.string.back))
             }
         } else Spacer(Modifier.height(24.dp))
         Column(
             Modifier.weight(1f).verticalScroll(rememberScrollState()).padding(horizontal = 18.dp),
-            verticalArrangement = Arrangement.spacedBy(10.dp),
+            verticalArrangement = Arrangement.spacedBy(8.dp),
         ) {
-            Text(stringResource(R.string.where_are_you), style = MaterialTheme.typography.headlineMedium, fontWeight = FontWeight.Bold)
-            Text(stringResource(R.string.where_are_you_sub), style = MaterialTheme.typography.bodyMedium, color = MaterialTheme.colorScheme.onSurfaceVariant)
+            BrandTitle(stringResource(R.string.where_are_you), size = 26)
+            Text(stringResource(R.string.where_are_you_sub), style = MaterialTheme.typography.bodyMedium, color = MaterialTheme.colorScheme.onSurfaceVariant, modifier = Modifier.padding(bottom = 6.dp))
             levels.forEachIndexed { i, level ->
                 val on = i == selected
                 Surface(
-                    shape = RoundedCornerShape(20.dp),
-                    color = if (on) MaterialTheme.colorScheme.primaryContainer else MaterialTheme.colorScheme.surfaceContainer,
-                    border = if (on) BorderStroke(2.dp, MaterialTheme.colorScheme.primary) else null,
+                    shape = RoundedCornerShape(22.dp),
+                    color = if (on) Color(0xFFE6F4F0) else MaterialTheme.colorScheme.surfaceContainerLowest,
+                    border = if (on) BorderStroke(2.dp, primary) else BorderStroke(1.dp, LineColor),
                     modifier = Modifier.fillMaxWidth().selectable(selected = on, role = Role.RadioButton, onClick = { selected = i }),
                 ) {
                     Row(Modifier.padding(horizontal = 16.dp, vertical = 12.dp), verticalAlignment = Alignment.CenterVertically) {
-                        Surface(shape = CircleShape, color = MaterialTheme.colorScheme.secondaryContainer, modifier = Modifier.size(44.dp)) {
-                            Icon(level.icon, null, Modifier.padding(10.dp))
+                        Box(Modifier.size(44.dp).clip(RoundedCornerShape(14.dp)).background(MaterialTheme.colorScheme.primaryContainer), contentAlignment = Alignment.Center) {
+                            Icon(level.icon, null, tint = MaterialTheme.colorScheme.onPrimaryContainer)
                         }
                         Column(Modifier.weight(1f).padding(horizontal = 14.dp)) {
-                            Text(stringResource(level.title), style = MaterialTheme.typography.titleMedium, fontWeight = FontWeight.SemiBold)
-                            Text(stringResource(level.subtitle), style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
+                            Text(stringResource(level.title), fontSize = 16.sp, fontWeight = FontWeight.Bold)
+                            Text(stringResource(level.subtitle), fontSize = 13.sp, color = MaterialTheme.colorScheme.onSurfaceVariant)
                         }
-                        RadioButton(selected = on, onClick = null)
+                        // the round radio of the mockup: an outline, filled in green when chosen
+                        Box(
+                            Modifier.size(22.dp).border(2.dp, if (on) primary else MaterialTheme.colorScheme.outline, CircleShape).padding(5.dp)
+                                .clip(CircleShape).background(if (on) primary else Color.Transparent),
+                        )
                     }
                 }
             }
         }
         Button(
             onClick = { onChoose(levels[selected].programId) },
-            modifier = Modifier.fillMaxWidth().padding(18.dp).height(64.dp),
-        ) { Text(stringResource(R.string.lets_go), style = MaterialTheme.typography.titleMedium) }
+            shape = RoundedCornerShape(28.dp),
+            modifier = Modifier.fillMaxWidth().padding(18.dp).height(56.dp),
+        ) { Text(stringResource(R.string.lets_go), fontSize = 17.sp, fontWeight = FontWeight.Bold) }
     }
 }

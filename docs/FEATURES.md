@@ -112,6 +112,15 @@ Le périmètre précis du MVP, qui fait foi, est dans [MVP.md](MVP.md). « MVP m
 | Signal de départ et d'arrivée (désactivable) | Fait |
 | Plus de bip de changement de phase quand le compte à rebours est actif (gardé s'il est coupé) | Fait |
 | Compteur des marches (« Marche · 3 / 6 »), comme pour les courses | Fait |
+| Toucher « Ensuite » (Focus) ouvre la Chronologie (D41) | Fait |
+| Aperçu: le bloc qui se répète, « 2 × » (D42) | Fait |
+| Chronologie: toucher une barre ou une ligne y va, avec Annuler; barre qui défile pour les longues séances (D42) | Fait |
+| Glisser entre les styles de course et entre les onglets (D42) | Fait |
+| Accueil pendant une séance laissée en cours: la carte du jour devient « Reprendre » (bouton blanc qui clignote) | Fait |
+| Réglage « Verrouiller l'écran au départ » (désactivé par défaut) | Fait |
+| Écran verrouillé: invisible par-dessus la course, il se montre (verre dépoli sur l'écran flouté) quand on le règle ou qu'on touche l'écran; on glisse pour ouvrir | Fait |
+| Choisir une intensité de vibration fait vibrer à cette intensité | Fait |
+| Toucher l'onglet déjà ouvert met en avant l'action (Démarrer, programme en cours) au lieu de recharger | Fait |
 
 ## Paramètres
 

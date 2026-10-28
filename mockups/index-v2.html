@@ -228,6 +228,22 @@ svg.mk,svg.rk{display:block;flex:none}
 .menu button{display:flex;gap:12px;align-items:center;width:100%;border:0;background:transparent;padding:14px 18px;font:500 15px 'Roboto Flex',sans-serif;color:var(--on-surface);cursor:pointer;text-align:left}
 .menu button:hover{background:var(--surface-c)}.menu .bad{color:var(--error)}
 
+/* chronologie longue (proposition) : barre qui défile, tout est touchable */
+.tlx{height:56px;overflow-x:auto;scrollbar-width:none;-webkit-mask-image:linear-gradient(90deg,transparent,#000 18px,#000 calc(100% - 18px),transparent);mask-image:linear-gradient(90deg,transparent,#000 18px,#000 calc(100% - 18px),transparent);padding:0 14px}
+.tlx::-webkit-scrollbar{display:none}
+.tlx i{flex:none!important;cursor:pointer}
+.scrollhint{display:flex;align-items:center;justify-content:center;gap:4px;font-size:11px;color:var(--on-surface-v);margin-top:6px}.scrollhint .ms{font-size:16px}
+.li.tap{cursor:pointer}
+.snack{position:absolute;left:14px;right:14px;bottom:104px;background:var(--ink);color:#fff;border-radius:14px;padding:12px 16px;display:flex;align-items:center;gap:10px;z-index:4;font-size:14px;box-shadow:0 6px 18px #0b2a2540}
+.snack .u{color:var(--yellow);font-weight:700;margin-left:auto;cursor:pointer}
+/* aperçu, intervalles variés (proposition) */
+.durs{display:flex;flex-wrap:wrap;gap:6px;margin-top:6px}
+.durs span{font-size:13px;font-weight:600;padding:3px 9px;border-radius:9px;background:var(--surface-c);color:var(--ink)}
+.durs.run span{background:var(--run-c)}.durs.walk span{background:var(--walk-c)}
+.rep{border-radius:16px;background:var(--card);box-shadow:inset 0 0 0 1px var(--line);padding:6px 12px 6px 12px;margin:2px 0;position:relative}
+.rep .x{position:absolute;right:12px;top:-11px;background:var(--ink);color:#fff;font-weight:700;font-size:12px;padding:3px 9px;border-radius:9px}
+.rep .step:last-child{border:0}
+
 /* fin de séance / détail */
 .cele{display:flex;flex-direction:column;align-items:center;gap:4px;padding-top:6px;flex:none;text-align:center}
 .cele .title{font-size:30px}
@@ -446,8 +462,9 @@ const S0=[{t:'calm',n:'Échauffement',s:300}];
 for(let i=0;i<6;i++){S0.push({t:'run',n:'Course',s:90});S0.push({t:'walk',n:'Marche',s:120})}
 S0.push({t:'calm',n:'Retour au calme',s:300});
 const tl=(el,steps,cur)=>{el.innerHTML=steps.map((x,i)=>`<i class="${x.t}${cur!=null&&i<cur?' done':''}" style="flex:${x.s}"></i>`).join('')};
-const PK={run:'directions_run',walk:'directions_walk',calm:'self_improvement'},PN={run:'Course',walk:'Marche'};
-const pk=t=>`<span class="pk ${t}"><span class="ms f">${PK[t]}</span></span>`;
+const PK={run:'directions_run',walk:'directions_walk',calm:'accessibility_new',cool:'self_improvement'},PN={run:'Course',walk:'Marche'};
+// échauffement : bras levés (étirement) ; retour au calme : assis, on respire
+const pk=(t,n)=>`<span class="pk ${t}"><span class="ms f">${PK[t==='calm'&&/^Retour/.test(n||'')?'cool':t]}</span></span>`;
 // rang d'une course ou d'une marche parmi celles du même type (« Marche · 3 / 6 »)
 const nth=j=>S0.slice(0,j+1).filter(y=>y.t===S0[j].t).length,NB=6;
 const TRACE=`<svg viewBox="0 0 360 150"><path d="M40 100 C 45 45, 100 25, 150 45 S 230 85, 275 55 S 335 30, 330 80 S 285 128, 210 118 S 95 135, 40 100Z" fill="none" stroke="var(--primary)" stroke-width="5" stroke-linecap="round" stroke-linejoin="round"/><circle cx="40" cy="100" r="8" fill="var(--yellow)" stroke="#0b2a25" stroke-width="2"/></svg>`;
@@ -561,12 +578,58 @@ add(slot('4 · Aperçu de la séance','Feuille du bas. Couleurs de phase : vert 
     <div class="sw"><div class="tx"><b>Ignorer le retour au calme</b></div><div class="switch" id="skipC"></div></div>
     <button class="btn go big"><span class="ms f">play_arrow</span>Commencer</button></div>`)));
 
+/* ---------- 4 bis · Aperçu, intervalles variés (validé, D42) ---------- */
+// Du canapé au 5 km, semaine 3 : 5 min, puis 2 × (course 1 min 30, marche 1 min 30, course 3 min, marche 3 min), puis 5 min
+const W3=[{t:'calm',n:'Échauffement',s:300}];
+for(let k=0;k<2;k++){W3.push({t:'run',n:'Course',s:90},{t:'walk',n:'Marche',s:90},{t:'run',n:'Course',s:180},{t:'walk',n:'Marche',s:180})}
+W3.push({t:'calm',n:'Retour au calme',s:300});
+const dur=s=>s%60?`${Math.floor(s/60)} min ${String(s%60).padStart(2,'0')}`:`${s/60} min`;
+const pvHead=(t)=>`<div class="row"><div class="sp"><div class="title">Semaine 3 · Jour 3</div><div class="meta num">~28 min</div></div><button class="iconbtn t"><span class="ms">close</span></button></div>
+  <div class="tl" data-w3></div>`;
+const pvFoot=`<div class="sw"><div class="tx"><b>Ignorer l'échauffement</b></div><div class="switch"></div></div><button class="btn go big"><span class="ms f">play_arrow</span>Commencer</button>`;
+// A : le nom ne se coupe plus jamais ; les durées passent en pastilles sous le nom, à la ligne si besoin
+const varA=()=>{const mid=W3.slice(1,-1);const row=(t,n)=>{const d=mid.filter(x=>x.t===t).map(x=>x.s);return `<div class="step" style="align-items:flex-start">${pk(t)}<div class="sp"><span class="tag">${n}</span><span class="meta" style="margin-left:6px">×${d.length}</span><div class="durs ${t}">${d.map(x=>`<span class="num">${dur(x)}</span>`).join('')}</div></div><b class="num">${dur(d.reduce((a,b)=>a+b,0))}</b></div>`};
+ return `<div class="group">${`<div class="step">${pk('calm','Échauffement')}<span class="tag">Échauffement</span><span class="sp"></span><b class="num">5 min</b></div>`}${row('run','Course')}${row('walk','Marche')}<div class="step">${pk('calm','Retour au calme')}<span class="tag">Retour au calme</span><span class="sp"></span><b class="num">5 min</b></div></div>`};
+// B : le bloc qui se répète, dans l'ordre où on le court
+const varB=()=>{const blk=W3.slice(1,5);return `<div class="group"><div class="step">${pk('calm','Échauffement')}<span class="tag">Échauffement</span><span class="sp"></span><b class="num">5 min</b></div>
+  <div class="rep"><span class="x">2 ×</span>${blk.map(x=>`<div class="step">${pk(x.t)}<span class="tag">${x.n}</span><span class="sp"></span><b class="num">${dur(x.s)}</b></div>`).join('')}</div>
+  <div class="step">${pk('calm','Retour au calme')}<span class="tag">Retour au calme</span><span class="sp"></span><b class="num">5 min</b></div></div>`};
+add(slot('4 bis · Intervalles variés : bloc qui se répète','Validé (D42). On montre le bloc dans l’ordre où on le court (course, marche, course, marche) avec « 2 × » dessus. Marche aussi pour les séances simples (« 6 × course 1 min 30 · marche 2 min »), donc un seul affichage pour tout.',phone('18:32',`<div class="sheet" style="position:static;border-radius:0;padding:12px 2px 0;background:transparent">${pvHead()}${varB()}${pvFoot}</div>`),true));
+document.querySelectorAll('[data-w3]').forEach(el=>tl(el,W3));
+
 /* ---------- 5-8 · Course ---------- */
 const runSlot=(n,cap,small,t,mode,k,extra,isNew)=>add(slot(`${n} · ${cap}`,small,phone(t,'',{cls:'run',attr:`data-mode="${mode}" data-k="${k}"${extra||''}`}),isNew));
 runSlot('5','Course · style « Focus »','Zéro mascotte, zéro déco : un énorme compte à rebours lisible en plein soleil. Course = écran vert, le point jaune suit le bout de l’arc et rappelle le logo.','20:44','focus','run');
 runSlot('5 bis','Focus pendant la marche','Tout l’écran passe au jaune : course ou marche se reconnaît d’un coup d’œil, téléphone à bout de bras. La marche a aussi son compteur (3 / 6).','20:46','focus','walk','',true);
 runSlot('6','Course · style « Chronologie »','Toute la séance d’un coup d’œil : les phases passées s’effacent dans la barre, la liste a une pastille par type de phase et un compteur pour les courses comme pour les marches.','20:44','timeline','run');
 runSlot('7','Course · style « Complet »','Grille de métriques pour les confirmés. La grande tuile prend la couleur de la phase. ⋮ pour terminer ou revenir à l’échauffement.','20:44','full','run');
+/* ---------- 6 bis · Chronologie longue, aller à un intervalle (validé, D42) ---------- */
+const LG=[{t:'calm',n:'Échauffement',s:300}];
+for(let i=0;i<10;i++){LG.push({t:'run',n:'Course',s:60});LG.push({t:'walk',n:'Marche',s:90})}
+LG.push({t:'calm',n:'Retour au calme',s:300});
+const lnth=j=>LG.slice(0,j+1).filter(y=>y.t===LG[j].t).length;
+const PX=0.2, MINW=16; // 0,2 px par seconde (une séance de 30 min tient dans la carte), jamais moins de 16 px pour pouvoir toucher
+function longHTML(cur){
+  const x=LG[cur];
+  return `<div class="seg"><button>Focus</button><button class="on">Chronologie</button><button>Complet</button></div>
+  <div class="row" style="flex:none"><button class="iconbtn t"><span class="ms">lock</span></button><div class="sp meta num" style="margin:0">Pont vers 10K · S1 · J1</div><button class="iconbtn on"><span class="ms f">record_voice_over</span></button><button class="iconbtn t"><span class="ms">more_vert</span></button></div>
+  <div class="view"><span class="phase ${x.t==='calm'?'':x.t}" ${x.t==='calm'?'style="background:var(--calm-c);color:var(--calm-t)"':''}><span class="ms f">${PK[x.t==='calm'&&/^Retour/.test(x.n)?'cool':x.t]}</span>${x.n}${x.t!=='calm'?` · ${lnth(cur)} / 10`:''}</span>
+  <div class="card" style="padding:14px 0"><div class="tl tlx" id="lgBar">${LG.map((y,i)=>`<i class="${y.t}${i<cur?' done':''}" data-i="${i}" style="width:${Math.max(MINW,Math.round(y.s*PX))}px"></i>`).join('')}</div>
+   <div class="scrollhint"><span class="ms">swipe</span>glisse la barre · touche un intervalle pour y aller</div></div>
+  <div class="lbl">Séance</div><div class="list fade" id="lgList" style="overflow-y:auto;scrollbar-width:none">${LG.map((y,i)=>`<div class="li tap${i===cur?' cur':i<cur?' past':''}" data-i="${i}">${i<cur?'<span class="pk past"><span class="ms">check</span></span>':pk(y.t,y.n)}<span class="sp">${y.n}${y.t!=='calm'?`<span class="cnt num">${lnth(i)} / 10</span>`:''}</span><span class="num">${fmt(y.s)}</span></div>`).join('')}</div></div>
+  <div class="ctrls"><button class="iconbtn"><span class="ms">skip_previous</span></button><button class="btn fill main"><span class="ms f">pause</span>Pause</button><button class="iconbtn"><span class="ms">skip_next</span></button></div>`;
+}
+function mountLong(ph,cur,prev){
+  ph.dataset.k=LG[cur].t==='walk'?'walk':'run';
+  const b=ph.querySelector('.body');b.innerHTML=longHTML(cur);
+  const bar=b.querySelector('#lgBar'),bi=bar.children[cur];bar.scrollLeft=bi.offsetLeft-bar.clientWidth/2+bi.offsetWidth/2;
+  const list=b.querySelector('#lgList'),row=list.children[Math.max(0,cur-1)];list.scrollTop=row.offsetTop; // la liste est le repère de ses lignes (position:relative)
+  b.querySelectorAll('[data-i]').forEach(el=>el.onclick=()=>{const i=+el.dataset.i;if(i===cur)return;mountLong(ph,i,cur)});
+  if(prev!=null){const y=LG[cur];b.insertAdjacentHTML('beforeend',`<div class="snack"><span class="ms f">${PK[y.t==='calm'&&/^Retour/.test(y.n)?'cool':y.t]}</span><span>Passé à ${y.n}${y.t!=='calm'?' '+lnth(cur)+' / 10':''}</span><span class="u">Annuler</span></div>`);
+   b.querySelector('.snack .u').onclick=()=>mountLong(ph,prev,null);}
+}
+add(slot('6 bis · Chronologie : aller à un intervalle','Validé (D42). Toucher une ligne de la liste ou une barre en haut y emmène tout de suite, avec « Annuler » quelques secondes (un doigt qui glisse ne doit rien coûter). La largeur suit toujours la durée, mais une barre ne descend jamais sous 16 px pour rester touchable. Si la séance ne tient pas, la barre défile à l’horizontale : bords fondus et indication « glisse la barre ». Essaie : touche une barre ou une ligne.',phone('19:05','',{cls:'run long',attr:'id="longPhone" data-k="run"'}),true));
+
 runSlot('8','Terminer en avance','Depuis ⋮ → « Terminer la séance » : enregistrer, supprimer ou continuer.','20:50','focus','run',' data-finish="1"');
 runSlot('8 bis','Séance terminée','Il n’y a plus rien à faire : un seul bouton, jaune, qui pulse doucement. La voix, une vibration longue et le signal d’arrivée l’annoncent aussi.','21:14','focus','done','',true);
 
@@ -594,7 +657,7 @@ function runHTML(mode,k){
   }else if(mode==='timeline'){
     const from=done?S0.length-6:CUR-1;
     const rows=S0.slice(from,from+6).map((x,i)=>{const j=from+i;
-      return `<div class="li${j===CUR?' cur':j<CUR?' past':''}">${j<CUR?'<span class="pk past"><span class="ms">check</span></span>':pk(x.t)}<span class="sp">${x.n}${x.t!=='calm'?`<span class="cnt num">${nth(j)} / ${NB}</span>`:''}</span><span class="num">${j===CUR?mmss(LEFT):fmt(x.s)}</span></div>`}).join('');
+      return `<div class="li${j===CUR?' cur':j<CUR?' past':''}">${j<CUR?'<span class="pk past"><span class="ms">check</span></span>':pk(x.t,x.n)}<span class="sp">${x.n}${x.t!=='calm'?`<span class="cnt num">${nth(j)} / ${NB}</span>`:''}</span><span class="num">${j===CUR?mmss(LEFT):fmt(x.s)}</span></div>`}).join('');
     v=`<div class="view">${chip}
     <div class="card" style="padding:14px"><div class="tl rtl" style="height:56px"></div><div class="row num" style="margin-top:8px;font-size:13px;color:var(--on-surface-v)"><span>${d.t}</span><span class="sp"></span><span>reste ${d.rest}</span></div></div>
     <div class="lbl">Séance</div><div class="list fade">${rows}</div></div>`;
@@ -627,7 +690,8 @@ function mount(ph,mode){
     b.querySelector('.fin-btn').onclick=()=>{b.querySelector('.menu').remove();finishSheet(ph)};
   };
 }
-document.querySelectorAll('.phone.run').forEach(p=>{mount(p,p.dataset.mode);if(p.dataset.finish)finishSheet(p)});
+document.querySelectorAll('.phone.run:not(.long)').forEach(p=>{mount(p,p.dataset.mode);if(p.dataset.finish)finishSheet(p)});
+mountLong(document.getElementById('longPhone'),5,null);
 
 /* ---------- 9 · Fin de séance ---------- */
 const FEEL=[['tired','Très dur'],['meh','Dur'],['smile','Bien'],['happy','Très bien'],['cool','Facile']];
@@ -804,7 +868,7 @@ function renderPreview(){
   tl(document.getElementById('pvTl'),st);
   document.getElementById('pvMeta').textContent='~'+Math.round(st.reduce((a,x)=>a+x.s,0)/60)+' min';
   const L=[];if(!sw)L.push(['calm','Échauffement','5 min']);L.push(['run','Course','1 min 30 ×6'],['walk','Marche','2 min ×6']);if(!sc)L.push(['calm','Retour au calme','5 min']);
-  document.getElementById('pvList').innerHTML=L.map(r=>`<div class="step">${pk(r[0])}<span class="tag">${r[1]}</span><span class="sp"></span><b class="num">${r[2]}</b></div>`).join('');
+  document.getElementById('pvList').innerHTML=L.map(r=>`<div class="step">${pk(r[0],r[1])}<span class="tag">${r[1]}</span><span class="sp"></span><b class="num">${r[2]}</b></div>`).join('');
 }
 [skipW,skipC].forEach(s=>s.onclick=()=>{s.classList.toggle('on');renderPreview()});renderPreview();
 document.querySelectorAll('[data-t]').forEach(s=>s.onclick=()=>s.classList.toggle('on'));

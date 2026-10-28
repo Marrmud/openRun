@@ -65,6 +65,8 @@ object RunControl {
     fun previous(context: Context) = send(context, RunService.ACTION_PREVIOUS)
     fun restartPhase(context: Context) = send(context, RunService.ACTION_RESTART)
     fun toStart(context: Context) = send(context, RunService.ACTION_TO_START)
+    fun goTo(context: Context, phase: Int) = send(context, RunService.ACTION_GO_TO) { putExtra(RunService.EXTRA_PHASE, phase) }
+    fun undoGoTo(context: Context) = send(context, RunService.ACTION_UNDO_GO_TO)
     fun save(context: Context) = send(context, RunService.ACTION_SAVE)
     fun discard(context: Context) = send(context, RunService.ACTION_DISCARD)
 }

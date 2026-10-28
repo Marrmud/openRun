@@ -44,6 +44,7 @@ class SettingsStore(private val store: DataStore<Preferences>) {
         val vibrateWatch = booleanPreferencesKey("vibrate_watch")
         val musicMode = stringPreferencesKey("music_mode")
         val keepScreenOn = booleanPreferencesKey("keep_screen_on")
+        val lockAtStart = booleanPreferencesKey("lock_at_start")
         val treadmill = booleanPreferencesKey("treadmill")
         val autoPause = booleanPreferencesKey("auto_pause")
         val defaultStyle = stringPreferencesKey("default_style")
@@ -74,6 +75,7 @@ class SettingsStore(private val store: DataStore<Preferences>) {
             vibrateWatch = p[K.vibrateWatch] ?: d.vibrateWatch,
             musicMode = p.enum(K.musicMode, d.musicMode),
             keepScreenOn = p[K.keepScreenOn] ?: d.keepScreenOn,
+            lockAtStart = p[K.lockAtStart] ?: d.lockAtStart,
             treadmill = p[K.treadmill] ?: d.treadmill,
             autoPause = p[K.autoPause] ?: d.autoPause,
             defaultStyle = p.enum(K.defaultStyle, d.defaultStyle),
@@ -100,6 +102,7 @@ class SettingsStore(private val store: DataStore<Preferences>) {
         p[K.vibrateWatch] = s.vibrateWatch
         p[K.musicMode] = s.musicMode.name
         p[K.keepScreenOn] = s.keepScreenOn
+        p[K.lockAtStart] = s.lockAtStart
         p[K.treadmill] = s.treadmill
         p[K.autoPause] = s.autoPause
         p[K.defaultStyle] = s.defaultStyle.name

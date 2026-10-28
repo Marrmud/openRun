@@ -22,6 +22,8 @@ data class AppSettings(
     val vibrateWatch: Boolean = true,
     val musicMode: MusicMode = MusicMode.OVERLAY,
     val keepScreenOn: Boolean = true,
+    /** The run screen starts locked, for a phone that goes straight into the pocket. */
+    val lockAtStart: Boolean = false,
     val treadmill: Boolean = false,
     val autoPause: Boolean = true,
     val defaultStyle: ScreenStyle = ScreenStyle.FOCUS,

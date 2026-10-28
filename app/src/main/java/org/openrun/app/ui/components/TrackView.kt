@@ -31,7 +31,7 @@ import org.openrun.core.TrackShape
 @Composable
 fun TrackView(points: List<TrackPoint>, modifier: Modifier = Modifier, height: androidx.compose.ui.unit.Dp = 180.dp) {
     val shape = remember(points) { TrackShape.project(points) }
-    Surface(shape = RoundedCornerShape(20.dp), color = MaterialTheme.colorScheme.surfaceContainer, modifier = modifier.fillMaxWidth().height(height)) {
+    Surface(shape = RoundedCornerShape(22.dp), color = MaterialTheme.colorScheme.surfaceContainerLowest, border = androidx.compose.foundation.BorderStroke(1.dp, LineColor), modifier = modifier.fillMaxWidth().height(height)) {
         if (shape == null) {
             Box(Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
                 Text(stringResource(R.string.no_track), color = MaterialTheme.colorScheme.onSurfaceVariant)

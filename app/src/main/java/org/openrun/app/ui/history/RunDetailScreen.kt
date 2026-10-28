@@ -72,7 +72,7 @@ fun RunDetailScreen(runId: Long, onBack: () -> Unit) {
             IconButton(onClick = onBack) { Icon(Icons.AutoMirrored.Filled.ArrowBack, stringResource(R.string.back)) }
             Column(Modifier.weight(1f)) {
                 val item = HistoryItem(run.id, run.startedAt, run.programId, run.sessionIndex, d.completed, run.durationSec, run.distanceM, run.kcal, false)
-                Text(runTitle(item), style = MaterialTheme.typography.titleLarge, fontWeight = FontWeight.Bold)
+                org.openrun.app.ui.components.BrandTitle(runTitle(item), size = 22)
                 Text(runSubtitle(item), style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
             }
             IconButton(onClick = { confirmDelete = true }) { Icon(Icons.Filled.Delete, stringResource(R.string.delete)) }
@@ -111,7 +111,7 @@ fun RunDetailScreen(runId: Long, onBack: () -> Unit) {
 
             if (d.phases.isNotEmpty()) {
                 Text(stringResource(R.string.laps).uppercase(), style = MaterialTheme.typography.labelMedium, color = MaterialTheme.colorScheme.onSurfaceVariant, modifier = Modifier.padding(top = 4.dp))
-                Surface(shape = RoundedCornerShape(20.dp), color = MaterialTheme.colorScheme.surfaceContainer) {
+                Surface(shape = RoundedCornerShape(20.dp), color = MaterialTheme.colorScheme.surfaceContainerLowest, border = androidx.compose.foundation.BorderStroke(1.dp, org.openrun.app.ui.components.LineColor)) {
                     Column(Modifier.padding(horizontal = 14.dp, vertical = 6.dp)) {
                         var runNumber = 0
                         var walkNumber = 0
@@ -169,7 +169,7 @@ private fun PhaseLine(kind: PhaseKind, number: Int?, p: PhaseResultEntity) {
 
 @Composable
 private fun Tile(label: String, value: String, modifier: Modifier) {
-    Surface(shape = RoundedCornerShape(14.dp), color = MaterialTheme.colorScheme.surfaceContainer, modifier = modifier) {
+    Surface(shape = RoundedCornerShape(14.dp), color = MaterialTheme.colorScheme.surfaceContainerLowest, border = androidx.compose.foundation.BorderStroke(1.dp, org.openrun.app.ui.components.LineColor), modifier = modifier) {
         Column(Modifier.padding(horizontal = 12.dp, vertical = 10.dp)) {
             Text(label.uppercase(), style = MaterialTheme.typography.labelSmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
             Text(value, style = MaterialTheme.typography.titleLarge, fontWeight = FontWeight.Bold, maxLines = 1)

@@ -110,19 +110,20 @@ class RunAudio(private val context: Context) : TextToSpeech.OnInitListener {
         main.postDelayed({ endOp() }, if (long) 700 else 450)
     }
 
-    /** Beeps one after the other: (start in ms, length in ms). */
-    private fun melody(s: AppSettings, notes: List<Pair<Long, Int>>) {
+    /** Tones one after the other: (start in ms, tone, length in ms). */
+    private fun melody(s: AppSettings, notes: List<Triple<Long, Int, Int>>) {
         if (!s.beeps || !s.startEndSignal) return
         beginOp(s)
-        notes.forEach { (at, length) -> main.postDelayed({ toneFor(s)?.startTone(ToneGenerator.TONE_PROP_BEEP, length) }, at) }
-        main.postDelayed({ endOp() }, notes.maxOf { it.first + it.second } + 350L)
+        notes.forEach { (at, kind, length) -> main.postDelayed({ toneFor(s)?.startTone(kind, length) }, at) }
+        main.postDelayed({ endOp() }, notes.maxOf { it.first + it.third } + 350L)
     }
 
-    /** "Bip, bip, biiip": the start of a race. */
-    fun startSignal(s: AppSettings) = melody(s, listOf(0L to 150, 450L to 150, 900L to 600))
+    /** The countdown beep twice, quick and close: the session starts, or it is over. */
+    private fun doubleBeep(s: AppSettings) = melody(s, listOf(Triple(0L, ToneGenerator.TONE_PROP_BEEP, 150), Triple(380L, ToneGenerator.TONE_PROP_BEEP, 150)))
 
-    /** Three long beeps: it is over. */
-    fun endSignal(s: AppSettings) = melody(s, listOf(0L to 400, 550L to 400, 1100L to 800))
+    fun startSignal(s: AppSettings) = doubleBeep(s)
+
+    fun endSignal(s: AppSettings) = doubleBeep(s)
 
     /**
      * A new phase: the voice and a buzz say which. No beep when the 3, 2, 1 countdown already led up to it, they came
@@ -156,14 +157,7 @@ class RunAudio(private val context: Context) : TextToSpeech.OnInitListener {
         if (s.vibratePhone) vibrate(longArrayOf(0, 200, 120, 200, 120, 400), s.vibrationIntensity)
     }
 
-    private fun vibrate(timings: LongArray, intensity: VibrationIntensity) {
-        val amp = when (intensity) { VibrationIntensity.LOW -> 80; VibrationIntensity.MEDIUM -> 160; VibrationIntensity.HIGH -> 255 }
-        val effect = if (vibrator.hasAmplitudeControl()) {
-            // even slots (pauses) get 0, odd slots (buzzes) the chosen strength
-            VibrationEffect.createWaveform(timings, IntArray(timings.size) { if (it % 2 == 1) amp else 0 }, -1)
-        } else VibrationEffect.createWaveform(timings, -1)
-        vibrator.vibrate(effect)
-    }
+    private fun vibrate(timings: LongArray, intensity: VibrationIntensity) = vibrateWith(vibrator, timings, intensity)
 
     fun release() {
         tts?.stop(); tts?.shutdown(); tts = null
@@ -172,4 +166,21 @@ class RunAudio(private val context: Context) : TextToSpeech.OnInitListener {
         focus?.let { audio.abandonAudioFocusRequest(it) }; focus = null
         activeOps = 0
     }
+}
+
+private fun vibrateWith(vibrator: Vibrator, timings: LongArray, intensity: VibrationIntensity) {
+    val amp = when (intensity) { VibrationIntensity.LOW -> 80; VibrationIntensity.MEDIUM -> 160; VibrationIntensity.HIGH -> 255 }
+    val effect = if (vibrator.hasAmplitudeControl()) {
+        // even slots (pauses) get 0, odd slots (buzzes) the chosen strength
+        VibrationEffect.createWaveform(timings, IntArray(timings.size) { if (it % 2 == 1) amp else 0 }, -1)
+    } else VibrationEffect.createWaveform(timings, -1)
+    vibrator.vibrate(effect)
+}
+
+/** One buzz at the given strength, so the settings let you feel the choice as you make it. */
+fun previewVibration(context: Context, intensity: VibrationIntensity) {
+    val vibrator = if (android.os.Build.VERSION.SDK_INT >= 31)
+        (context.getSystemService(Context.VIBRATOR_MANAGER_SERVICE) as VibratorManager).defaultVibrator
+    else @Suppress("DEPRECATION") context.getSystemService(Context.VIBRATOR_SERVICE) as Vibrator
+    vibrateWith(vibrator, longArrayOf(0, 350), intensity)
 }

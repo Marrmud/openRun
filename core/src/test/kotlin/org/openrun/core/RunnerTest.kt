@@ -85,6 +85,12 @@ class RunnerTest {
         assertEquals(4, s.state.phaseIndex)
     }
 
+    @Test fun goToJumpsForwardOrBackToTheStartOfAPhase() {
+        assertEquals(Step(RunState(3), listOf(3)), WorkoutRunner.goTo(w, 3))
+        assertEquals(Step(RunState(1), listOf(1)), WorkoutRunner.goTo(w, 1))
+        assertEquals(4, WorkoutRunner.goTo(w, 99).state.phaseIndex)
+    }
+
     @Test fun backToTheWarmupFromAnywhere() {
         assertEquals(RunState(0, 0), WorkoutRunner.toStart(w).state)
     }

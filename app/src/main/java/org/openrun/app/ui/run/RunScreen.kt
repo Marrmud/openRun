@@ -1,6 +1,41 @@
 package org.openrun.app.ui.run
 
 import android.provider.Settings
+import androidx.compose.animation.core.animate
+import androidx.compose.foundation.gestures.detectHorizontalDragGestures
+import androidx.compose.runtime.mutableFloatStateOf
+import androidx.compose.runtime.rememberUpdatedState
+import androidx.compose.foundation.horizontalScroll
+import androidx.compose.foundation.interaction.MutableInteractionSource
+import androidx.compose.foundation.layout.fillMaxHeight
+import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.pager.HorizontalPager
+import androidx.compose.foundation.pager.rememberPagerState
+import androidx.compose.material.icons.rounded.Swipe
+import androidx.compose.ui.graphics.BlendMode
+import androidx.compose.ui.graphics.CompositingStrategy
+import androidx.compose.animation.core.Animatable
+import androidx.compose.animation.core.animateDpAsState
+import androidx.compose.animation.core.animateFloatAsState
+import androidx.compose.animation.core.spring
+import androidx.compose.foundation.border
+import androidx.compose.foundation.gestures.Orientation
+import androidx.compose.foundation.gestures.draggable
+import androidx.compose.foundation.gestures.rememberDraggableState
+import androidx.compose.foundation.layout.BoxWithConstraints
+import androidx.compose.foundation.layout.offset
+import androidx.compose.material.icons.rounded.LockOpen
+import androidx.compose.runtime.mutableIntStateOf
+import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.ui.draw.blur
+import androidx.compose.ui.draw.clip
+import androidx.compose.ui.graphics.graphicsLayer
+import androidx.compose.ui.input.pointer.PointerEventPass
+import androidx.compose.ui.input.pointer.PointerEventType
+import androidx.compose.ui.unit.IntOffset
+import kotlinx.coroutines.delay
+import kotlinx.coroutines.launch
+import kotlin.math.roundToInt
 import androidx.compose.animation.animateColorAsState
 import androidx.compose.animation.core.LinearOutSlowInEasing
 import androidx.compose.animation.core.animateFloat
@@ -9,9 +44,15 @@ import androidx.compose.animation.core.rememberInfiniteTransition
 import androidx.compose.animation.core.tween
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.Canvas
+import androidx.compose.foundation.clickable
+import androidx.compose.material.icons.automirrored.rounded.KeyboardArrowRight
 import androidx.compose.foundation.background
 import androidx.compose.foundation.gestures.detectTapGestures
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.PaddingValues
+import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.itemsIndexed
+import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -56,13 +97,17 @@ import androidx.compose.material3.SingleChoiceSegmentedButtonRow
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.draw.drawBehind
+import androidx.compose.ui.draw.drawWithContent
+import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.geometry.CornerRadius
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.geometry.Size
@@ -75,11 +120,21 @@ import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
+import androidx.compose.material.icons.rounded.Lock
+import androidx.compose.material.icons.rounded.MoreVert
+import androidx.compose.material.icons.rounded.RecordVoiceOver
+import androidx.compose.material.icons.rounded.SkipNext
+import androidx.compose.material.icons.rounded.SkipPrevious
+import androidx.compose.material.icons.rounded.Stop
+import androidx.compose.material.icons.rounded.VoiceOverOff
 import androidx.compose.ui.unit.sp
 import org.openrun.app.R
 import org.openrun.app.run.RunUiState
+import org.openrun.app.ui.components.LineColor
 import org.openrun.app.ui.components.PhaseBadge
+import org.openrun.app.ui.components.PillTabs
 import org.openrun.app.ui.components.WorkoutBar
 import org.openrun.app.ui.components.phaseIcon
 import org.openrun.app.ui.theme.RunTheme
@@ -95,6 +150,8 @@ data class RunActions(
     val onPrevious: () -> Unit,
     val onRestartPhase: () -> Unit,
     val onToStart: () -> Unit,
+    val onGoTo: (Int) -> Unit,
+    val onUndoGoTo: () -> Unit,
     val onSave: () -> Unit,
     val onDiscard: () -> Unit,
     val onToggleVoice: () -> Unit,
@@ -103,44 +160,59 @@ data class RunActions(
 /** The screen of a session in progress, in one of three styles. Everything is large and one tap away. */
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun RunScreen(state: RunUiState, voiceOn: Boolean, initialStyle: ScreenStyle, actions: RunActions) {
+fun RunScreen(state: RunUiState, voiceOn: Boolean, initialStyle: ScreenStyle, lockAtStart: Boolean, actions: RunActions) {
     var style by remember { mutableStateOf(initialStyle) }
     var menuOpen by remember { mutableStateOf(false) }
     var finishOpen by remember { mutableStateOf(false) }
-    var locked by remember { mutableStateOf(false) }
+    // locked from the start if asked: the phone goes straight into the pocket
+    var locked by remember { mutableStateOf(lockAtStart) }
+    // the lock shows itself for a moment (when set, or when the screen is touched), then lets the run screen be seen
+    var lockShown by remember { mutableStateOf(lockAtStart) }
+    var pokes by remember { mutableIntStateOf(0) }
+    var sliding by remember { mutableStateOf(false) }
+    LaunchedEffect(locked, lockShown, pokes, sliding) {
+        if (locked && lockShown && !sliding) { delay(2500); lockShown = false }
+    }
+    val blur by animateDpAsState(if (locked && lockShown) 24.dp else 0.dp, tween(250), label = "lock blur")
     val isFree = state.workout == null
     // a free run has no intervals, so no timeline
     val styles = if (isFree) listOf(ScreenStyle.FOCUS, ScreenStyle.FULL) else ScreenStyle.entries.toList()
     val shownStyle = if (style in styles) style else ScreenStyle.FOCUS
+    // the three styles are pages: swipe between them, or tap their tabs
+    val pager = rememberPagerState(initialPage = styles.indexOf(shownStyle)) { styles.size }
+    val scope = rememberCoroutineScope()
+    LaunchedEffect(pager.currentPage) { style = styles[pager.currentPage] }
+    fun show(st: ScreenStyle) { scope.launch { pager.animateScrollToPage(styles.indexOf(st)) } }
+    // a phase touched in the timeline: the session goes there, with a few seconds to undo it
+    var jumpedTo by remember { mutableStateOf<Int?>(null) }
+    LaunchedEffect(jumpedTo) { if (jumpedTo != null) { delay(4000); jumpedTo = null } }
+    val goTo: (Int) -> Unit = { i -> actions.onGoTo(i); jumpedTo = i }
 
     androidx.activity.compose.BackHandler(enabled = !finishOpen) { if (!locked) finishOpen = true }
 
     // the whole screen takes the color of the phase (D36): running or walking is seen at arm's length
     val screenColor by animateColorAsState(phaseLook(state.phase?.kind).background, tween(400), label = "phase background")
     Box(Modifier.fillMaxSize().background(screenColor)) {
-        Column(Modifier.fillMaxSize().padding(horizontal = 18.dp).padding(bottom = 14.dp), verticalArrangement = Arrangement.spacedBy(12.dp)) {
-            SingleChoiceSegmentedButtonRow(Modifier.fillMaxWidth().padding(top = 8.dp)) {
-                styles.forEachIndexed { i, st ->
-                    SegmentedButton(
-                        selected = st == shownStyle, onClick = { style = st },
-                        shape = SegmentedButtonDefaults.itemShape(i, styles.size),
-                    ) {
-                        Text(stringResource(when (st) { ScreenStyle.FOCUS -> R.string.style_focus; ScreenStyle.TIMELINE -> R.string.style_timeline; ScreenStyle.FULL -> R.string.style_full }), maxLines = 1)
-                    }
-                }
-            }
+        Column(Modifier.fillMaxSize().blur(blur).padding(horizontal = 18.dp).padding(bottom = 14.dp), verticalArrangement = Arrangement.spacedBy(12.dp)) {
+            PillTabs(
+                styles, shownStyle,
+                label = { st -> stringResource(when (st) { ScreenStyle.FOCUS -> R.string.style_focus; ScreenStyle.TIMELINE -> R.string.style_timeline; ScreenStyle.FULL -> R.string.style_full }) },
+                onSelect = { show(it) }, modifier = Modifier.padding(top = 8.dp),
+                // a touch of ink over the green or yellow, so the white pill stands out
+                track = RunTheme.colors.ink.copy(alpha = 0.08f),
+            )
 
             Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(6.dp)) {
-                FilledTonalIconButton(onClick = { locked = true }) { Icon(Icons.Filled.Lock, stringResource(R.string.lock)) }
+                RoundButton(onClick = { locked = true; lockShown = true; pokes++ }) { Icon(Icons.Rounded.Lock, stringResource(R.string.lock)) }
                 Text(
                     stateTitle(state), style = MaterialTheme.typography.bodyMedium, color = MaterialTheme.colorScheme.onSurfaceVariant,
                     modifier = Modifier.weight(1f).padding(start = 6.dp),
                 )
-                FilledIconToggleButton(checked = voiceOn, onCheckedChange = { actions.onToggleVoice() }) {
-                    Icon(if (voiceOn) Icons.Filled.RecordVoiceOver else Icons.Filled.VoiceOverOff, stringResource(R.string.voice))
+                RoundButton(onClick = { actions.onToggleVoice() }, on = voiceOn) {
+                    Icon(if (voiceOn) Icons.Rounded.RecordVoiceOver else Icons.Rounded.VoiceOverOff, stringResource(R.string.voice))
                 }
                 Box {
-                    FilledTonalIconButton(onClick = { menuOpen = true }) { Icon(Icons.Filled.MoreVert, null) }
+                    RoundButton(onClick = { menuOpen = true }) { Icon(Icons.Rounded.MoreVert, null) }
                     DropdownMenu(expanded = menuOpen, onDismissRequest = { menuOpen = false }) {
                         if (!isFree) {
                             DropdownMenuItem(text = { Text(stringResource(R.string.restart_interval)) }, onClick = { menuOpen = false; actions.onRestartPhase() })
@@ -154,10 +226,11 @@ fun RunScreen(state: RunUiState, voiceOn: Boolean, initialStyle: ScreenStyle, ac
                 }
             }
 
-            Box(Modifier.weight(1f).fillMaxWidth()) {
-                when (shownStyle) {
-                    ScreenStyle.FOCUS -> FocusStyle(state)
-                    ScreenStyle.TIMELINE -> TimelineStyle(state)
+            HorizontalPager(pager, Modifier.weight(1f).fillMaxWidth(), pageSpacing = 18.dp, verticalAlignment = Alignment.Top) { page ->
+                when (styles[page]) {
+                    // tapping "Ensuite" opens the timeline, to see what comes after
+                    ScreenStyle.FOCUS -> FocusStyle(state, onUpNext = if (ScreenStyle.TIMELINE in styles) ({ show(ScreenStyle.TIMELINE) }) else null)
+                    ScreenStyle.TIMELINE -> TimelineStyle(state, onGoTo = goTo)
                     ScreenStyle.FULL -> FullStyle(state)
                 }
             }
@@ -165,7 +238,33 @@ fun RunScreen(state: RunUiState, voiceOn: Boolean, initialStyle: ScreenStyle, ac
             Controls(state, actions, onFinish = { finishOpen = true })
         }
 
-        if (locked) LockOverlay(onUnlock = { locked = false })
+        jumpedTo?.let { i ->
+            val w = state.workout
+            val p = w?.phases?.getOrNull(i)
+            if (p != null) {
+                val nth = w.phases.take(i + 1).count { it.kind == p.kind }
+                val total = if (p.kind == PhaseKind.WALK) w.walkCount else w.runCount
+                Surface(
+                    shape = RoundedCornerShape(14.dp), color = RunTheme.colors.ink, contentColor = Color.White, shadowElevation = 6.dp,
+                    modifier = Modifier.align(Alignment.BottomCenter).padding(start = 18.dp, end = 18.dp, bottom = 100.dp).fillMaxWidth(),
+                ) {
+                    Row(Modifier.padding(start = 16.dp, end = 4.dp), verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(10.dp)) {
+                        Icon(phaseIcon(p.kind), null, Modifier.size(20.dp))
+                        Text(stringResource(R.string.went_to, phaseName(p.kind) + phaseCount(p.kind, nth, total)), modifier = Modifier.weight(1f))
+                        androidx.compose.material3.TextButton(onClick = { actions.onUndoGoTo(); jumpedTo = null }) {
+                            Text(stringResource(R.string.undo), color = RunTheme.colors.walk, fontWeight = FontWeight.Bold)
+                        }
+                    }
+                }
+            }
+        }
+
+        if (locked) LockOverlay(
+            shown = lockShown,
+            onTouch = { lockShown = true; pokes++ },
+            onSliding = { sliding = it },
+            onUnlock = { locked = false; lockShown = false },
+        )
     }
 
     if (finishOpen) {
@@ -183,6 +282,10 @@ private fun stateTitle(s: RunUiState): String {
 }
 
 // ---------------------------------------------------------------- styles
+
+/** The color of the whole run screen, also painted under the status and navigation bars (see AppNav). */
+@Composable
+fun runScreenColor(s: RunUiState?): Color = phaseLook(s?.phase?.kind).background
 
 /** How a phase looks on the run screen (D36). A free run looks like running. */
 private data class PhaseLook(val fill: Color, val pill: Color, val onPill: Color, val container: Color, val knob: Color, val background: Color)
@@ -236,7 +339,7 @@ private fun PhasePill(s: RunUiState) {
 }
 
 @Composable
-private fun FocusStyle(s: RunUiState) {
+private fun FocusStyle(s: RunUiState, onUpNext: (() -> Unit)?) {
     val look = phaseLook(s.phase?.kind)
     val track = RunTheme.colors.ink.copy(alpha = 0.07f)
     Column(Modifier.fillMaxSize(), verticalArrangement = Arrangement.spacedBy(12.dp)) {
@@ -279,11 +382,15 @@ private fun FocusStyle(s: RunUiState) {
         }
         val next = s.nextPhase
         if (next != null || s.workoutFinished) {
-            Surface(shape = RoundedCornerShape(14.dp), color = MaterialTheme.colorScheme.surfaceContainerLowest, modifier = Modifier.fillMaxWidth()) {
+            Surface(
+                shape = RoundedCornerShape(14.dp), color = MaterialTheme.colorScheme.surfaceContainerLowest, border = BorderStroke(1.dp, LineColor),
+                modifier = Modifier.fillMaxWidth().then(if (next != null && onUpNext != null) Modifier.clickable(onClick = onUpNext) else Modifier),
+            ) {
                 Row(Modifier.padding(horizontal = 16.dp, vertical = 12.dp), verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(10.dp)) {
                     if (next != null) {
                         PhaseBadge(next.kind)
-                        Text(stringResource(R.string.next_up, phaseName(next.kind), clock(next.seconds * 1000L)), fontWeight = FontWeight.SemiBold)
+                        Text(stringResource(R.string.next_up, phaseName(next.kind), clock(next.seconds * 1000L)), fontWeight = FontWeight.SemiBold, modifier = Modifier.weight(1f))
+                        if (onUpNext != null) Icon(Icons.AutoMirrored.Rounded.KeyboardArrowRight, null, tint = MaterialTheme.colorScheme.onSurfaceVariant)
                     } else {
                         PhaseBadge(PhaseKind.RUN)
                         Text(stringResource(R.string.runs_all_done, s.runsTotal), fontWeight = FontWeight.SemiBold)
@@ -295,6 +402,8 @@ private fun FocusStyle(s: RunUiState) {
             BigStat(stringResource(R.string.distance), "${kmText(s.distanceM)} km")
             BigStat(stringResource(if (s.workout != null) R.string.time else R.string.pace), if (s.workout != null) clock(s.elapsedMs) else paceText(s.paceNowSecPerKm))
         }
+        // a little air between the figures and the buttons
+        Spacer(Modifier.height(10.dp))
     }
 }
 
@@ -307,38 +416,123 @@ private fun BigStat(label: String, value: String) {
 }
 
 @Composable
-private fun TimelineStyle(s: RunUiState) {
+private fun TimelineStyle(s: RunUiState, onGoTo: (Int) -> Unit) {
     val w = s.workout ?: return
+    val c = RunTheme.colors
+    // the list starts one phase before the current one, so what was just done stays in sight
+    val list = rememberLazyListState(initialFirstVisibleItemIndex = (s.phaseIndex - 1).coerceAtLeast(0))
+    LaunchedEffect(s.phaseIndex) { list.animateScrollToItem((s.phaseIndex - 1).coerceAtLeast(0)) }
+    val fadeTo by animateColorAsState(phaseLook(s.phase?.kind).background, tween(400), label = "fade")
     Column(Modifier.fillMaxSize(), verticalArrangement = Arrangement.spacedBy(12.dp)) {
         PhasePill(s)
-        Surface(shape = RoundedCornerShape(20.dp), color = MaterialTheme.colorScheme.surfaceContainer, modifier = Modifier.fillMaxWidth()) {
-            Column(Modifier.padding(14.dp)) {
-                WorkoutBar(w, height = 56.dp, doneUpTo = s.phaseIndex)
-                Row(Modifier.fillMaxWidth().padding(top = 8.dp)) {
+        Surface(shape = RoundedCornerShape(20.dp), color = MaterialTheme.colorScheme.surfaceContainerLowest, modifier = Modifier.fillMaxWidth()) {
+            Column(Modifier.padding(vertical = 14.dp)) {
+                TimelineBar(w, s.phaseIndex, s.workoutFinished, onGoTo)
+                Row(Modifier.fillMaxWidth().padding(top = 8.dp).padding(horizontal = 14.dp)) {
                     Text(clock(s.elapsedMs), style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant, modifier = Modifier.weight(1f))
                     Text(stringResource(R.string.left_total, clock((s.plannedMs - s.elapsedMs).coerceAtLeast(0))), style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
                 }
+
             }
         }
-        Text(stringResource(R.string.upcoming).uppercase(), style = MaterialTheme.typography.labelMedium, color = MaterialTheme.colorScheme.onSurfaceVariant)
-        Column(Modifier.verticalScroll(rememberScrollState()), verticalArrangement = Arrangement.spacedBy(6.dp)) {
-            w.phases.forEachIndexed { i, p ->
-                if (i < s.phaseIndex) return@forEachIndexed
+        Text(stringResource(R.string.session).uppercase(), style = MaterialTheme.typography.labelMedium, color = MaterialTheme.colorScheme.onSurfaceVariant)
+        LazyColumn(
+            state = list, verticalArrangement = Arrangement.spacedBy(6.dp), contentPadding = PaddingValues(top = 18.dp, bottom = 40.dp),
+            modifier = Modifier.fillMaxWidth().weight(1f).drawWithContent {
+                drawContent()
+                // the list fades into the screen at both ends: there is more above and below
+                val h = 46.dp.toPx()
+                drawRect(Brush.verticalGradient(listOf(Color.Transparent, fadeTo), startY = size.height - h, endY = size.height), Offset(0f, size.height - h), Size(size.width, h))
+                val top = 26.dp.toPx()
+                drawRect(Brush.verticalGradient(listOf(fadeTo, Color.Transparent), startY = 0f, endY = top), Offset.Zero, Size(size.width, top))
+            },
+        ) {
+            itemsIndexed(w.phases) { i, p ->
                 val look = phaseLook(p.kind)
-                val current = i == s.phaseIndex
+                val current = i == s.phaseIndex && !s.workoutFinished
+                val past = i < s.phaseIndex || s.workoutFinished
                 val nth = w.phases.take(i + 1).count { it.kind == p.kind }
                 val total = if (p.kind == PhaseKind.WALK) w.walkCount else w.runCount
                 Surface(
+                    onClick = { if (!current) onGoTo(i) },
                     shape = RoundedCornerShape(14.dp), color = if (current) look.container else MaterialTheme.colorScheme.surfaceContainerLowest,
-                    border = if (current) BorderStroke(2.dp, look.fill) else null, modifier = Modifier.fillMaxWidth(),
+                    border = if (current) BorderStroke(2.dp, look.fill) else null,
+                    modifier = Modifier.fillMaxWidth().alpha(if (past) 0.5f else 1f),
                 ) {
                     Row(Modifier.padding(horizontal = 14.dp, vertical = 10.dp), verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(12.dp)) {
-                        PhaseBadge(p.kind)
+                        if (past) {
+                            Box(Modifier.size(28.dp).background(MaterialTheme.colorScheme.surfaceContainerHigh, CircleShape), contentAlignment = Alignment.Center) {
+                                Icon(Icons.Filled.Check, null, Modifier.size(18.dp), tint = MaterialTheme.colorScheme.onSurfaceVariant)
+                            }
+                        } else PhaseBadge(p.kind)
                         Text(phaseName(p.kind) + phaseCount(p.kind, nth, total), fontWeight = if (current) FontWeight.Bold else FontWeight.Normal, modifier = Modifier.weight(1f))
-                        Text(clock(if (current) s.leftMs + 999 else p.seconds * 1000L), fontWeight = FontWeight.SemiBold)
+                        Text(clock(if (current) s.leftMs + 999 else p.seconds * 1000L), fontWeight = FontWeight.SemiBold, color = if (current) c.ink else LocalContentColor.current)
                     }
                 }
             }
+        }
+    }
+}
+
+/**
+ * The session as bars, each as wide as its phase is long, but never under 16 dp so it can be touched (D42). When it
+ * does not fit, it scrolls sideways, fades at its edges and keeps the current phase in the middle. A hint below says
+ * what can be done with it.
+ */
+@Composable
+private fun TimelineBar(w: org.openrun.core.Workout, current: Int, finished: Boolean, onTap: (Int) -> Unit) {
+    val c = RunTheme.colors
+    val gap = 3.dp
+    val minWidth = 16.dp
+    val edge = 14.dp
+    BoxWithConstraints(Modifier.fillMaxWidth()) {
+        val inner = maxWidth - edge * 2
+        val perSecond = (inner - gap * (w.phases.size - 1)) / w.totalSeconds.coerceAtLeast(1)
+        val widths = w.phases.map { maxOf(minWidth, perSecond * it.seconds) }
+        val total = widths.fold(0.dp) { a, b -> a + b } + gap * (w.phases.size - 1)
+        val scrolls = total > inner + 0.5.dp
+        val scroll = rememberScrollState()
+        val density = LocalDensity.current
+        LaunchedEffect(current, scrolls) {
+            if (!scrolls) return@LaunchedEffect
+            val before = widths.take(current).fold(0.dp) { a, b -> a + b } + gap * current
+            val target = with(density) { (before + widths[current.coerceAtMost(widths.lastIndex)] / 2 - inner / 2).roundToPx() }
+            scroll.animateScrollTo(target.coerceIn(0, scroll.maxValue))
+        }
+        val fade = with(density) { edge.toPx() }
+        Column {
+        Row(
+            Modifier.fillMaxWidth().height(56.dp)
+                .then(
+                    if (scrolls) Modifier.graphicsLayer(compositingStrategy = CompositingStrategy.Offscreen).drawWithContent {
+                        drawContent()
+                        val f = (fade / size.width).coerceIn(0f, 0.5f)
+                        drawRect(Brush.horizontalGradient(0f to Color.Transparent, f to Color.Black, 1f - f to Color.Black, 1f to Color.Transparent), blendMode = BlendMode.DstIn)
+                    } else Modifier,
+                )
+                .horizontalScroll(scroll, enabled = scrolls).padding(horizontal = edge),
+            horizontalArrangement = Arrangement.spacedBy(gap), verticalAlignment = Alignment.Bottom,
+        ) {
+            w.phases.forEachIndexed { i, p ->
+                val (color, fraction) = when (p.kind) {
+                    PhaseKind.RUN -> c.run to 1f
+                    PhaseKind.WALK -> c.walk to 0.6f
+                    PhaseKind.WARMUP, PhaseKind.COOLDOWN -> c.calm to 0.34f
+                }
+                // the whole height is touchable, even above a short bar
+                Box(
+                    Modifier.width(widths[i]).fillMaxHeight()
+                        .clickable(interactionSource = remember { MutableInteractionSource() }, indication = null) { if (i != current || finished) onTap(i) },
+                    contentAlignment = Alignment.BottomCenter,
+                ) {
+                    Box(Modifier.fillMaxWidth().fillMaxHeight(fraction).alpha(if (i < current || finished) 0.25f else 1f).background(color, RoundedCornerShape(4.dp)))
+                }
+            }
+        }
+        Row(Modifier.fillMaxWidth().padding(top = 6.dp), horizontalArrangement = Arrangement.Center, verticalAlignment = Alignment.CenterVertically) {
+            if (scrolls) Icon(Icons.Rounded.Swipe, null, Modifier.size(16.dp).padding(end = 4.dp), tint = MaterialTheme.colorScheme.onSurfaceVariant)
+            Text(stringResource(if (scrolls) R.string.timeline_hint_scroll else R.string.timeline_hint), fontSize = 11.sp, color = MaterialTheme.colorScheme.onSurfaceVariant)
+        }
         }
     }
 }
@@ -396,26 +590,26 @@ private fun Controls(s: RunUiState, a: RunActions, onFinish: () -> Unit) {
     }
     Row(horizontalArrangement = Arrangement.spacedBy(10.dp), verticalAlignment = Alignment.CenterVertically) {
         if (!isFree) {
-            FilledTonalIconButton(onClick = a.onPrevious, modifier = Modifier.size(60.dp), colors = IconButtonDefaults.filledTonalIconButtonColors()) {
-                Icon(Icons.Filled.SkipPrevious, stringResource(R.string.previous_interval), Modifier.size(28.dp))
+            RoundButton(onClick = a.onPrevious, size = 60.dp) {
+                Icon(Icons.Rounded.SkipPrevious, stringResource(R.string.previous_interval), Modifier.size(28.dp))
             }
         }
         when {
-            s.paused -> Button(onClick = a.onResume, modifier = Modifier.weight(1f).height(72.dp)) {
+            s.paused -> Button(onClick = a.onResume, shape = RoundedCornerShape(36.dp), modifier = Modifier.weight(1f).height(72.dp)) {
                 Icon(Icons.Filled.PlayArrow, null)
                 Text(stringResource(R.string.resume_run), style = MaterialTheme.typography.titleLarge, modifier = Modifier.padding(start = 8.dp))
             }
-            else -> Button(onClick = a.onPause, modifier = Modifier.weight(1f).height(72.dp)) {
+            else -> Button(onClick = a.onPause, shape = RoundedCornerShape(36.dp), modifier = Modifier.weight(1f).height(72.dp)) {
                 Icon(Icons.Filled.Pause, null)
                 Text(stringResource(R.string.pause), style = MaterialTheme.typography.titleLarge, modifier = Modifier.padding(start = 8.dp))
             }
         }
         if (!isFree) {
-            FilledTonalIconButton(onClick = a.onNext, modifier = Modifier.size(60.dp)) {
-                Icon(Icons.Filled.SkipNext, stringResource(R.string.next_interval), Modifier.size(28.dp))
+            RoundButton(onClick = a.onNext, size = 60.dp) {
+                Icon(Icons.Rounded.SkipNext, stringResource(R.string.next_interval), Modifier.size(28.dp))
             }
         } else {
-            FilledTonalIconButton(onClick = onFinish, modifier = Modifier.size(60.dp)) { Icon(Icons.Filled.Stop, stringResource(R.string.finish), Modifier.size(28.dp)) }
+            RoundButton(onClick = onFinish, size = 60.dp) { Icon(Icons.Rounded.Stop, stringResource(R.string.finish), Modifier.size(28.dp)) }
         }
     }
 }
@@ -451,20 +645,95 @@ private fun FinishedButton(onClick: () -> Unit) {
     }
 }
 
-/** Blocks every touch, so a phone in a pocket or a wet hand changes nothing. Holding the button opens it again. */
+/** The white round button of the run screen (lock, voice, menu, previous, next); mint when [on]. */
 @Composable
-private fun LockOverlay(onUnlock: () -> Unit) {
+private fun RoundButton(onClick: () -> Unit, size: Dp = 44.dp, on: Boolean = false, content: @Composable () -> Unit) {
+    Surface(
+        onClick = onClick, shape = CircleShape,
+        color = if (on) MaterialTheme.colorScheme.primaryContainer else MaterialTheme.colorScheme.surfaceContainerLowest,
+        contentColor = if (on) MaterialTheme.colorScheme.onPrimaryContainer else MaterialTheme.colorScheme.onSurface,
+        border = if (on) null else BorderStroke(1.dp, LineColor), modifier = Modifier.size(size),
+    ) { Box(contentAlignment = Alignment.Center) { content() } }
+}
+
+/**
+ * Blocks every touch, so a phone in a pocket or a wet hand changes nothing. It stays invisible over the run screen and
+ * shows itself, as frosted glass over the blurred screen, when set or when the screen is touched; sliding opens it.
+ */
+@Composable
+private fun LockOverlay(shown: Boolean, onTouch: () -> Unit, onSliding: (Boolean) -> Unit, onUnlock: () -> Unit) {
+    val alpha by animateFloatAsState(if (shown) 1f else 0f, tween(250), label = "lock")
     Box(
-        Modifier.fillMaxSize().background(Color(0xCC000000)).pointerInput(Unit) { detectTapGestures { } },
-        contentAlignment = Alignment.Center,
+        Modifier.fillMaxSize().pointerInput(Unit) {
+            awaitPointerEventScope {
+                while (true) {
+                    val e = awaitPointerEvent(PointerEventPass.Initial)
+                    if (e.type == PointerEventType.Press) onTouch()
+                }
+            }
+        },
     ) {
-        Column(horizontalAlignment = Alignment.CenterHorizontally, verticalArrangement = Arrangement.spacedBy(16.dp)) {
-            Surface(
-                shape = CircleShape, color = MaterialTheme.colorScheme.surface,
-                modifier = Modifier.size(96.dp).pointerInput(Unit) { detectTapGestures(onLongPress = { onUnlock() }) },
-            ) { Box(contentAlignment = Alignment.Center) { Icon(Icons.Filled.Lock, null, Modifier.size(40.dp)) } }
-            Text(stringResource(R.string.unlock_hint), color = Color.White, textAlign = TextAlign.Center)
+        Box(Modifier.fillMaxSize().graphicsLayer { this.alpha = alpha }.background(RunTheme.colors.ink.copy(alpha = 0.35f)))
+        Column(
+            Modifier.align(Alignment.Center).padding(horizontal = 24.dp).graphicsLayer { this.alpha = alpha }
+                .fillMaxWidth().clip(RoundedCornerShape(36.dp))
+                .background(Brush.verticalGradient(listOf(Color.White.copy(alpha = 0.30f), Color.White.copy(alpha = 0.12f))))
+                .border(1.dp, Brush.verticalGradient(listOf(Color.White.copy(alpha = 0.75f), Color.White.copy(alpha = 0.20f))), RoundedCornerShape(36.dp))
+                .padding(20.dp),
+            horizontalAlignment = Alignment.CenterHorizontally, verticalArrangement = Arrangement.spacedBy(14.dp),
+        ) {
+            Box(
+                Modifier.size(64.dp).clip(CircleShape).background(Color.White.copy(alpha = 0.22f)).border(1.dp, Color.White.copy(alpha = 0.55f), CircleShape),
+                contentAlignment = Alignment.Center,
+            ) { Icon(Icons.Rounded.Lock, null, Modifier.size(30.dp), tint = Color.White) }
+            Text(stringResource(R.string.screen_locked), color = Color.White, fontWeight = FontWeight.Bold, fontSize = 18.sp)
+            SlideToUnlock(onSliding = onSliding, onUnlock = onUnlock)
         }
+    }
+}
+
+/**
+ * A glass track with a round thumb: slide it to the end to open, let go before and it springs back. It opens as soon as
+ * the thumb reaches the end, or on release past 85 %; a cancelled drag counts as a release, so it never stays stuck.
+ */
+@Composable
+private fun SlideToUnlock(onSliding: (Boolean) -> Unit, onUnlock: () -> Unit) {
+    val scope = rememberCoroutineScope()
+    var x by remember { mutableFloatStateOf(0f) }
+    var opened by remember { mutableStateOf(false) }
+    val unlock by rememberUpdatedState(onUnlock)
+    BoxWithConstraints(
+        Modifier.fillMaxWidth().height(64.dp).clip(RoundedCornerShape(32.dp)).background(Color.White.copy(alpha = 0.18f))
+            .border(1.dp, Color.White.copy(alpha = 0.45f), RoundedCornerShape(32.dp)).padding(4.dp),
+    ) {
+        val thumb = 56.dp
+        val max = with(LocalDensity.current) { (maxWidth - thumb).toPx() }.coerceAtLeast(1f)
+        fun open() { if (!opened) { opened = true; onSliding(false); unlock() } }
+        fun release() {
+            if (opened) return
+            onSliding(false)
+            if (x >= max * 0.85f) open()
+            else scope.launch { animate(x, 0f, animationSpec = spring(dampingRatio = 0.7f)) { v, _ -> x = v } }
+        }
+        Text(
+            stringResource(R.string.unlock_hint), color = Color.White, fontWeight = FontWeight.SemiBold, fontSize = 15.sp, maxLines = 1,
+            modifier = Modifier.align(Alignment.Center).padding(start = thumb).graphicsLayer { alpha = 1f - (x / max).coerceIn(0f, 1f) },
+        )
+        Box(
+            Modifier.offset { IntOffset(x.roundToInt(), 0) }.size(thumb).clip(CircleShape).background(Color.White.copy(alpha = 0.92f))
+                .pointerInput(max) {
+                    detectHorizontalDragGestures(
+                        onDragStart = { onSliding(true) },
+                        onDragEnd = { release() },
+                        onDragCancel = { release() },
+                    ) { change, delta ->
+                        change.consume()
+                        x = (x + delta).coerceIn(0f, max)
+                        if (x >= max * 0.98f) open()
+                    }
+                },
+            contentAlignment = Alignment.Center,
+        ) { Icon(Icons.Rounded.LockOpen, null, tint = RunTheme.colors.ink) }
     }
 }
 
